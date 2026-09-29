@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">
+
+<head>
+    <title>Login</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS v5.3.8 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container-fluid p-0">
+        <header>
+            <nav class="navbar navbar-expand-lg px-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">LSCT</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                        <div class="navbar-nav">
+                            <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+                            <a class="nav-link" href="#">Servicios</a>
+                            <a class="nav-link" href="#">Nosotros</a>
+                            <a class="nav-link" href="#">Contacto</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <main>
+            <form action="">
+                <div style="grid-template-columns: 1fr;" class="d-grid gap-1 column-gap-1">
+                    <h3>Login</h3>
+                    <div class="p-2 mb-3">
+                        <label for="" class="form-label">Usuario</label>
+                        <input type="text" class="form-control" name="" id="" aria-describedby="helpId"
+                            placeholder="Ingresa tu usuario" required />
+                    </div>
+                    <div class="p-2 mb-3">
+                        <label for="" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" name="" id="" aria-describedby="helpId"
+                            placeholder="Ingresa tu contraseña" required />
+                    </div>
+                </div>
+
+                <!-- Checkbox -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="recordar" />
+
+                    <label class="form-check-label" for="recordar">
+                        Recordar
+                    </label>
+                </div>
+
+                <!-- Botones -->
+                <div class="d-flex gap-2">
+                    <input class="btn btn-azul" type="submit" value="Iniciar sesión">
+
+                    <a class="btn btn-turquesa" href="contrasena.html">
+                        Recuperar contraseña
+                    </a>
+
+                    <a class="btn btn-naranja" href="#">
+                        Registrarse
+                    </a>
+                </div>
+            </form>
+        </main>
+        <footer>
+            <!-- place footer here -->
+        </footer>
+    </div>
+    <!-- Bootstrap JavaScript Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
