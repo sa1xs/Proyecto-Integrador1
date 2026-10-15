@@ -38,7 +38,6 @@ const crearUsuario = async (req, res) => {
             datos: usuarioGuardado
         });
     } catch (error) {
-        // Conservamos el manejo actual mientras separamos las responsabilidades.
         res.status(500).json({ message: error.message });
     }
 };
@@ -55,7 +54,6 @@ const actualizarUsuario = async (req, res) => {
             }
         );
 
-        // Si no existe un usuario con ese ID, termina con un 404.
         if (!usuario) {
             return res.status(404).json({
                 message: 'Usuario no encontrado'
@@ -67,12 +65,11 @@ const actualizarUsuario = async (req, res) => {
             datos: usuario
         });
     } catch (error) {
-        // Conservamos el manejo actual durante la reorganización.
         res.status(500).json({ message: error.message });
     }
 };
 
-// Elimina el usuario identificado por el ID de la URL.
+//DELETE por ID.
 const eliminarUsuario = async (req, res) => {
     try {
         const usuario = await Usuario.findByIdAndDelete(req.params.id);
@@ -88,11 +85,8 @@ const eliminarUsuario = async (req, res) => {
             datos: req.params.id
         });
     } catch (error) {
-        // Conservamos el manejo actual durante la reorganización.
         res.status(500).json({ message: error.message });
     }
 };
 
-// Permite utilizar esta función desde el archivo de rutas.
-module.exports = {
-    obtenerUsuarios, obtenerUsuarioPorId, crearUsuario, actualizarUsuario, eliminarUsuario};
+module.exports = {obtenerUsuarios, obtenerUsuarioPorId, crearUsuario, actualizarUsuario, eliminarUsuario};
