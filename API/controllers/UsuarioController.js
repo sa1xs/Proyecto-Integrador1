@@ -1,92 +1,160 @@
-const Usuario = require('../models/Usuario');
+const Usuario = require("../models/Usuario");
+const bcrypt = require("bcrypt");
 
 //GET.
 const obtenerUsuarios = async (req, res) => {
-    try {
-        const usuarios = await Usuario.find();
-        res.json(usuarios);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+  try {
+    const usuarios = await Usuario.find();
+    res.json(usuarios);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 //GET por ID.
 const obtenerUsuarioPorId = async (req, res) => {
-    try {
-        const usuario = await Usuario.findById(req.params.id);
+  try {
+    const usuario = await Usuario.findById(req.params.id);
 
-        if (!usuario) {
-            return res.status(404).json({
-                message: 'Usuario no encontrado'
-            });
-        }
-
-        res.json(usuario);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
     }
+
+    res.json(usuario);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 //POST.
 const crearUsuario = async (req, res) => {
-    try {
-        const usuario = new Usuario(req.body);
-        const usuarioGuardado = await usuario.save();
+  try {
+    const { nombre, correo, clave, telefono, direccion } = req.body ?? {};
 
-        res.status(201).json({
-            mensaje: 'Usuario creado',
-            datos: usuarioGuardado
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (typeof clave !== "string" || clave.trim().length === 0) {
+      return res.status(400).json({
+        message: "La contraseña es obligatoria y debe ser texto",
+      });
     }
+
+    if (Buffer.byteLength(clave, "utf8") > 72) {
+      return res.status(400).json({
+        message: "La contraseña supera el límite de 72 bytes",
+      });
+    }
+
+    const usuario = new Usuario({
+      nombre,
+      correo,
+      clave,
+      telefono,
+      direccion,
+      rol: "cliente",
+      activo: true,
+    });
+
+    await usuario.validate();
+
+    usuario.clave = await bcrypt.hash(clave, 12);
+
+    const usuarioGuardado = await usuario.save();
+
+    res.status(201).json({
+      mensaje: "Usuario creado",
+      datos: {
+        _id: usuarioGuardado._id,
+        nombre: usuarioGuardado.nombre,
+        correo: usuarioGuardado.correo,
+        telefono: usuarioGuardado.telefono,
+        direccion: usuarioGuardado.direccion,
+        rol: usuarioGuardado.rol,
+        activo: usuarioGuardado.activo,
+        createdAt: usuarioGuardado.createdAt,
+        updatedAt: usuarioGuardado.updatedAt,
+      },
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({
+        message: "El correo ya está registrado",
+      });
+    }
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        message: "Revisá los campos obligatorios y el formato del correo",
+      });
+    }
+
+    res.status(500).json({
+      message: "No se pudo registrar el usuario",
+    });
+  }
 };
 
 //PUT por ID.
 const actualizarUsuario = async (req, res) => {
-    try {
-        const usuario = await Usuario.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {
-                new: true, // Devuelve el documento actualizado.
-                runValidators: true // Aplica las validaciones del modelo.
-            }
-        );
+  try {
+    const { nombre, correo, telefono, direccion } = req.body ?? {};
+    const cambios = {};
 
-        if (!usuario) {
-            return res.status(404).json({
-                message: 'Usuario no encontrado'
-            });
-        }
+    if (nombre !== undefined) cambios.nombre = nombre;
+    if (correo !== undefined) cambios.correo = correo;
+    if (telefono !== undefined) cambios.telefono = telefono;
+    if (direccion !== undefined) cambios.direccion = direccion;
 
-        res.json({
-            mensaje: 'Usuario actualizado',
-            datos: usuario
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (Object.keys(cambios).length === 0) {
+      return res.status(400).json({
+        message: "No se enviaron campos de perfil para actualizar",
+      });
     }
+
+    const usuario = await Usuario.findByIdAndUpdate(req.params.id, cambios, {
+      new: true,
+      runValidators: true,
+    }).select("-clave"); // Excluye la clave de la respuesta.
+
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
+    }
+
+    res.json({
+      mensaje: "Usuario actualizado",
+      datos: usuario,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 //DELETE por ID.
 const eliminarUsuario = async (req, res) => {
-    try {
-        const usuario = await Usuario.findByIdAndDelete(req.params.id);
+  try {
+    const usuario = await Usuario.findByIdAndDelete(req.params.id);
 
-        if (!usuario) {
-            return res.status(404).json({
-                message: 'Usuario no encontrado'
-            });
-        }
-
-        res.json({
-            mensaje: 'Usuario eliminado',
-            datos: req.params.id
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
+    if (!usuario) {
+      return res.status(404).json({
+        message: "Usuario no encontrado",
+      });
     }
+
+    res.json({
+      mensaje: "Usuario eliminado",
+      datos: req.params.id,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
-module.exports = {obtenerUsuarios, obtenerUsuarioPorId, crearUsuario, actualizarUsuario, eliminarUsuario};
+module.exports = {
+  obtenerUsuarios,
+  obtenerUsuarioPorId,
+  crearUsuario,
+  actualizarUsuario,
+  eliminarUsuario,
+};

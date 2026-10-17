@@ -19,8 +19,8 @@ const UsuarioSchema = new mongoose.Schema({
     },
     clave: {
         type: String,
-        required: [true, 'La contraseña es obligatoria']
-        // Falta hash.
+        required: [true, 'La contraseña es obligatoria'],
+        select: false
     },
     telefono: {
         type: String,
