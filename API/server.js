@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/usuarios', require('./routes/UsuarioRoutes'));
+app.use('/proveedores', require('./routes/ProveedorRoutes'));
 
 const iniciarServidor = async () => {
     try {
