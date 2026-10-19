@@ -1,0 +1,122 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "Proveedores",
+    "collectionId": "c1582bdc-d540-4f39-9abf-ef5d33a059c2",
+    "dateExported": "2026-10-19T16:59:28.210Z",
+    "version": "1.4",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "e7de67c3-35ec-4a85-a8dc-9d9f4bc75c23",
+            "colId": "c1582bdc-d540-4f39-9abf-ef5d33a059c2",
+            "containerId": "",
+            "name": "Listar proveedores - 200",
+            "url": "http://localhost:5001/proveedores",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2026-10-19T16:42:59.664Z",
+            "modified": "2026-10-19T16:42:59.664Z",
+            "headers": []
+        },
+        {
+            "_id": "edce98f4-a223-46ba-aa3a-df5f284bcec4",
+            "colId": "c1582bdc-d540-4f39-9abf-ef5d33a059c2",
+            "containerId": "",
+            "name": "Desactivar proveedor - 200",
+            "url": "http://localhost:5001/proveedores/6ad3f50602dea9d4223541b2",
+            "method": "PATCH",
+            "sortNum": 20000,
+            "created": "2026-10-19T16:43:54.516Z",
+            "modified": "2026-10-19T16:43:54.516Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{\r",
+                    "    \"activo\": false\r",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "82b59627-221c-49bf-96ca-1c8d4da4ba0c",
+            "colId": "c1582bdc-d540-4f39-9abf-ef5d33a059c2",
+            "containerId": "",
+            "name": "Reactivar proveedor - 200",
+            "url": "http://localhost:5001/proveedores/6ad3f50602dea9d4223541b2",
+            "method": "PATCH",
+            "sortNum": 30000,
+            "created": "2026-10-19T16:44:36.915Z",
+            "modified": "2026-10-19T16:44:36.915Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{\r",
+                    "    \"activo\": true\r",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "13db8c2b-75c5-44fa-8ded-8f367e16588c",
+            "colId": "c1582bdc-d540-4f39-9abf-ef5d33a059c2",
+            "containerId": "",
+            "name": "Crear proveedor válido - 201",
+            "url": "http://localhost:5001/proveedores",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2026-10-19T16:49:24.335Z",
+            "modified": "2026-10-19T16:49:24.335Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{\r",
+                    "    \"nombre\": \"Hotel Tamarindo\",\r",
+                    "    \"tipoServicio\": \"Hotel\",\r",
+                    "    \"correo\": \"tamarindo@gmail.com\"\r",
+                    "}"
+                ],
+                "form": []
+            }
+        },
+        {
+            "_id": "47c50d97-1118-4c92-8b87-bad4cfdc1526",
+            "colId": "c1582bdc-d540-4f39-9abf-ef5d33a059c2",
+            "containerId": "",
+            "name": "Consultar proveedor por ID - 200",
+            "url": "http://localhost:5001/proveedores/6ad3f50602dea9d4223541b2",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2026-10-19T16:50:47.545Z",
+            "modified": "2026-10-19T16:50:47.545Z",
+            "headers": []
+        },
+        {
+            "_id": "1b787285-92cc-4d1c-bf5a-bc9119eedc7f",
+            "colId": "c1582bdc-d540-4f39-9abf-ef5d33a059c2",
+            "containerId": "",
+            "name": "Editar proveedor - 200",
+            "url": "http://localhost:5001/proveedores/6ad3f50602dea9d4223541b2",
+            "method": "PUT",
+            "sortNum": 60000,
+            "created": "2026-10-19T16:51:58.662Z",
+            "modified": "2026-10-19T16:51:58.662Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": [
+                    "{\r",
+                    "    \"nombre\": \"Hotel Tamarindo 2\",\r",
+                    "    \"telefono\": \"+506 8888 7777\"\r",
+                    "}"
+                ],
+                "form": []
+            }
+        }
+    ],
+    "ref": "IXLRbWd4guUpuSQLmciAzuF75DRgb5XVKKSpQ4lDFmoj7-9B1mnuiU7hvb17HbG_Pj2Q99Z5YOLbrOCtdjCHuQ"
+}
