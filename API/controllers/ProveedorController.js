@@ -84,8 +84,110 @@ const crearProveedor = async (req, res) => {
   }
 };
 
+//PUT por ID.
+const actualizarProveedor = async (req, res) => {
+    try {
+        const { nombre, tipoServicio, correo, telefono } = req.body ?? {};
+
+        if (nombre === undefined && tipoServicio === undefined && correo === undefined && telefono === undefined) {
+            return res.status(400).json({
+                message: 'No se enviaron campos para actualizar'
+            });
+        }
+
+        const proveedor = await Proveedor.findById(req.params.id);
+
+        if (!proveedor) {
+            return res.status(404).json({
+                message: 'Proveedor no encontrado'
+            });
+        }
+
+        if (nombre !== undefined) proveedor.nombre = nombre;
+        if (tipoServicio !== undefined) proveedor.tipoServicio = tipoServicio;
+        if (correo !== undefined) proveedor.correo = correo;
+        if (telefono !== undefined) proveedor.telefono = telefono;
+
+        const proveedorActualizado = await proveedor.save();
+
+        res.status(200).json({
+            mensaje: 'Proveedor actualizado',
+            datos: proveedorActualizado
+        });
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                message: 'Los datos del proveedor no son válidos',
+                errores: Object.values(error.errors).map(
+                    (detalle) => detalle.message
+                )
+            });
+        }
+
+        if (error.name === 'CastError' && error.path === '_id') {
+            return res.status(400).json({
+                message: 'El ID del proveedor no es válido'
+            });
+        }
+
+        res.status(500).json({
+            message: 'No se pudo actualizar el proveedor'
+        });
+    }
+};
+
+//PATCH por ID.
+const cambiarEstadoProveedor = async (req, res) => {
+    try {
+        const { activo } = req.body ?? {};
+
+        if (typeof activo !== 'boolean') {
+            return res.status(400).json({
+                message: 'El estado activo debe ser true o false'
+            });
+        }
+
+        const proveedor = await Proveedor.findById(req.params.id);
+
+        if (!proveedor) {
+            return res.status(404).json({
+                message: 'Proveedor no encontrado'
+            });
+        }
+
+        proveedor.activo = activo;
+        const proveedorActualizado = await proveedor.save();
+
+        res.status(200).json({
+            mensaje: activo
+                ? 'Proveedor reactivado'
+                : 'Proveedor desactivado',
+            datos: proveedorActualizado
+        });
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                message: 'Los datos del proveedor no son válidos',
+                errores: Object.values(error.errors).map(
+                    (detalle) => detalle.message
+                )
+            });
+        }
+
+        if (error.name === 'CastError' && error.path === '_id') {
+            return res.status(400).json({
+                message: 'El ID del proveedor no es válido'
+            });
+        }
+
+        res.status(500).json({
+            message: 'No se pudo cambiar el estado del proveedor'
+        });
+    }
+};
+
 module.exports = {
   obtenerProveedores,
   obtenerProveedorPorId,
-  crearProveedor,
+  crearProveedor, actualizarProveedor, cambiarEstadoProveedor
 };
