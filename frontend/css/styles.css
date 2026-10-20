@@ -94,3 +94,7 @@ h3 {
     border-color: #D87518 !important;
     color: white !important;
 }
+
+.form-label, .form-check-label {
+    color: var(--bs-emphasis-color);
+}
