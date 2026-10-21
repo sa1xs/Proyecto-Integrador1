@@ -1,4 +1,5 @@
-const API_PROVEEDORES = "http://localhost:5001/proveedores";
+// Usa la configuración compartida de la API.
+import { API } from "./config.js";
 
 // null == estamos registrando, no editando.
 let idEnEdicion = null;
@@ -69,7 +70,7 @@ async function consultarAPI(url, metodo = "GET", datos = null) {
 }
 
 async function cargarProveedores() {
-    const proveedores = await consultarAPI(API_PROVEEDORES);
+    const proveedores = await consultarAPI(API.PROVEEDORES);
 
     if (!Array.isArray(proveedores)) {
         throw new Error("No se recibió un listado válido.");
@@ -189,12 +190,12 @@ async function guardarProveedor(evento) {
         return;
     }
 
-    let url = API_PROVEEDORES;
+    let url = API.PROVEEDORES;
     let metodo = "POST";
     let mensaje = "Proveedor registrado.";
 
     if (idEnEdicion !== null) {
-        url = `${API_PROVEEDORES}/${idEnEdicion}`;
+        url = `${API.PROVEEDORES}/${idEnEdicion}`;
         metodo = "PUT";
         mensaje = "Proveedor actualizado.";
     }
@@ -245,7 +246,7 @@ async function cambiarEstado() {
     mostrarMensaje(mensajeEstado, "");
 
     const nuevoEstado = !proveedorSeleccionado.activo;
-    const url = `${API_PROVEEDORES}/${proveedorSeleccionado._id}`;
+    const url = `${API.PROVEEDORES}/${proveedorSeleccionado._id}`;
 
     btnConfirmar.disabled = true;
 

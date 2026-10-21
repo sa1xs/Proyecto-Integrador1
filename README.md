@@ -3,10 +3,64 @@
 Prototipo académico para LS Consulting & Travel.
 Backend desarrollado con Node.js, Express y MongoDB mediante Mongoose.
 
+
+## Instalación y ejecución local
+
+Requisitos: Node.js con npm y una base MongoDB accesible.
+
+En la primera terminal, instalar e iniciar la API:
+
+```bash
+# Ejecutar desde la raíz del repositorio.
+cd API
+npm install
+# Crear API/.env con MONGO_URI y, opcionalmente, PORT=5001 antes de iniciar.
+npm run dev
+```
+
+No subir `.env` ni credenciales al repositorio. La API debe conectar con MongoDB antes de escuchar en `http://localhost:5001`.
+
+En otra terminal, instalar e iniciar el frontend:
+
+```bash
+# Ejecutar desde la raíz del repositorio.
+cd frontend
+npm install
+npm run dev
+```
+
+También se puede usar `npm start` en cualquiera de las dos carpetas para ejecutar sin nodemon.
+
+- Frontend: http://localhost:5002 (redirige al login).
+- Proveedores: http://localhost:5002/views/proveedores.html.
+- Login: http://localhost:5002/views/login.html (interfaz pendiente de autenticación).
+
+Abrir las páginas desde el servidor; los módulos JavaScript no están pensados para abrirse con `file://`.
+
+## Organización del frontend
+
+| Ruta | Responsabilidad |
+|---|---|
+| `frontend/server.js` | Servir únicamente la carpeta `public`, por defecto en el puerto 5002. |
+| `frontend/public/views/` | Páginas HTML. |
+| `frontend/public/css/` | Estilos de LSCT. |
+| `frontend/public/js/config.js` | Direcciones de usuarios y proveedores en la API. |
+| `frontend/public/js/menu.js` | Menú compartido y enlace activo. |
+| `frontend/public/js/proveedores.js` | Formularios y listado conectados a MongoDB mediante la API. |
+
+Si cambia el puerto de la API, actualizar `API_BASE` en `config.js`. El menú muestra las páginas disponibles; la autenticación y los permisos todavía están pendientes.
+
+## Comprobación básica
+
+1. Abrir login y proveedores; verificar estilos, menú y ausencia de errores de carga en la consola.
+2. Con la API y MongoDB activos, registrar y editar un proveedor ficticio, desactivarlo y reactivarlo.
+3. Recargar proveedores y comprobar que los cambios permanecen.
+4. Detener la API y recargar proveedores: debe mostrarse el mensaje de conexión fallida.
+
 ## API de proveedores
 
 La colección está en:
-[Pruebas de proveedores](API\docs\pruebas\Collection_Proveedores.json).
+[Pruebas de proveedores](API/docs/pruebas/Collection_Proveedores.json).
 
 URL base: `http://localhost:5001`
 

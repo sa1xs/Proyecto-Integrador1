@@ -14,34 +14,14 @@
 
 <body>
     <header>
-        <nav class="navbar navbar-expand-lg px-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">LSCT</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                    <div class="navbar-nav">
-                        <a class="nav-link active" aria-current="page" href="#">Inicio</a>
-                        <a class="nav-link" href="#">Servicios</a>
-                        <a class="nav-link" href="#">Nosotros</a>
-                        <a class="nav-link" href="#">Contacto</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <!-- Menú compartido entre las vistas. -->
+        <div id="menu"></div>
     </header>
 
     <main class="container-fluid px-3 px-md-5 py-4">
         <h1>Proveedores</h1>
         <p class="text-secondary">
             Administrá los proveedores y su información de contacto.
-        </p>
-
-        <p class="small text-secondary">
-            Prototipo: los cambios son temporales y se reinician al recargar.
         </p>
 
         <div id="mensajeListado" class="alert d-none" role="status" aria-live="polite"></div>
@@ -184,7 +164,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
     </script>
 
-    <script src="../js/proveedores.js"></script>
+    <script type="module" src="../js/proveedores.js"></script>
+    <script src="../js/menu.js" defer></script>
 </body>
 
 </html>
