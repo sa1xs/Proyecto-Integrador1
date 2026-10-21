@@ -7,35 +7,32 @@
 
     <title>Proveedores | LSCT</title>
 
-    <!-- Bootstrap y luego los estilos compartidos de LSCT. -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 
 <body>
     <header>
-            <nav class="navbar navbar-expand-lg px-3">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="#">LSCT</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                        <div class="navbar-nav">
-                            <a class="nav-link active" aria-current="page" href="#">Inicio</a>
-                            <a class="nav-link" href="#">Servicios</a>
-                            <a class="nav-link" href="#">Nosotros</a>
-                            <a class="nav-link" href="#">Contacto</a>
-                        </div>
+        <nav class="navbar navbar-expand-lg px-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">LSCT</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+                        <a class="nav-link" href="#">Servicios</a>
+                        <a class="nav-link" href="#">Nosotros</a>
+                        <a class="nav-link" href="#">Contacto</a>
                     </div>
                 </div>
-            </nav>
-        </header>
+            </div>
+        </nav>
+    </header>
 
     <main class="container-fluid px-3 px-md-5 py-4">
         <h1>Proveedores</h1>
@@ -47,12 +44,9 @@
             Prototipo: los cambios son temporales y se reinician al recargar.
         </p>
 
-        <!-- Mensajes de éxito y advertencias del listado. -->
-        <div id="mensajeListado" class="alert d-none"
-            role="status" aria-live="polite"></div>
+        <div id="mensajeListado" class="alert d-none" role="status" aria-live="polite"></div>
 
-        <section class="card border-0 shadow-sm"
-            aria-labelledby="tituloListado">
+        <section class="card border-0 shadow-sm" aria-labelledby="tituloListado">
             <div class="card-body p-4">
                 <div class="d-flex flex-wrap justify-content-between
                     align-items-center gap-3 mb-4">
@@ -61,8 +55,7 @@
                         Listado de proveedores
                     </h2>
 
-                    <button type="button" id="btnNuevoProveedor"
-                        class="btn btn-azul">
+                    <button type="button" id="btnNuevoProveedor" class="btn btn-azul">
                         Nuevo proveedor
                     </button>
                 </div>
@@ -79,7 +72,6 @@
                             </tr>
                         </thead>
 
-                        <!-- JavaScript coloca los proveedores aquí. -->
                         <tbody id="tablaProveedores"></tbody>
                     </table>
                 </div>
@@ -87,9 +79,7 @@
         </section>
     </main>
 
-    <!-- Modal compartido para registrar y editar. -->
-    <div class="modal fade" id="modalProveedor" tabindex="-1"
-        aria-labelledby="tituloModalProveedor" aria-hidden="true">
+    <div class="modal fade" id="modalProveedor" tabindex="-1" aria-labelledby="tituloModalProveedor" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -97,15 +87,13 @@
                         Nuevo proveedor
                     </h2>
 
-                    <button type="button" class="btn-close"
-                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
                 <form id="formularioProveedor">
                     <div class="modal-body">
                         <!-- Errores del formulario sin cerrar el modal. -->
-                        <div id="mensajeFormulario" class="alert alert-danger d-none"
-                            role="alert"></div>
+                        <div id="mensajeFormulario" class="alert alert-danger d-none" role="alert"></div>
 
                         <p class="small text-secondary">
                             Los campos con * son obligatorios.
@@ -115,18 +103,15 @@
                             <label for="nombreProveedor" class="form-label">
                                 Nombre *
                             </label>
-                            <input type="text" class="form-control"
-                                id="nombreProveedor" name="nombre" required>
+                            <input type="text" class="form-control" id="nombreProveedor" name="nombre" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="tipoServicioProveedor" class="form-label">
                                 Tipo de servicio *
                             </label>
-                            <input type="text" class="form-control"
-                                id="tipoServicioProveedor" name="tipoServicio"
-                                placeholder="Ej.: Hotel, transporte o seguro"
-                                required>
+                            <input type="text" class="form-control" id="tipoServicioProveedor" name="tipoServicio"
+                                placeholder="Ej.: Hotel, transporte o seguro" required>
                         </div>
 
                         <p id="ayudaContacto" class="small text-secondary">
@@ -137,8 +122,7 @@
                             <label for="correoProveedor" class="form-label">
                                 Correo electrónico
                             </label>
-                            <input type="email" class="form-control"
-                                id="correoProveedor" name="correo"
+                            <input type="email" class="form-control" id="correoProveedor" name="correo"
                                 aria-describedby="ayudaContacto">
                         </div>
 
@@ -146,20 +130,17 @@
                             <label for="telefonoProveedor" class="form-label">
                                 Teléfono
                             </label>
-                            <input type="tel" class="form-control"
-                                id="telefonoProveedor" name="telefono"
+                            <input type="tel" class="form-control" id="telefonoProveedor" name="telefono"
                                 aria-describedby="ayudaContacto">
                         </div>
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary"
-                            data-bs-dismiss="modal">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             Cancelar
                         </button>
 
-                        <button type="submit" id="btnGuardarProveedor"
-                            class="btn btn-azul">
+                        <button type="submit" id="btnGuardarProveedor" class="btn btn-azul">
                             Guardar proveedor
                         </button>
                     </div>
@@ -168,9 +149,7 @@
         </div>
     </div>
 
-    <!-- Confirmación para desactivar o reactivar. -->
-    <div class="modal fade" id="modalEstado" tabindex="-1"
-        aria-labelledby="tituloModalEstado" aria-hidden="true">
+    <div class="modal fade" id="modalEstado" tabindex="-1" aria-labelledby="tituloModalEstado" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -178,11 +157,11 @@
                         Cambiar estado
                     </h2>
 
-                    <button type="button" class="btn-close"
-                        data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
                 <div class="modal-body">
+                    <div id="mensajeEstado" class="alert d-none" role="alert"></div>
                     <p id="textoConfirmacion"></p>
                     <p class="small text-secondary mb-0">
                         El proveedor conservará su información.
@@ -190,13 +169,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary"
-                        data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         Cancelar
                     </button>
 
-                    <button type="button" id="btnConfirmarEstado"
-                        class="btn btn-naranja">
+                    <button type="button" id="btnConfirmarEstado" class="btn btn-naranja">
                         Confirmar
                     </button>
                 </div>
@@ -204,269 +181,10 @@
         </div>
     </div>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
     </script>
 
-    <script>
-        // Datos temporales: no se envían al backend ni se guardan en MongoDB.
-        const proveedores = [
-            {
-                id: 1,
-                nombre: "Hotel Guanacaste",
-                tipoServicio: "Hotel",
-                correo: "hotel@example.com",
-                telefono: "+506 8888 7777",
-                activo: true
-            },
-            {
-                id: 2,
-                nombre: "Transportes del Valle",
-                tipoServicio: "Transporte",
-                correo: "",
-                telefono: "+506 8888 6666",
-                activo: false
-            }
-        ];
-
-        let siguienteId = 3;
-        let idEnEdicion = null;
-        let idCambioEstado = null;
-
-        const tabla = document.getElementById("tablaProveedores");
-        const formulario = document.getElementById("formularioProveedor");
-        const mensajeListado = document.getElementById("mensajeListado");
-        const mensajeFormulario = document.getElementById("mensajeFormulario");
-        const tituloFormulario = document.getElementById("tituloModalProveedor");
-        const btnGuardar = document.getElementById("btnGuardarProveedor");
-        const btnConfirmar = document.getElementById("btnConfirmarEstado");
-
-        const modalProveedor = new bootstrap.Modal(
-            document.getElementById("modalProveedor")
-        );
-
-        const modalEstado = new bootstrap.Modal(
-            document.getElementById("modalEstado")
-        );
-
-        function mostrarMensaje(elemento, texto, tipo) {
-            elemento.textContent = texto;
-            elemento.className = `alert alert-${tipo}`;
-        }
-
-        function ocultarMensaje(elemento) {
-            elemento.textContent = "";
-            elemento.classList.add("d-none");
-        }
-
-        function obtenerCampo(nombre) {
-            return formulario.elements.namedItem(nombre);
-        }
-
-        function agregarCelda(fila, texto) {
-            const celda = document.createElement("td");
-            celda.textContent = texto;
-            fila.appendChild(celda);
-            return celda;
-        }
-
-        function crearBoton(texto, clases, accion) {
-            const boton = document.createElement("button");
-            boton.type = "button";
-            boton.className = clases;
-            boton.textContent = texto;
-            boton.addEventListener("click", accion);
-            return boton;
-        }
-
-        function renderizarProveedores() {
-            tabla.replaceChildren();
-
-            for (const proveedor of proveedores) {
-                const fila = document.createElement("tr");
-
-                agregarCelda(fila, proveedor.nombre).className = "fw-semibold";
-                agregarCelda(fila, proveedor.tipoServicio);
-
-                const contacto = agregarCelda(fila, "");
-                const correo = document.createElement("div");
-                correo.textContent = proveedor.correo || "Sin correo";
-
-                const telefono = document.createElement("div");
-                telefono.className = "small text-secondary";
-                telefono.textContent = proveedor.telefono || "Sin teléfono";
-                contacto.append(correo, telefono);
-
-                const estado = agregarCelda(fila, "");
-                const etiqueta = document.createElement("span");
-                etiqueta.className = proveedor.activo
-                    ? "badge text-bg-success"
-                    : "badge text-bg-secondary";
-                etiqueta.textContent = proveedor.activo ? "Activo" : "Inactivo";
-                estado.appendChild(etiqueta);
-
-                const acciones = agregarCelda(fila, "");
-                const botones = document.createElement("div");
-                botones.className = "d-flex gap-2";
-
-                botones.append(
-                    crearBoton(
-                        "Editar",
-                        "btn btn-turquesa btn-sm",
-                        () => abrirFormulario(proveedor)
-                    ),
-                    crearBoton(
-                        proveedor.activo ? "Desactivar" : "Reactivar",
-                        "btn btn-naranja btn-sm",
-                        () => solicitarCambioEstado(proveedor)
-                    )
-                );
-
-                acciones.appendChild(botones);
-                tabla.appendChild(fila);
-            }
-        }
-
-        function abrirFormulario(proveedor = null) {
-            formulario.reset();
-            ocultarMensaje(mensajeFormulario);
-
-            idEnEdicion = proveedor ? proveedor.id : null;
-            tituloFormulario.textContent = proveedor
-                ? "Editar proveedor"
-                : "Nuevo proveedor";
-            btnGuardar.textContent = proveedor
-                ? "Guardar cambios"
-                : "Guardar proveedor";
-
-            if (proveedor) {
-                obtenerCampo("nombre").value = proveedor.nombre;
-                obtenerCampo("tipoServicio").value = proveedor.tipoServicio;
-                obtenerCampo("correo").value = proveedor.correo;
-                obtenerCampo("telefono").value = proveedor.telefono;
-            }
-
-            modalProveedor.show();
-        }
-
-        formulario.addEventListener("submit", (evento) => {
-            evento.preventDefault();
-            ocultarMensaje(mensajeFormulario);
-
-            const datos = {
-                nombre: obtenerCampo("nombre").value.trim(),
-                tipoServicio: obtenerCampo("tipoServicio").value.trim(),
-                correo: obtenerCampo("correo").value.trim().toLowerCase(),
-                telefono: obtenerCampo("telefono").value.trim()
-            };
-
-            if (!datos.nombre || !datos.tipoServicio) {
-                mostrarMensaje(
-                    mensajeFormulario,
-                    "Completá el nombre y el tipo de servicio.",
-                    "danger"
-                );
-                return;
-            }
-
-            if (!datos.correo && !datos.telefono) {
-                mostrarMensaje(
-                    mensajeFormulario,
-                    "Indicá al menos un correo electrónico o un teléfono.",
-                    "danger"
-                );
-                obtenerCampo("correo").focus();
-                return;
-            }
-
-            const posibleDuplicado = proveedores.some((proveedor) =>
-                proveedor.id !== idEnEdicion &&
-                proveedor.nombre.localeCompare(
-                    datos.nombre, "es", { sensitivity: "accent" }
-                ) === 0
-            );
-
-            const esEdicion = idEnEdicion !== null;
-
-            if (esEdicion) {
-                const proveedor = proveedores.find(
-                    (elemento) => elemento.id === idEnEdicion
-                );
-
-                Object.assign(proveedor, datos);
-            } else {
-                proveedores.push({
-                    id: siguienteId++,
-                    ...datos,
-                    activo: true
-                });
-            }
-
-            renderizarProveedores();
-            modalProveedor.hide();
-
-            let mensaje = esEdicion
-                ? "Proveedor actualizado en el prototipo."
-                : "Proveedor registrado en el prototipo.";
-
-            if (posibleDuplicado) {
-                mensaje += " Ya existe otro proveedor con el mismo nombre. " +
-                    "Revisá si es un duplicado.";
-            }
-
-            mostrarMensaje(
-                mensajeListado,
-                mensaje,
-                posibleDuplicado ? "warning" : "success"
-            );
-        });
-
-        function solicitarCambioEstado(proveedor) {
-            idCambioEstado = proveedor.id;
-            const accion = proveedor.activo ? "Desactivar" : "Reactivar";
-
-            document.getElementById("tituloModalEstado").textContent =
-                `${accion} proveedor`;
-
-            document.getElementById("textoConfirmacion").textContent =
-                `¿Querés ${accion.toLowerCase()} a "${proveedor.nombre}"?`;
-
-            btnConfirmar.textContent = accion;
-            modalEstado.show();
-        }
-
-        btnConfirmar.addEventListener("click", () => {
-            const proveedor = proveedores.find(
-                (elemento) => elemento.id === idCambioEstado
-            );
-
-            if (!proveedor) return;
-
-            proveedor.activo = !proveedor.activo;
-
-            renderizarProveedores();
-            modalEstado.hide();
-
-            mostrarMensaje(
-                mensajeListado,
-                proveedor.activo
-                    ? "Proveedor reactivado en el prototipo."
-                    : "Proveedor desactivado en el prototipo.",
-                "success"
-            );
-        });
-
-        document.getElementById("btnNuevoProveedor")
-            .addEventListener("click", () => abrirFormulario());
-
-        // Lleva el foco al primer campo después de abrir el modal.
-        document.getElementById("modalProveedor")
-            .addEventListener("shown.bs.modal", () => {
-                obtenerCampo("nombre").focus();
-            });
-
-        renderizarProveedores();
-    </script>
+    <script src="../js/proveedores.js"></script>
 </body>
 
 </html>

@@ -25,7 +25,6 @@ const obtenerProveedorPorId = async (req, res) => {
 
     res.status(200).json(proveedor);
   } catch (error) {
-    // Distingue un ID mal formado de un fallo interno.
     if (error.name === "CastError" && error.path === "_id") {
       return res.status(400).json({
         message: "El ID del proveedor no es válido",
