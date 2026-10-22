@@ -5,8 +5,7 @@ const {
     obtenerUsuarios,
     obtenerUsuarioPorId,
     crearUsuario,
-    actualizarUsuario,
-    eliminarUsuario
+    actualizarUsuario, cambiarEstadoUsuario
 } = require("../controllers/UsuarioController");
 
 const {
@@ -21,6 +20,6 @@ router.use(requiereSesion, requiereAdministrador);
 router.get("/", obtenerUsuarios);
 router.get("/:id", obtenerUsuarioPorId);
 router.put("/:id", actualizarUsuario);
-router.delete("/:id", eliminarUsuario);
+router.patch("/:id/estado", cambiarEstadoUsuario);
 
 module.exports = router;

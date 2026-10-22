@@ -131,30 +131,77 @@ const actualizarUsuario = async (req, res) => {
   }
 };
 
-//DELETE por ID.
-const eliminarUsuario = async (req, res) => {
-  try {
-    const usuario = await Usuario.findByIdAndDelete(req.params.id);
+const cambiarEstadoUsuario = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { activo } = req.body ?? {};
 
-    if (!usuario) {
-      return res.status(404).json({
-        message: "Usuario no encontrado",
-      });
+        if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+            return res.status(400).json({
+                message: "El identificador del usuario no es válido"
+            });
+        }
+
+        if (typeof activo !== "boolean") {
+            return res.status(400).json({
+                message: "El estado activo debe ser true o false"
+            });
+        }
+
+        const usuario = await Usuario.findById(id);
+
+        if (!usuario) {
+            return res.status(404).json({
+                message: "Usuario no encontrado"
+            });
+        }
+
+        if (
+            usuario.rol === "administrador" &&
+            usuario.activo &&
+            !activo
+        ) {
+            const administradoresActivos = await Usuario.countDocuments({
+                rol: "administrador",
+                activo: true
+            });
+
+            if (administradoresActivos <= 1) {
+                return res.status(409).json({
+                    message: "No se puede desactivar al último administrador activo"
+                });
+            }
+
+            if (usuario._id.toString() === req.usuario._id.toString()) {
+                return res.status(409).json({
+                    message: "No podés desactivar tu propia cuenta de administrador"
+                });
+            }
+        }
+
+        usuario.activo = activo;
+        await usuario.save();
+
+        return res.json({
+            mensaje: activo ? "Cuenta activada" : "Cuenta desactivada",
+            datos: {
+                _id: usuario._id,
+                nombre: usuario.nombre,
+                correo: usuario.correo,
+                rol: usuario.rol,
+                activo: usuario.activo
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "No se pudo cambiar el estado de la cuenta"
+        });
     }
-
-    res.json({
-      mensaje: "Usuario eliminado",
-      datos: req.params.id,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
 module.exports = {
   obtenerUsuarios,
   obtenerUsuarioPorId,
   crearUsuario,
-  actualizarUsuario,
-  eliminarUsuario,
+  actualizarUsuario, cambiarEstadoUsuario
 };

@@ -13,7 +13,7 @@ if (!process.env.SESSION_SECRET) {
 }
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 5002,
+    origin: process.env.FRONTEND_URL || "http://localhost:5002",
     credentials: true
 }));
 
@@ -37,8 +37,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", require("./routes/AuthRoutes"));
-app.use("/usuarios", require("./routes/UsuarioRoutes"));
-app.use("/proveedores", require("./routes/ProveedorRoutes"));
 app.use("/usuarios", require("./routes/UsuarioRoutes"));
 app.use("/proveedores", require("./routes/ProveedorRoutes"));
 
