@@ -28,71 +28,74 @@ const modalProveedor = new bootstrap.Modal(elementoFormulario);
 const modalEstado = new bootstrap.Modal(elementoEstado);
 
 function mostrarMensaje(elemento, texto, tipo = "danger") {
-    elemento.textContent = texto;
-    elemento.className = texto ? `alert alert-${tipo}` : "d-none";
+  elemento.textContent = texto;
+  elemento.className = texto ? `alert alert-${tipo}` : "d-none";
 }
 
 async function consultarAPI(url, metodo = "GET", datos = null) {
-    const opciones = { method: metodo };
+  const opciones = {
+    method: metodo,
+    credentials: "include",
+  };
 
-    if (datos !== null) {
-        opciones.headers = { "Content-Type": "application/json" };
-        opciones.body = JSON.stringify(datos);
+  if (datos !== null) {
+    opciones.headers = { "Content-Type": "application/json" };
+    opciones.body = JSON.stringify(datos);
+  }
+
+  let respuesta;
+
+  try {
+    respuesta = await fetch(url, opciones);
+  } catch {
+    throw new Error("No se pudo conectar con el servidor.");
+  }
+
+  let resultado;
+
+  try {
+    resultado = await respuesta.json();
+  } catch {
+    throw new Error("El servidor devolvió una respuesta inesperada.");
+  }
+
+  if (!respuesta.ok) {
+    let mensaje = resultado.message || resultado.mensaje;
+
+    if (Array.isArray(resultado.errores)) {
+      mensaje = resultado.errores.join(" ");
     }
 
-    let respuesta;
+    throw new Error(mensaje || "No se pudo completar la operación.");
+  }
 
-    try {
-        respuesta = await fetch(url, opciones);
-    } catch {
-        throw new Error("No se pudo conectar con el servidor.");
-    }
-
-    let resultado;
-
-    try {
-        resultado = await respuesta.json();
-    } catch {
-        throw new Error("El servidor devolvió una respuesta inesperada.");
-    }
-
-    if (!respuesta.ok) {
-        let mensaje = resultado.message || resultado.mensaje;
-
-        if (Array.isArray(resultado.errores)) {
-            mensaje = resultado.errores.join(" ");
-        }
-
-        throw new Error(mensaje || "No se pudo completar la operación.");
-    }
-
-    return resultado;
+  return resultado;
 }
 
 async function cargarProveedores() {
-    const proveedores = await consultarAPI(API.PROVEEDORES);
+  const proveedores = await consultarAPI(API.PROVEEDORES);
 
-    if (!Array.isArray(proveedores)) {
-        throw new Error("No se recibió un listado válido.");
-    }
+  if (!Array.isArray(proveedores)) {
+    throw new Error("No se recibió un listado válido.");
+  }
 
-    tabla.replaceChildren();
+  tabla.replaceChildren();
 
-    if (proveedores.length === 0) {
-        tabla.innerHTML = `
+  if (proveedores.length === 0) {
+    tabla.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center text-secondary py-4">
                     No hay proveedores registrados.
                 </td>
             </tr>
         `;
-        return;
-    }
+    return;
+  }
 
-    for (const proveedor of proveedores) {
-        const fila = document.createElement("tr");
+  for (const proveedor of proveedores) {
+    const fila = document.createElement("tr");
 
-        fila.innerHTML = `
+    fila.innerHTML = `
             <td class="nombre fw-semibold"></td>
             <td class="servicio"></td>
             <td>
@@ -111,159 +114,164 @@ async function cargarProveedores() {
             </td>
         `;
 
-        fila.querySelector(".nombre").textContent = proveedor.nombre;
-        fila.querySelector(".servicio").textContent = proveedor.tipoServicio;
-        fila.querySelector(".correo").textContent = proveedor.correo || "Sin correo";
-        fila.querySelector(".telefono").textContent = proveedor.telefono || "Sin teléfono";
+    fila.querySelector(".nombre").textContent = proveedor.nombre;
+    fila.querySelector(".servicio").textContent = proveedor.tipoServicio;
+    fila.querySelector(".correo").textContent =
+      proveedor.correo || "Sin correo";
+    fila.querySelector(".telefono").textContent =
+      proveedor.telefono || "Sin teléfono";
 
-        const estado = fila.querySelector(".estado");
-        estado.textContent = proveedor.activo ? "Activo" : "Inactivo";
-        estado.classList.add(
-            proveedor.activo ? "text-bg-success" : "text-bg-secondary"
-        );
+    const estado = fila.querySelector(".estado");
+    estado.textContent = proveedor.activo ? "Activo" : "Inactivo";
+    estado.classList.add(
+      proveedor.activo ? "text-bg-success" : "text-bg-secondary",
+    );
 
-        fila.querySelector(".editar").onclick = () => abrirFormulario(proveedor);
+    fila.querySelector(".editar").onclick = () => abrirFormulario(proveedor);
 
-        const botonEstado = fila.querySelector(".cambiar-estado");
-        botonEstado.textContent = proveedor.activo ? "Desactivar" : "Reactivar";
-        botonEstado.onclick = () => abrirConfirmacion(proveedor);
+    const botonEstado = fila.querySelector(".cambiar-estado");
+    botonEstado.textContent = proveedor.activo ? "Desactivar" : "Reactivar";
+    botonEstado.onclick = () => abrirConfirmacion(proveedor);
 
-        tabla.appendChild(fila);
-    }
+    tabla.appendChild(fila);
+  }
 }
 
 async function actualizarListado(mensaje, tipo = "success") {
-    try {
-        await cargarProveedores();
-        mostrarMensaje(mensajeListado, mensaje, tipo);
-    } catch (error) {
-        mostrarMensaje(
-            mensajeListado,
-            `${mensaje} No se pudo refrescar la tabla. Recargá la página. ${error.message}`,
-            "warning"
-        );
-    }
+  try {
+    await cargarProveedores();
+    mostrarMensaje(mensajeListado, mensaje, tipo);
+  } catch (error) {
+    mostrarMensaje(
+      mensajeListado,
+      `${mensaje} No se pudo refrescar la tabla. Recargá la página. ${error.message}`,
+      "warning",
+    );
+  }
 }
 
 function abrirFormulario(proveedor = null) {
-    formulario.reset();
-    mostrarMensaje(mensajeFormulario, "");
+  formulario.reset();
+  mostrarMensaje(mensajeFormulario, "");
 
-    idEnEdicion = null;
-    tituloFormulario.textContent = "Nuevo proveedor";
-    btnGuardar.textContent = "Guardar proveedor";
+  idEnEdicion = null;
+  tituloFormulario.textContent = "Nuevo proveedor";
+  btnGuardar.textContent = "Guardar proveedor";
 
-    if (proveedor !== null) {
-        idEnEdicion = proveedor._id;
-        tituloFormulario.textContent = "Editar proveedor";
-        btnGuardar.textContent = "Guardar cambios";
+  if (proveedor !== null) {
+    idEnEdicion = proveedor._id;
+    tituloFormulario.textContent = "Editar proveedor";
+    btnGuardar.textContent = "Guardar cambios";
 
-        nombre.value = proveedor.nombre;
-        tipoServicio.value = proveedor.tipoServicio;
-        correo.value = proveedor.correo || "";
-        telefono.value = proveedor.telefono || "";
-    }
+    nombre.value = proveedor.nombre;
+    tipoServicio.value = proveedor.tipoServicio;
+    correo.value = proveedor.correo || "";
+    telefono.value = proveedor.telefono || "";
+  }
 
-    modalProveedor.show();
+  modalProveedor.show();
 }
 
 async function guardarProveedor(evento) {
-    evento.preventDefault();
-    if (btnGuardar.disabled) return;
+  evento.preventDefault();
+  if (btnGuardar.disabled) return;
 
-    mostrarMensaje(mensajeFormulario, "");
+  mostrarMensaje(mensajeFormulario, "");
 
-    const datos = {
-        nombre: nombre.value.trim(),
-        tipoServicio: tipoServicio.value.trim(),
-        correo: correo.value.trim().toLowerCase(),
-        telefono: telefono.value.trim()
-    };
+  const datos = {
+    nombre: nombre.value.trim(),
+    tipoServicio: tipoServicio.value.trim(),
+    correo: correo.value.trim().toLowerCase(),
+    telefono: telefono.value.trim(),
+  };
 
-    if (!datos.nombre || !datos.tipoServicio) {
-        mostrarMensaje(mensajeFormulario, "Completá el nombre y el tipo de servicio.");
-        return;
-    }
-
-    if (!datos.correo && !datos.telefono) {
-        mostrarMensaje(mensajeFormulario, "Indicá al menos un correo o teléfono.");
-        return;
-    }
-
-    let url = API.PROVEEDORES;
-    let metodo = "POST";
-    let mensaje = "Proveedor registrado.";
-
-    if (idEnEdicion !== null) {
-        url = `${API.PROVEEDORES}/${idEnEdicion}`;
-        metodo = "PUT";
-        mensaje = "Proveedor actualizado.";
-    }
-
-    btnGuardar.disabled = true;
-    let resultado;
-
-    try {
-        resultado = await consultarAPI(url, metodo, datos);
-    } catch (error) {
-        mostrarMensaje(mensajeFormulario, error.message);
-        return;
-    } finally {
-        btnGuardar.disabled = false;
-    }
-
-    modalProveedor.hide();
-
-    if (resultado.advertencia) {
-        mensaje += ` ${resultado.advertencia}`;
-    }
-
-    await actualizarListado(
-        mensaje,
-        resultado.advertencia ? "warning" : "success"
+  if (!datos.nombre || !datos.tipoServicio) {
+    mostrarMensaje(
+      mensajeFormulario,
+      "Completá el nombre y el tipo de servicio.",
     );
+    return;
+  }
+
+  if (!datos.correo && !datos.telefono) {
+    mostrarMensaje(mensajeFormulario, "Indicá al menos un correo o teléfono.");
+    return;
+  }
+
+  let url = API.PROVEEDORES;
+  let metodo = "POST";
+  let mensaje = "Proveedor registrado.";
+
+  if (idEnEdicion !== null) {
+    url = `${API.PROVEEDORES}/${idEnEdicion}`;
+    metodo = "PUT";
+    mensaje = "Proveedor actualizado.";
+  }
+
+  btnGuardar.disabled = true;
+  let resultado;
+
+  try {
+    resultado = await consultarAPI(url, metodo, datos);
+  } catch (error) {
+    mostrarMensaje(mensajeFormulario, error.message);
+    return;
+  } finally {
+    btnGuardar.disabled = false;
+  }
+
+  modalProveedor.hide();
+
+  if (resultado.advertencia) {
+    mensaje += ` ${resultado.advertencia}`;
+  }
+
+  await actualizarListado(
+    mensaje,
+    resultado.advertencia ? "warning" : "success",
+  );
 }
 
 function abrirConfirmacion(proveedor) {
-    proveedorSeleccionado = proveedor;
-    mostrarMensaje(mensajeEstado, "");
+  proveedorSeleccionado = proveedor;
+  mostrarMensaje(mensajeEstado, "");
 
-    const accion = proveedor.activo ? "Desactivar" : "Reactivar";
+  const accion = proveedor.activo ? "Desactivar" : "Reactivar";
 
-    document.getElementById("tituloModalEstado").textContent =
-        `${accion} proveedor`;
+  document.getElementById("tituloModalEstado").textContent =
+    `${accion} proveedor`;
 
-    document.getElementById("textoConfirmacion").textContent =
-        `¿Querés ${accion.toLowerCase()} a "${proveedor.nombre}"?`;
+  document.getElementById("textoConfirmacion").textContent =
+    `¿Querés ${accion.toLowerCase()} a "${proveedor.nombre}"?`;
 
-    btnConfirmar.textContent = accion;
-    modalEstado.show();
+  btnConfirmar.textContent = accion;
+  modalEstado.show();
 }
 
 async function cambiarEstado() {
-    if (btnConfirmar.disabled || proveedorSeleccionado === null) return;
+  if (btnConfirmar.disabled || proveedorSeleccionado === null) return;
 
-    mostrarMensaje(mensajeEstado, "");
+  mostrarMensaje(mensajeEstado, "");
 
-    const nuevoEstado = !proveedorSeleccionado.activo;
-    const url = `${API.PROVEEDORES}/${proveedorSeleccionado._id}`;
+  const nuevoEstado = !proveedorSeleccionado.activo;
+  const url = `${API.PROVEEDORES}/${proveedorSeleccionado._id}`;
 
-    btnConfirmar.disabled = true;
+  btnConfirmar.disabled = true;
 
-    try {
-        await consultarAPI(url, "PATCH", { activo: nuevoEstado });
-    } catch (error) {
-        mostrarMensaje(mensajeEstado, error.message);
-        return;
-    } finally {
-        btnConfirmar.disabled = false;
-    }
+  try {
+    await consultarAPI(url, "PATCH", { activo: nuevoEstado });
+  } catch (error) {
+    mostrarMensaje(mensajeEstado, error.message);
+    return;
+  } finally {
+    btnConfirmar.disabled = false;
+  }
 
-    modalEstado.hide();
+  modalEstado.hide();
 
-    await actualizarListado(
-        nuevoEstado ? "Proveedor reactivado." : "Proveedor desactivado."
-    );
+  await actualizarListado(
+    nuevoEstado ? "Proveedor reactivado." : "Proveedor desactivado.",
+  );
 }
 
 btnNuevo.onclick = () => abrirFormulario();
@@ -271,17 +279,17 @@ formulario.addEventListener("submit", guardarProveedor);
 btnConfirmar.onclick = cambiarEstado;
 
 elementoFormulario.addEventListener("hide.bs.modal", (evento) => {
-    if (btnGuardar.disabled) evento.preventDefault();
+  if (btnGuardar.disabled) evento.preventDefault();
 });
 
 elementoEstado.addEventListener("hide.bs.modal", (evento) => {
-    if (btnConfirmar.disabled) evento.preventDefault();
+  if (btnConfirmar.disabled) evento.preventDefault();
 });
 
 elementoFormulario.addEventListener("shown.bs.modal", () => {
-    nombre.focus();
+  nombre.focus();
 });
 
 cargarProveedores().catch((error) => {
-    mostrarMensaje(mensajeListado, error.message);
+  mostrarMensaje(mensajeListado, error.message);
 });
