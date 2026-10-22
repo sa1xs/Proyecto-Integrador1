@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Solicitudes de cotización | LSCT</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+    <header id="menu"></header>
+
+    <main class="container-fluid px-3 px-md-5 py-4">
+        <h1>Solicitudes de cotización</h1>
+        <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
+
+        <div class="nav nav-tabs my-4" role="tablist" aria-label="Vistas de solicitudes">
+            <button id="tab-nueva" type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#nueva"
+                role="tab" aria-controls="nueva" aria-selected="true">
+                Nueva solicitud
+            </button>
+            <button id="tab-mis-solicitudes" type="button" class="nav-link" data-bs-toggle="tab"
+                data-bs-target="#misSolicitudes" role="tab" aria-controls="misSolicitudes" aria-selected="false">
+                Mis solicitudes
+            </button>
+            <button id="tab-gestion" type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#gestion"
+                role="tab" aria-controls="gestion" aria-selected="false">
+                Gestión administrativa
+            </button>
+        </div>
+
+        <div class="tab-content">
+            <section id="nueva" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tab-nueva">
+                <h2 class="h4">Datos del viaje</h2>
+
+                <form id="formularioSolicitud">
+                    <div id="mensajeFormularioSolicitud" class="d-none" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label for="destinoSolicitud" class="form-label">Destino *</label>
+                        <input id="destinoSolicitud" name="destino" class="form-control" required>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="fechaSalida" class="form-label">Fecha de salida *</label>
+                            <input id="fechaSalida" name="fechaSalida" type="date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fechaRegreso" class="form-label">Fecha de regreso *</label>
+                            <input id="fechaRegreso" name="fechaRegreso" type="date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cantidadViajeros" class="form-label">Cantidad de viajeros *</label>
+                        <input id="cantidadViajeros" name="cantidadViajeros" type="number" min="1" step="1"
+                            class="form-control" required>
+                    </div>
+
+                    <fieldset class="mb-4">
+                        <legend class="h6">Edades de los viajeros *</legend>
+                        <div id="edadesViajeros" class="row g-3">
+                            <div class="col-sm-6 col-md-3">
+                                <label for="edadViajero1" class="form-label">Edad del viajero 1</label>
+                                <input id="edadViajero1" name="edades[]" type="number" min="0" step="1"
+                                    class="form-control" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <button id="btnEnviarSolicitud" type="button" class="btn btn-azul">
+                        Enviar solicitud
+                    </button>
+                </form>
+
+                <div class="mt-4">
+                    <h2 class="h5">¿Necesitás orientación?</h2>
+                    <p>Contactarnos por WhatsApp no registra una solicitud automáticamente.</p>
+                    <button id="botonWhatsApp" type="button" class="btn btn-turquesa" disabled>
+                        Contactar por WhatsApp
+                    </button>
+                </div>
+            </section>
+
+            <section id="misSolicitudes" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-mis-solicitudes">
+                <h2 class="h4">Mis solicitudes</h2>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Código</th>
+                                <th scope="col">Destino</th>
+                                <th scope="col">Salida</th>
+                                <th scope="col">Regreso</th>
+                                <th scope="col">Viajeros</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="filasMisSolicitudes"></tbody>
+                    </table>
+                </div>
+
+                <p id="sinMisSolicitudes" class="text-secondary" hidden>
+                    Todavía no tenés solicitudes.
+                </p>
+            </section>
+
+            <section id="gestion" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-gestion">
+                <h2 class="h4">Gestión de solicitudes</h2>
+
+                <label for="buscarSolicitud" class="form-label">Buscar por código, cliente o destino</label>
+                <input id="buscarSolicitud" type="search" class="form-control mb-3">
+
+                <label for="filtroEstadoSolicitud" class="form-label">Filtrar por estado</label>
+                <select id="filtroEstadoSolicitud" class="form-select mb-3">
+                    <option value="">Todos los estados</option>
+                </select>
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Código</th>
+                                <th scope="col">Cliente</th>
+                                <th scope="col">Destino</th>
+                                <th scope="col">Viajeros</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="filasSolicitudes"></tbody>
+                    </table>
+                </div>
+
+                <p id="sinSolicitudes" class="text-secondary" hidden>
+                    No hay solicitudes que coincidan con la búsqueda.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <div id="modalDetalleSolicitud" class="modal fade" tabindex="-1" aria-labelledby="tituloDetalle">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloDetalle" class="modal-title fs-5">Detalle de solicitud</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="mensajeDetalleSolicitud" class="d-none" role="alert"></div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Código</dt>
+                        <dd id="detalleCodigo" class="col-sm-8"></dd>
+
+                        <dt class="col-sm-4">Destino</dt>
+                        <dd id="detalleDestino" class="col-sm-8"></dd>
+
+                        <dt class="col-sm-4">Salida</dt>
+                        <dd id="detalleSalida" class="col-sm-8"></dd>
+
+                        <dt class="col-sm-4">Regreso</dt>
+                        <dd id="detalleRegreso" class="col-sm-8"></dd>
+
+                        <dt class="col-sm-4">Viajeros</dt>
+                        <dd id="detalleViajeros" class="col-sm-8"></dd>
+
+                        <dt class="col-sm-4">Edades</dt>
+                        <dd id="detalleEdades" class="col-sm-8"></dd>
+
+                        <dt class="col-sm-4">Estado</dt>
+                        <dd id="detalleEstado" class="col-sm-8"></dd>
+                    </dl>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalEditarSolicitud" class="modal fade" tabindex="-1" aria-labelledby="tituloEditar">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloEditar" class="modal-title fs-5">Editar solicitud</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form id="formularioEditarSolicitud">
+                    <div class="modal-body">
+                        <div id="mensajeEditarSolicitud" class="d-none" role="alert"></div>
+                        <input id="idSolicitudEditar" name="id" type="hidden">
+
+                        <div class="mb-3">
+                            <label for="editarDestino" class="form-label">Destino *</label>
+                            <input id="editarDestino" name="destino" class="form-control" required>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <label for="editarSalida" class="form-label">Salida *</label>
+                                <input id="editarSalida" name="fechaSalida" type="date" class="form-control" required>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="editarRegreso" class="form-label">Regreso *</label>
+                                <input id="editarRegreso" name="fechaRegreso" type="date" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editarCantidadViajeros" class="form-label">
+                                Cantidad de viajeros *
+                            </label>
+                            <input id="editarCantidadViajeros" name="cantidadViajeros" type="number" min="1" step="1"
+                                class="form-control" required>
+                        </div>
+
+                        <fieldset>
+                            <legend class="h6">Edades de los viajeros *</legend>
+                            <div id="editarEdadesViajeros" class="row g-3">
+                                <div class="col-sm-6">
+                                    <label for="editarEdad1" class="form-label">Edad del viajero 1</label>
+                                    <input id="editarEdad1" name="edades[]" type="number" min="0" step="1"
+                                        class="form-control" required>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button id="btnGuardarSolicitud" type="button" class="btn btn-azul">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalGestionSolicitud" class="modal fade" tabindex="-1" aria-labelledby="tituloGestion">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloGestion" class="modal-title fs-5">Gestionar solicitud</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="mensajeGestionSolicitud" class="d-none" role="alert"></div>
+
+                    <dl>
+                        <dt>Código</dt>
+                        <dd id="gestionCodigo"></dd>
+
+                        <dt>Cliente</dt>
+                        <dd id="gestionCliente"></dd>
+
+                        <dt>Contacto</dt>
+                        <dd id="gestionContacto"></dd>
+
+                        <dt>Destino</dt>
+                        <dd id="gestionDestino"></dd>
+
+                        <dt>Fechas</dt>
+                        <dd id="gestionFechas"></dd>
+
+                        <dt>Viajeros y edades</dt>
+                        <dd id="gestionViajeros"></dd>
+
+                        <dt>Estado actual</dt>
+                        <dd id="gestionEstadoActual"></dd>
+                    </dl>
+
+                    <label for="estadoSolicitud" class="form-label">Nuevo estado</label>
+                    <select id="estadoSolicitud" name="estado" class="form-select">
+                        <option value="">Seleccioná un estado</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button id="btnGuardarEstadoSolicitud" type="button" class="btn btn-azul">
+                        Guardar estado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/menu.js" defer></script>
+</body>
+
+</html>

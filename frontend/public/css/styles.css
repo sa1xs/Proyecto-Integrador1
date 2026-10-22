@@ -16,12 +16,6 @@ body {
     color: var(--lsct-text);
 }
 
-body > .container-fluid {
-    min-height: 100vh;
-    padding: 0;
-}
-
-
 .navbar {
     min-height: 58px;
     padding: 0.75rem 1.25rem;
@@ -54,11 +48,6 @@ h3 {
     color: var(--lsct-primary);
 }
 
-.form-check-input:checked {
-    background-color: var(--lsct-primary);
-    border-color: var(--lsct-primary);
-}
-
 .btn-azul {
     background-color: #173B7A !important;
     border-color: #173B7A !important;
@@ -83,18 +72,6 @@ h3 {
     color: white !important;
 }
 
-.btn-naranja {
-    background-color: #F28C28 !important;
-    border-color: #F28C28 !important;
-    color: white !important;
-}
-
-.btn-naranja:hover {
-    background-color: #D87518 !important;
-    border-color: #D87518 !important;
-    color: white !important;
-}
-
-.form-label, .form-check-label {
+.form-label {
     color: var(--bs-emphasis-color);
 }

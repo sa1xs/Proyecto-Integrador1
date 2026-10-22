@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Servicios turísticos | LSCT</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+    <header id="menu"></header>
+
+    <main class="container-fluid px-3 px-md-5 py-4">
+        <h1>Servicios turísticos</h1>
+        <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
+
+        <div class="nav nav-tabs my-4" role="tablist" aria-label="Vistas de servicios">
+            <button id="tab-catalogo" type="button" class="nav-link active" data-bs-toggle="tab"
+                data-bs-target="#catalogo" role="tab" aria-controls="catalogo" aria-selected="true">
+                Catálogo
+            </button>
+            <button id="tab-servicios-admin" type="button" class="nav-link" data-bs-toggle="tab"
+                data-bs-target="#serviciosAdmin" role="tab" aria-controls="serviciosAdmin" aria-selected="false">
+                Administración
+            </button>
+        </div>
+
+        <div class="tab-content">
+            <section id="catalogo" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tab-catalogo">
+                <label for="buscarCatalogo" class="form-label">Buscar por nombre o tipo</label>
+                <input id="buscarCatalogo" type="search" class="form-control mb-4">
+
+                <div id="tarjetasServicios" class="row g-3"></div>
+
+                <p id="sinCatalogo" class="text-secondary" hidden>
+                    No hay servicios publicados que coincidan con la búsqueda.
+                </p>
+            </section>
+
+            <section id="serviciosAdmin" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-servicios-admin">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+                    <h2 class="h4 mb-0">Administrar servicios</h2>
+                    <button id="btnNuevoServicio" type="button" class="btn btn-azul" data-bs-toggle="modal"
+                        data-bs-target="#modalServicio">
+                        Nuevo servicio
+                    </button>
+                </div>
+
+                <label for="buscarServicio" class="form-label">Buscar por nombre, tipo o proveedor</label>
+                <input id="buscarServicio" type="search" class="form-control mb-3">
+
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Servicio</th>
+                                <th scope="col">Tipo</th>
+                                <th scope="col">Proveedor</th>
+                                <th scope="col">Visibilidad</th>
+                                <th scope="col">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="filasServicios"></tbody>
+                    </table>
+                </div>
+
+                <p id="sinServicios" class="text-secondary" hidden>
+                    No hay servicios que coincidan con la búsqueda.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <div id="modalDetalleServicio" class="modal fade" tabindex="-1" aria-labelledby="tituloDetalleServicio">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloDetalleServicio" class="modal-title fs-5">Detalle del servicio</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="mensajeDetalleServicio" class="d-none" role="alert"></div>
+                    <h3 id="nombreDetalleServicio" class="h5"></h3>
+                    <p id="tipoDetalleServicio" class="text-secondary"></p>
+                    <p id="descripcionDetalleServicio"></p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cerrar
+                    </button>
+                    <a href="solicitudes.html" class="btn btn-azul">Solicitar cotización</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalServicio" class="modal fade" tabindex="-1" aria-labelledby="tituloServicio">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloServicio" class="modal-title fs-5">Datos del servicio</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <form id="formularioServicio">
+                    <div class="modal-body">
+                        <div id="mensajeFormularioServicio" class="d-none" role="alert"></div>
+                        <input id="idServicio" name="id" type="hidden">
+
+                        <div class="mb-3">
+                            <label for="nombreServicio" class="form-label">Nombre *</label>
+                            <input id="nombreServicio" name="nombre" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tipoServicio" class="form-label">Tipo de servicio *</label>
+                            <input id="tipoServicio" name="tipo" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="descripcionServicio" class="form-label">Descripción *</label>
+                            <textarea id="descripcionServicio" name="descripcion" class="form-control" rows="4"
+                                required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="proveedorServicio" class="form-label">Proveedor activo *</label>
+                            <select id="proveedorServicio" name="proveedor" class="form-select" required>
+                                <option value="">Seleccioná un proveedor</option>
+                            </select>
+                        </div>
+
+                        <p class="small text-secondary mb-0">
+                            Los nuevos servicios se registran inicialmente para uso interno.
+                        </p>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button id="btnGuardarServicio" type="button" class="btn btn-azul">
+                            Guardar servicio
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalVisibilidad" class="modal fade" tabindex="-1" aria-labelledby="tituloVisibilidad">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloVisibilidad" class="modal-title fs-5">Cambiar visibilidad</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="mensajeVisibilidad" class="d-none" role="alert"></div>
+                    <p id="textoVisibilidad"></p>
+                    <p class="mb-0">Ocultar un servicio no elimina su registro.</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button id="btnConfirmarVisibilidad" type="button" class="btn btn-naranja">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/menu.js" defer></script>
+</body>
+
+</html>

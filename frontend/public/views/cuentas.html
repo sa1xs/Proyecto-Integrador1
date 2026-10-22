@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Administrar cuentas | LSCT</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+    <header id="menu"></header>
+
+    <main class="container-fluid px-3 px-md-5 py-4">
+        <h1 class="mb-4">Administrar cuentas</h1>
+
+        <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
+
+        <label for="buscarCuenta" class="form-label">Buscar por nombre, correo o rol</label>
+        <input id="buscarCuenta" type="search" class="form-control mb-3">
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="filasCuentas"></tbody>
+            </table>
+        </div>
+
+        <p id="sinCuentas" class="text-secondary" hidden>
+            No hay cuentas que coincidan con la búsqueda.
+        </p>
+    </main>
+
+    <div id="modalEstadoCuenta" class="modal fade" tabindex="-1" aria-labelledby="tituloEstadoCuenta">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloEstadoCuenta" class="modal-title fs-5">Cambiar estado de cuenta</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div id="mensajeEstadoCuenta" class="d-none" role="alert"></div>
+                    <p id="textoEstadoCuenta"></p>
+                    <p class="mb-0">La cuenta conservará sus datos.</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button id="btnConfirmarEstadoCuenta" type="button" class="btn btn-naranja">
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/menu.js" defer></script>
+</body>
+
+</html>
