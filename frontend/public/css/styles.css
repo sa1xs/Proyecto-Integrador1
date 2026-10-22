@@ -72,6 +72,18 @@ h3 {
     color: white !important;
 }
 
+.btn-naranja {
+    background-color: #F28C28 !important;
+    border-color: #F28C28 !important;
+    color: white !important;
+}
+
+.btn-naranja:hover {
+    background-color: #D87518 !important;
+    border-color: #D87518 !important;
+    color: white !important;
+}
+
 .form-label {
     color: var(--bs-emphasis-color);
 }
