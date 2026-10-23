@@ -4,17 +4,68 @@ const bcrypt = require("bcrypt");
 //GET.
 const obtenerUsuarios = async (req, res) => {
   try {
-    const usuarios = await Usuario.find();
-    res.json(usuarios);
+    const { rol, buscar } = req.query;
+    const filtros = {};
+
+    if (rol !== undefined) {
+      if (!["cliente", "administrador"].includes(rol)) {
+        return res.status(400).json({
+          message: "El rol debe ser cliente o administrador",
+        });
+      }
+
+      filtros.rol = rol;
+    }
+
+    if (buscar !== undefined) {
+      if (typeof buscar !== "string") {
+        return res.status(400).json({
+          message: "La búsqueda debe ser texto",
+        });
+      }
+
+      const texto = buscar.trim();
+
+      if (texto) {
+        const textoEscapado = texto.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        const coincidencia = {
+          $regex: textoEscapado,
+          $options: "i",
+        };
+
+        filtros.$or = [
+          { nombre: coincidencia },
+          { correo: coincidencia },
+          { telefono: coincidencia },
+        ];
+      }
+    }
+
+    const usuarios = await Usuario.find(filtros)
+      .select("-clave")
+      .sort({ nombre: 1 });
+
+    return res.json(usuarios);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "No se pudieron consultar los usuarios",
+    });
   }
 };
 
 //GET por ID.
 const obtenerUsuarioPorId = async (req, res) => {
   try {
-    const usuario = await Usuario.findById(req.params.id);
+    const { id } = req.params;
+
+    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+      return res.status(400).json({
+        message: "El identificador del usuario no es válido",
+      });
+    }
+
+    const usuario = await Usuario.findById(id).select("-clave");
 
     if (!usuario) {
       return res.status(404).json({
@@ -22,9 +73,11 @@ const obtenerUsuarioPorId = async (req, res) => {
       });
     }
 
-    res.json(usuario);
+    return res.json(usuario);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: "No se pudo consultar el usuario",
+    });
   }
 };
 
