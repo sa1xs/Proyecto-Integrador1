@@ -5,7 +5,7 @@ const {
     obtenerUsuarios,
     obtenerUsuarioPorId,
     crearUsuario,
-    actualizarUsuario, cambiarEstadoUsuario
+    actualizarUsuario, cambiarEstadoUsuario, obtenerMiPerfil, actualizarMiPerfil
 } = require("../controllers/UsuarioController");
 
 const {
@@ -14,6 +14,9 @@ const {
 } = require("../middleware/auth");
 
 router.post("/", crearUsuario);
+
+router.get("/perfil", requiereSesion, obtenerMiPerfil);
+router.put("/perfil", requiereSesion, actualizarMiPerfil);
 
 router.use(requiereSesion, requiereAdministrador);
 
