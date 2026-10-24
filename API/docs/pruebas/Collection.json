@@ -1,0 +1,1000 @@
+{
+  "clientName": "Thunder Client",
+  "collectionName": "LSCT — API implementada",
+  "collectionId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+  "dateExported": "2026-10-24T00:00:00.000Z",
+  "version": "1.4",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "1c06eb39-8367-4e2a-9d6e-141619b50ae6",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "01 Sin sesión: perfil — 401",
+      "url": "{{baseUrl}}/usuarios/perfil",
+      "method": "GET",
+      "sortNum": 10000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "bdaff601-0f5f-4d4d-a6f2-0e285cb3ddfa",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "02 Registrar cliente nuevo — 201",
+      "url": "{{baseUrl}}/usuarios",
+      "method": "POST",
+      "sortNum": 20000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Cliente de prueba\",",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveCliente}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "f6dbf97c-9959-40f9-bd1c-18c8a944ef2f",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "03 Repetir registro: correo duplicado — 409",
+      "url": "{{baseUrl}}/usuarios",
+      "method": "POST",
+      "sortNum": 30000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Cliente de prueba\",",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveCliente}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "41ed3722-a137-42cc-b2ca-8deb3c0dce34",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "04 Registro inválido — 400",
+      "url": "{{baseUrl}}/usuarios",
+      "method": "POST",
+      "sortNum": 40000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"invalido\",",
+          "  \"clave\": \"\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "800e0146-5620-4db8-ac3c-8ab49a30ca98",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "05 Login incorrecto — 401",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 50000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveIncorrecta}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "977197ef-22e3-46de-8664-bd217c061c5f",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "06 Login cliente — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 60000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveCliente}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "35cf7cff-1ca5-4b9d-9983-0f4e733ad60f",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "07 Sesión cliente — 200",
+      "url": "{{baseUrl}}/auth/sesion",
+      "method": "GET",
+      "sortNum": 70000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "f48c5c40-1d17-41ea-8b51-e16292229e41",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "08 Perfil propio — 200",
+      "url": "{{baseUrl}}/usuarios/perfil",
+      "method": "GET",
+      "sortNum": 80000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "ac8fe851-fe74-4740-8024-58d1f8024f36",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "09 Actualizar perfil propio — 200",
+      "url": "{{baseUrl}}/usuarios/perfil",
+      "method": "PUT",
+      "sortNum": 90000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Cliente actualizado\",",
+          "  \"telefono\": \"88887777\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "af745688-9c44-490f-a2b2-63ed6c87b12b",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "10 Perfil inválido conserva datos — 400",
+      "url": "{{baseUrl}}/usuarios/perfil",
+      "method": "PUT",
+      "sortNum": 100000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "c9e7cb9a-0fa6-42ce-b9e3-c19a1d9ef329",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "11 Intento cambiar rol — 400",
+      "url": "{{baseUrl}}/usuarios/perfil",
+      "method": "PUT",
+      "sortNum": 110000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"rol\": \"administrador\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "6b729db2-0230-491c-b1b9-0ecb3ffebf20",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "12 Cliente no lista cuentas — 403",
+      "url": "{{baseUrl}}/usuarios",
+      "method": "GET",
+      "sortNum": 120000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "5a87547d-0108-43ae-b937-8e9372b49732",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "13 Cliente no administra proveedor — 403",
+      "url": "{{baseUrl}}/proveedores",
+      "method": "POST",
+      "sortNum": 130000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Bloqueado\",",
+          "  \"tipoServicio\": \"Hotel\",",
+          "  \"correo\": \"hotel@example.com\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "6d25a8e1-dc53-486d-aa5a-0ec3a0420f5e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "14 Cerrar sesión cliente — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 140000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "e8f1a9b3-8fac-4e85-9130-182b2306f53d",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "15 Sesión cerrada — 401",
+      "url": "{{baseUrl}}/auth/sesion",
+      "method": "GET",
+      "sortNum": 150000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "b965df2e-84e2-40ea-849a-91650a454450",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "16 Login administrador — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 160000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoAdmin}}\",",
+          "  \"clave\": \"{{claveAdmin}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "c1b6aadf-705a-49ae-bdda-af00d28d24f6",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "17 Listar cuentas — 200",
+      "url": "{{baseUrl}}/usuarios",
+      "method": "GET",
+      "sortNum": 170000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "c52331da-e4dc-4b5a-80c1-72a26fb6f165",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "18 Buscar clientes — 200",
+      "url": "{{baseUrl}}/usuarios?rol=cliente&buscar=Cliente",
+      "method": "GET",
+      "sortNum": 180000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "ed9fa9f2-f67e-46e3-bf23-2b43d4958301",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "19 Búsqueda vacía — 200",
+      "url": "{{baseUrl}}/usuarios?rol=cliente&buscar=",
+      "method": "GET",
+      "sortNum": 190000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "daa9bac6-2068-4326-ba39-283ed06c2752",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "20 Sin coincidencias — 200",
+      "url": "{{baseUrl}}/usuarios?buscar=zz_sin_coincidencia_9472",
+      "method": "GET",
+      "sortNum": 200000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "de6ef0f2-8209-46af-a8e5-b24bd0908f1f",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "21 Filtro inválido — 400",
+      "url": "{{baseUrl}}/usuarios?rol=otro",
+      "method": "GET",
+      "sortNum": 210000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "985b1a2a-1ea9-4683-9ba8-508ad25350a3",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "22 Detalle cliente — 200",
+      "url": "{{baseUrl}}/usuarios/{{idCliente}}",
+      "method": "GET",
+      "sortNum": 220000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "e189923d-8a1b-4a13-bb26-1842c932a965",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "23 ID inválido — 400",
+      "url": "{{baseUrl}}/usuarios/no-es-id",
+      "method": "GET",
+      "sortNum": 230000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "b879c9ab-460e-489e-899e-9b8567dcaf76",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "24 ID inexistente — 404",
+      "url": "{{baseUrl}}/usuarios/000000000000000000000000",
+      "method": "GET",
+      "sortNum": 240000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "23a5bd2b-4124-48c1-9478-85a6a71b52a0",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "25 Editar cliente como admin — 200",
+      "url": "{{baseUrl}}/usuarios/{{idCliente}}",
+      "method": "PUT",
+      "sortNum": 250000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"direccion\": \"San José\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "cf81d138-a870-4836-a0b7-248563bc4179",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "26 Correo duplicado en edición — 409",
+      "url": "{{baseUrl}}/usuarios/{{idCliente}}",
+      "method": "PUT",
+      "sortNum": 260000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoAdmin}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "31fd92bb-895e-4fa7-843c-c7c07a8b3696",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "27 Desactivar cliente — 200",
+      "url": "{{baseUrl}}/usuarios/{{idCliente}}/estado",
+      "method": "PATCH",
+      "sortNum": 270000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": false",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "af7abb1a-3817-4548-a60b-cca9ee6951df",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "28 Estado inválido — 400",
+      "url": "{{baseUrl}}/usuarios/{{idCliente}}/estado",
+      "method": "PATCH",
+      "sortNum": 280000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": \"false\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "5ceb16da-5db5-452c-ab5d-0c667804eed3",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "29 Proteger último admin (único activo) — 409",
+      "url": "{{baseUrl}}/usuarios/{{idAdmin}}/estado",
+      "method": "PATCH",
+      "sortNum": 290000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": false",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "5387b37e-628f-4ff0-b844-ba5c36d7354c",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "30 Crear proveedor — 201",
+      "url": "{{baseUrl}}/proveedores",
+      "method": "POST",
+      "sortNum": 300000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Hotel de prueba\",",
+          "  \"tipoServicio\": \"Hotel\",",
+          "  \"correo\": \"hotel@example.com\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "0f054aa1-ece8-45ed-a5ab-9e8f4f2c2b21",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "31 Proveedor sin contacto — 400",
+      "url": "{{baseUrl}}/proveedores",
+      "method": "POST",
+      "sortNum": 310000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Sin contacto\",",
+          "  \"tipoServicio\": \"Hotel\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "8c4f09fb-8dd6-4391-b568-56acab5dffd8",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "32 Listar proveedores — 200",
+      "url": "{{baseUrl}}/proveedores",
+      "method": "GET",
+      "sortNum": 320000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "30b41feb-a851-4120-8650-8ac184d75c78",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "33 Filtrar nombre y tipo — 200",
+      "url": "{{baseUrl}}/proveedores?nombre=hotel&tipoServicio=hotel",
+      "method": "GET",
+      "sortNum": 330000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "f6b11431-e9cf-4630-aa6a-4574609adbab",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "34 Filtros vacíos — 200",
+      "url": "{{baseUrl}}/proveedores?nombre=&tipoServicio=",
+      "method": "GET",
+      "sortNum": 340000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "1b20f207-8436-416b-96d4-06b69f4065d8",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "35 Sin proveedores coincidentes — 200",
+      "url": "{{baseUrl}}/proveedores?nombre=zz_sin_coincidencia_9472",
+      "method": "GET",
+      "sortNum": 350000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "38844e73-ea7b-4435-a92e-2f4803850d86",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "36 Parámetro repetido inválido — 400",
+      "url": "{{baseUrl}}/proveedores?nombre=uno&nombre=dos",
+      "method": "GET",
+      "sortNum": 360000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "2a9f9baa-746e-415f-9a74-22fc17ee7c19",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "37 Detalle proveedor — 200",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "GET",
+      "sortNum": 370000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "cbb56396-1137-4c8a-acba-3e2956e774a2",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "38 ID proveedor inválido — 400",
+      "url": "{{baseUrl}}/proveedores/no-es-id",
+      "method": "GET",
+      "sortNum": 380000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "338460bf-117c-4563-b347-c56eb1cd5db3",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "39 Proveedor inexistente — 404",
+      "url": "{{baseUrl}}/proveedores/000000000000000000000000",
+      "method": "GET",
+      "sortNum": 390000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "b098f971-cb1f-492a-a744-340a3773cd02",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "40 Editar proveedor — 200",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "PUT",
+      "sortNum": 400000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"telefono\": \"88887777\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "aa0a0f8a-8d1b-47ea-81c5-4688996f743b",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "41 Edición inválida — 400",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "PUT",
+      "sortNum": 410000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "d2706624-0280-442d-9968-35354d7ec7dd",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "42 Desactivar proveedor — 200",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "PATCH",
+      "sortNum": 420000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": false",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "876cdfee-05fd-45f9-bf30-1ec156d11096",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "43 Reactivar proveedor — 200",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "PATCH",
+      "sortNum": 430000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": true",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "8d6cec1f-7019-4abe-8b40-a26541c88cf6",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "44 Estado proveedor inválido — 400",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "PATCH",
+      "sortNum": 440000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": \"false\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "b1e1636e-ace6-450f-b089-5c5b8955ed5c",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "45 JSON inválido — 400",
+      "url": "{{baseUrl}}/proveedores",
+      "method": "POST",
+      "sortNum": 450000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{\"nombre\":"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "15ab2297-9521-49f8-b0f7-302dfcdb125e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "46 Ruta inexistente — 404",
+      "url": "{{baseUrl}}/ruta-que-no-existe",
+      "method": "GET",
+      "sortNum": 460000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "987ad5de-cebe-4cd9-a7d9-8c7418561427",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "47 Logout admin — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 470000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "4c65691e-5455-4873-b546-43aba9412903",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "48 Login cliente inactivo — 401",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 480000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveCliente}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "11982837-4eb5-4ea0-8479-5390d37f0d12",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "49 Login admin para restaurar — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 490000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoAdmin}}\",",
+          "  \"clave\": \"{{claveAdmin}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "a69c7c92-e550-4af5-b12f-9ecaaed26087",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "50 Reactivar cliente — 200",
+      "url": "{{baseUrl}}/usuarios/{{idCliente}}/estado",
+      "method": "PATCH",
+      "sortNum": 500000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": true",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "23a43d49-8345-4bbe-a82d-c66ce922e9ae",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "51 Logout final — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 510000,
+      "created": "2026-10-24T00:00:00.000Z",
+      "modified": "2026-10-24T00:00:00.000Z",
+      "headers": []
+    }
+  ]
+}

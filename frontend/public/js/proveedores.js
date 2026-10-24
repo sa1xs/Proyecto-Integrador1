@@ -2,6 +2,10 @@
 import { API } from "./config.js";
 
 // null == estamos registrando, no editando.
+let numeroListado = 0;
+const filtrosProveedores = document.getElementById("filtrosProveedores");
+const buscarNombre = document.getElementById("buscarNombreProveedor");
+const buscarTipo = document.getElementById("buscarTipoProveedor");
 let idEnEdicion = null;
 let proveedorSeleccionado = null;
 
@@ -73,7 +77,21 @@ async function consultarAPI(url, metodo = "GET", datos = null) {
 }
 
 async function cargarProveedores() {
-  const proveedores = await consultarAPI(API.PROVEEDORES);
+  const numero = ++numeroListado;
+  const parametros = new URLSearchParams({
+    nombre: buscarNombre.value.trim(),
+    tipoServicio: buscarTipo.value.trim()
+  });
+  let proveedores;
+  try {
+    proveedores = await consultarAPI(`${API.PROVEEDORES}?${parametros}`);
+  } catch (error) {
+    if (numero !== numeroListado) return;
+    tabla.replaceChildren();
+    throw error;
+  }
+  // Ignora respuestas de búsquedas anteriores que llegaron tarde.
+  if (numero !== numeroListado) return;
 
   if (!Array.isArray(proveedores)) {
     throw new Error("No se recibió un listado válido.");
@@ -85,7 +103,7 @@ async function cargarProveedores() {
     tabla.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center text-secondary py-4">
-                    No hay proveedores registrados.
+                    No se encontraron proveedores.
                 </td>
             </tr>
         `;
@@ -293,3 +311,21 @@ elementoFormulario.addEventListener("shown.bs.modal", () => {
 cargarProveedores().catch((error) => {
   mostrarMensaje(mensajeListado, error.message);
 });
+
+
+async function aplicarFiltros(evento) {
+  evento.preventDefault();
+  if (evento.type === "reset") {
+    buscarNombre.value = "";
+    buscarTipo.value = "";
+  }
+  mostrarMensaje(mensajeListado, "");
+  try {
+    await cargarProveedores();
+  } catch (error) {
+    mostrarMensaje(mensajeListado, error.message);
+  }
+}
+
+filtrosProveedores.addEventListener("submit", aplicarFiltros);
+filtrosProveedores.addEventListener("reset", aplicarFiltros);

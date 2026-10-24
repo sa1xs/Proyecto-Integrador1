@@ -1,19 +1,30 @@
 const Proveedor = require("../models/Proveedor");
 
 //GET.
-const obtenerProveedores = async (req, res) => {
+const obtenerProveedores = async (req, res, next) => {
   try {
-    const proveedores = await Proveedor.find();
+    const filtros = {};
+    for (const campo of ["nombre", "tipoServicio"]) {
+      const valor = req.query[campo];
+      if (valor === undefined) continue;
+      if (typeof valor !== "string") {
+        return res.status(400).json({ message: `${campo} debe ser texto` });
+      }
+      if (valor.trim()) {
+        // Trata símbolos como puntos y paréntesis como texto literal.
+        const texto = valor.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        filtros[campo] = { $regex: texto, $options: "i" };
+      }
+    }
+    const proveedores = await Proveedor.find(filtros).sort({ nombre: 1 });
     res.status(200).json(proveedores);
   } catch (error) {
-    res.status(500).json({
-      message: "No se pudieron consultar los proveedores",
-    });
-  }
+        return next(error);
+    }
 };
 
 //GET por ID.
-const obtenerProveedorPorId = async (req, res) => {
+const obtenerProveedorPorId = async (req, res, next) => {
   try {
     const proveedor = await Proveedor.findById(req.params.id);
 
@@ -25,20 +36,12 @@ const obtenerProveedorPorId = async (req, res) => {
 
     res.status(200).json(proveedor);
   } catch (error) {
-    if (error.name === "CastError" && error.path === "_id") {
-      return res.status(400).json({
-        message: "El ID del proveedor no es válido",
-      });
+        return next(error);
     }
-
-    res.status(500).json({
-      message: "No se pudo consultar el proveedor",
-    });
-  }
 };
 
 //POST.
-const crearProveedor = async (req, res) => {
+const crearProveedor = async (req, res, next) => {
   try {
     const { nombre, tipoServicio, correo, telefono } = req.body ?? {};
 
@@ -70,21 +73,12 @@ const crearProveedor = async (req, res) => {
         : null,
     });
   } catch (error) {
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        message: "Los datos del proveedor no son válidos",
-        errores: Object.values(error.errors).map((detalle) => detalle.message)
-      });
+        return next(error);
     }
-
-    res.status(500).json({
-      message: "No se pudo registrar el proveedor",
-    });
-  }
 };
 
 //PUT por ID.
-const actualizarProveedor = async (req, res) => {
+const actualizarProveedor = async (req, res, next) => {
     try {
         const { nombre, tipoServicio, correo, telefono } = req.body ?? {};
 
@@ -114,29 +108,12 @@ const actualizarProveedor = async (req, res) => {
             datos: proveedorActualizado
         });
     } catch (error) {
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({
-                message: 'Los datos del proveedor no son válidos',
-                errores: Object.values(error.errors).map(
-                    (detalle) => detalle.message
-                )
-            });
-        }
-
-        if (error.name === 'CastError' && error.path === '_id') {
-            return res.status(400).json({
-                message: 'El ID del proveedor no es válido'
-            });
-        }
-
-        res.status(500).json({
-            message: 'No se pudo actualizar el proveedor'
-        });
+        return next(error);
     }
 };
 
 //PATCH por ID.
-const cambiarEstadoProveedor = async (req, res) => {
+const cambiarEstadoProveedor = async (req, res, next) => {
     try {
         const { activo } = req.body ?? {};
 
@@ -164,24 +141,7 @@ const cambiarEstadoProveedor = async (req, res) => {
             datos: proveedorActualizado
         });
     } catch (error) {
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({
-                message: 'Los datos del proveedor no son válidos',
-                errores: Object.values(error.errors).map(
-                    (detalle) => detalle.message
-                )
-            });
-        }
-
-        if (error.name === 'CastError' && error.path === '_id') {
-            return res.status(400).json({
-                message: 'El ID del proveedor no es válido'
-            });
-        }
-
-        res.status(500).json({
-            message: 'No se pudo cambiar el estado del proveedor'
-        });
+        return next(error);
     }
 };
 

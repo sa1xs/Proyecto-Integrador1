@@ -25,6 +25,21 @@
             </button>
         </div>
 
+        <form id="filtrosProveedores" class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label for="buscarNombreProveedor" class="form-label">Nombre</label>
+                <input id="buscarNombreProveedor" type="search" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label for="buscarTipoProveedor" class="form-label">Tipo de servicio</label>
+                <input id="buscarTipoProveedor" type="search" class="form-control">
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-azul">Buscar</button>
+                <button type="reset" class="btn btn-outline-secondary">Limpiar</button>
+            </div>
+        </form>
+
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>

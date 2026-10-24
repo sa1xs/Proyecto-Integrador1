@@ -2,7 +2,7 @@ const Usuario = require("../models/Usuario");
 const bcrypt = require("bcrypt");
 
 //GET.
-const obtenerUsuarios = async (req, res) => {
+const obtenerUsuarios = async (req, res, next) => {
   try {
     const { rol, buscar } = req.query;
     const filtros = {};
@@ -48,14 +48,12 @@ const obtenerUsuarios = async (req, res) => {
 
     return res.json(usuarios);
   } catch (error) {
-    return res.status(500).json({
-      message: "No se pudieron consultar los usuarios",
-    });
-  }
+        return next(error);
+    }
 };
 
 //GET por ID.
-const obtenerUsuarioPorId = async (req, res) => {
+const obtenerUsuarioPorId = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -75,14 +73,12 @@ const obtenerUsuarioPorId = async (req, res) => {
 
     return res.json(usuario);
   } catch (error) {
-    return res.status(500).json({
-      message: "No se pudo consultar el usuario",
-    });
-  }
+        return next(error);
+    }
 };
 
 //POST.
-const crearUsuario = async (req, res) => {
+const crearUsuario = async (req, res, next) => {
   try {
     const { nombre, correo, clave, telefono, direccion } = req.body ?? {};
 
@@ -129,26 +125,12 @@ const crearUsuario = async (req, res) => {
       },
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        message: "El correo ya está registrado",
-      });
+        return next(error);
     }
-
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        message: "Revisá los campos obligatorios y el formato del correo",
-      });
-    }
-
-    res.status(500).json({
-      message: "No se pudo registrar el usuario",
-    });
-  }
 };
 
 //PUT por ID.
-const actualizarUsuario = async (req, res) => {
+const actualizarUsuario = async (req, res, next) => {
   try {
     const { nombre, correo, telefono, direccion } = req.body ?? {};
     const cambios = {};
@@ -180,11 +162,11 @@ const actualizarUsuario = async (req, res) => {
       datos: usuario,
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+        return next(error);
+    }
 };
 
-const cambiarEstadoUsuario = async (req, res) => {
+const cambiarEstadoUsuario = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { activo } = req.body ?? {};
@@ -242,13 +224,11 @@ const cambiarEstadoUsuario = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "No se pudo cambiar el estado de la cuenta",
-    });
-  }
+        return next(error);
+    }
 };
 
-const obtenerMiPerfil = async (req, res) => {
+const obtenerMiPerfil = async (req, res, next) => {
   try {
     const usuario = await Usuario.findById(req.usuario._id).select(
       "nombre correo telefono direccion",
@@ -264,13 +244,11 @@ const obtenerMiPerfil = async (req, res) => {
       datos: usuario,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: "No se pudo consultar el perfil",
-    });
-  }
+        return next(error);
+    }
 };
 
-const actualizarMiPerfil = async (req, res) => {
+const actualizarMiPerfil = async (req, res, next) => {
   try {
     const { nombre, correo, telefono, direccion } = req.body ?? {};
     const cambios = {};
@@ -312,23 +290,8 @@ const actualizarMiPerfil = async (req, res) => {
       datos: usuario,
     });
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({
-        message: "El correo ya está registrado",
-      });
+        return next(error);
     }
-
-    if (error.name === "ValidationError") {
-      return res.status(400).json({
-        message: "Revisá los datos del perfil",
-        errores: Object.values(error.errors).map((detalle) => detalle.message),
-      });
-    }
-
-    return res.status(500).json({
-      message: "No se pudo actualizar el perfil",
-    });
-  }
 };
 
 module.exports = {

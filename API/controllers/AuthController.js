@@ -1,7 +1,7 @@
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcrypt");
 
-const iniciarSesion = async (req, res) => {
+const iniciarSesion = async (req, res, next) => {
     try {
         const { correo, clave } = req.body ?? {};
 
@@ -31,20 +31,12 @@ const iniciarSesion = async (req, res) => {
         }
 
         req.session.regenerate((error) => {
-            if (error) {
-                return res.status(500).json({
-                    message: "No se pudo iniciar la sesión"
-                });
-            }
+            if (error) return next(error);
 
             req.session.usuarioId = usuario._id.toString();
 
             req.session.save((error) => {
-                if (error) {
-                    return res.status(500).json({
-                        message: "No se pudo guardar la sesión"
-                    });
-                }
+                if (error) return next(error);
 
                 return res.json({
                     mensaje: "Sesión iniciada",
@@ -58,13 +50,11 @@ const iniciarSesion = async (req, res) => {
             });
         });
     } catch (error) {
-        return res.status(500).json({
-            message: "No se pudo iniciar sesión"
-        });
+        return next(error);
     }
 };
 
-const obtenerSesion = async (req, res) => {
+const obtenerSesion = async (req, res, next) => {
     try {
         if (!req.session.usuarioId) {
             return res.status(401).json({
@@ -84,11 +74,7 @@ const obtenerSesion = async (req, res) => {
                     sameSite: "lax"
                 });
 
-                if (error) {
-                    return res.status(500).json({
-                        message: "No se pudo invalidar la sesión"
-                    });
-                }
+                if (error) return next(error);
 
                 return res.status(401).json({
                     message: "La sesión ya no es válida"
@@ -105,19 +91,13 @@ const obtenerSesion = async (req, res) => {
             }
         });
     } catch (error) {
-        return res.status(500).json({
-            message: "No se pudo consultar la sesión"
-        });
+        return next(error);
     }
 };
 
-const cerrarSesion = (req, res) => {
+const cerrarSesion = (req, res, next) => {
     req.session.destroy((error) => {
-        if (error) {
-            return res.status(500).json({
-                message: "No se pudo cerrar la sesión"
-            });
-        }
+        if (error) return next(error);
 
         res.clearCookie("lsct.sid", {
             path: "/",

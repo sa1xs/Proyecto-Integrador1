@@ -20,9 +20,7 @@ const requiereSesion = async (req, res, next) => {
         req.usuario = usuario;
         next();
     } catch (error) {
-        return res.status(500).json({
-            message: "No se pudo verificar la sesión"
-        });
+        return next(error);
     }
 };
 
