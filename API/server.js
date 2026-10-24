@@ -41,6 +41,7 @@ app.get("/", (req, res) => {
 app.use("/auth", require("./routes/AuthRoutes"));
 app.use("/usuarios", require("./routes/UsuarioRoutes"));
 app.use("/proveedores", require("./routes/ProveedorRoutes"));
+app.use("/servicios", require("./routes/ServicioRoutes"));
 
 app.use(rutaNoEncontrada);
 app.use(manejarErrores);
