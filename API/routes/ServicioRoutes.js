@@ -1,13 +1,19 @@
 const express = require("express");
 const router = express.Router();
 
-const { crearServicio } = require("../controllers/ServicioController");
+const {
+    crearServicio,
+    obtenerServicios
+} = require("../controllers/ServicioController");
+
 const {
     requiereSesion,
     requiereAdministrador
 } = require("../middleware/auth");
 
-// El registro de servicios requiere una sesión de administrador.
-router.post("/", requiereSesion, requiereAdministrador, crearServicio);
+router.use(requiereSesion, requiereAdministrador);
+
+router.get("/", obtenerServicios);
+router.post("/", crearServicio);
 
 module.exports = router;

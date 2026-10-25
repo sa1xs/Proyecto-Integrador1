@@ -38,7 +38,6 @@ const crearServicio = async (req, res, next) => {
             });
         }
 
-        // El servidor establece el estado inicial del servicio.
         const servicio = await Servicio.create({
             nombre,
             tipo,
@@ -57,4 +56,17 @@ const crearServicio = async (req, res, next) => {
     }
 };
 
-module.exports = { crearServicio };
+const obtenerServicios = async (req, res, next) => {
+    try {
+        const servicios = await Servicio.find()
+            // Obtiene el nombre del proveedor asociado.
+            .populate("proveedor", "nombre")
+            .sort({ createdAt: -1 });
+
+        return res.json(servicios);
+    } catch (error) {
+        return next(error);
+    }
+};
+
+module.exports = { crearServicio, obtenerServicios };

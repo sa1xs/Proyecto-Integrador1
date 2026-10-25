@@ -44,7 +44,7 @@
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
                     <h2 class="h4 mb-0">Administrar servicios</h2>
                     <button id="btnNuevoServicio" type="button" class="btn btn-azul" data-bs-toggle="modal"
-                        data-bs-target="#modalServicio">
+                        data-bs-target="#modalServicio" disabled>
                         Nuevo servicio
                     </button>
                 </div>
@@ -144,7 +144,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             Cancelar
                         </button>
-                        <button id="btnGuardarServicio" type="button" class="btn btn-azul">
+                        <button id="btnGuardarServicio" type="submit" class="btn btn-azul">
                             Guardar servicio
                         </button>
                     </div>
@@ -181,6 +181,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="../js/menu.js"></script>
+    <script type="module" src="../js/servicios.js"></script>
 </body>
 
 </html>
