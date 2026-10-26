@@ -1,8 +1,10 @@
 # LSCT — Sistema de cotizaciones y reservas
 
 Prototipo académico: Node.js, Express, MongoDB/Mongoose y HTML/Bootstrap.
-Implementados: cuentas, sesiones, roles, perfil, consulta de clientes y proveedores.
-Servicios y solicitudes tienen interfaces, pero su API todavía está pendiente.
+Implementados: cuentas, sesiones, roles, perfil, consulta de clientes, proveedores,
+registro y listado administrativo de servicios y creación de solicitudes de cotización.
+El catálogo público, la visibilidad de servicios y la consulta/gestión de solicitudes
+continúan en el sprint 2; sus interfaces todavía no ofrecen esas operaciones.
 
 ## Instalación
 
@@ -73,6 +75,9 @@ Base: `http://localhost:5001`. Las peticiones con cuerpo usan `Content-Type: app
 | POST | `/proveedores` | Administrador | Registro; 201 y `{mensaje, datos, advertencia}` |
 | PUT | `/proveedores/:id` | Administrador | Editar datos; 200 y `{mensaje, datos}` |
 | PATCH | `/proveedores/:id` | Administrador | `{ "activo": false }` o true; 200 |
+| GET | `/servicios` | Administrador | Array con proveedor asociado (nombre), ordenado del más reciente al más antiguo |
+| POST | `/servicios` | Administrador | nombre, tipo, descripcion, proveedor; 201 y `{mensaje, datos}` |
+| POST | `/solicitudes` | Cliente | destino, fechaSalida, fechaRegreso, cantidadViajeros, edades; 201 y `{mensaje, datos}` |
 
 Los PUT existentes conservan los campos omitidos. Rol, estado y contraseña no son editables
 mediante estas actualizaciones. No hay eliminación física de cuentas o proveedores.
@@ -106,6 +111,53 @@ Registro de proveedor:
 Nombre, tipo y al menos un contacto son obligatorios. Un nombre repetido produce una
 advertencia, pero permite guardar. La edición acepta estos mismos cuatro campos.
 
+### Servicios y solicitudes
+
+Registro de servicio (sustituir el identificador por el de un proveedor activo):
+
+```json
+{"nombre":"Traslado al aeropuerto","tipo":"Transporte","descripcion":"Traslado privado de prueba","proveedor":"507f1f77bcf86cd799439011"}
+```
+
+Los cuatro campos son obligatorios y deben ser texto no vacío. Un ID mal formado
+produce 400; un proveedor inexistente, 404; un proveedor inactivo, 400.
+El servidor crea el servicio con `activo: true` y `publicado: false` (uso interno).
+La respuesta 201 contiene `mensaje` y `datos`, incluyendo el identificador generado.
+El GET administrativo incluye el nombre del proveedor asociado. No hay todavía
+rutas públicas de catálogo, edición de servicios ni cambio de visibilidad.
+
+Creación de solicitud desde una sesión de cliente:
+
+```json
+{"destino":"La Fortuna","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8]}
+```
+
+Las fechas deben ser fechas reales en formato YYYY-MM-DD; se almacenan como texto
+para conservar el día de calendario. El regreso puede ser el mismo día o posterior
+a la salida. No se aplica una restricción adicional contra fechas pasadas.
+La cantidad es un entero positivo y debe coincidir con la longitud de edades;
+cada edad es un entero no negativo. No se exigen nombres de viajeros.
+El servidor toma `cliente` desde la sesión y asigna `estado: "Nueva"`, aunque el
+body intente proporcionar otros valores. Los errores de estos datos devuelven 400.
+Una sesión de administrador recibe 403; sin sesión válida se recibe 401.
+
+Respuesta de creación (identificadores ficticios; se omiten timestamps):
+
+```json
+{"mensaje":"Solicitud registrada","datos":{"_id":"507f1f77bcf86cd799439012","cliente":"507f1f77bcf86cd799439011","destino":"La Fortuna","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8],"estado":"Nueva"}}
+```
+
+Error de fechas:
+
+```json
+{"message":"Indicá fechas válidas; el regreso no puede ser anterior a la salida"}
+```
+
+En el navegador, usar una cuenta cliente en /views/solicitudes.html. El formulario
+genera las edades al cambiar la cantidad; confirma código y estado al guardar y
+conserva los datos ante errores. Mis solicitudes y Gestión administrativa permanecen
+deshabilitadas hasta implementar sus operaciones.
+
 ### Búsquedas
 
 `GET /usuarios?rol=cliente&buscar=ana` busca por nombre, correo o teléfono.
@@ -133,11 +185,11 @@ Los rechazos de reglas del negocio, como falta de permisos, mantienen su respues
 
 ## Pruebas
 
-- [Colección consolidada de Thunder Client](API/docs/pruebas/Collection_LSCT.json).
+- [Colección consolidada de Thunder Client](API/docs/pruebas/Collection.json).
 - [Preparación, orden de ejecución y evidencia pendiente](API/docs/pruebas/GUIA.md).
-- Comprobaciones automatizadas sin MongoDB: desde `API`, `node --test tests/*.test.js`.
 
 La colección no contiene credenciales ni IDs de la base real. Importarla, configurar las
 variables locales y ejecutarla antes de dar por completadas las pruebas manuales de Jira.
-Las comprobaciones automatizadas usan dobles del modelo; no sustituyen las pruebas con MongoDB
-ni la validación visual en navegador.
+La colección contiene 80 peticiones con el código esperado en el nombre. No incluye
+aserciones automáticas: comparar cada respuesta con la guía y comprobar persistencia
+en MongoDB. No sustituye la validación visual en navegador.
