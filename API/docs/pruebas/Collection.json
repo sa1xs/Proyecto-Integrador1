@@ -2,7 +2,7 @@
   "clientName": "Thunder Client",
   "collectionName": "LSCT — API implementada",
   "collectionId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
-  "dateExported": "2026-10-24T00:00:00.000Z",
+  "dateExported": "2026-10-26T00:00:00.000Z",
   "version": "1.4",
   "folders": [],
   "requests": [
@@ -995,6 +995,809 @@
       "created": "2026-10-24T00:00:00.000Z",
       "modified": "2026-10-24T00:00:00.000Z",
       "headers": []
+    },
+    {
+      "_id": "351a7cbf-7765-4fad-aa4f-f763cb2a3e1c",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "52 Sin sesión: servicios — 401",
+      "url": "{{baseUrl}}/servicios",
+      "method": "GET",
+      "sortNum": 520000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "ebde51c6-fd83-4b20-9023-3e63cc70206b",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "53 Sin sesión: crear solicitud — 401",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 530000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "44a53bf9-c9c9-4958-9ec5-a7afec294163",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "54 Login admin para servicios — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 540000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoAdmin}}\",",
+          "  \"clave\": \"{{claveAdmin}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "6aefa1c2-17a0-4b42-bb53-612244c99975",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "55 Crear servicio con proveedor activo — 201",
+      "url": "{{baseUrl}}/servicios",
+      "method": "POST",
+      "sortNum": 550000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Traslado de prueba\",",
+          "  \"tipo\": \"Transporte\",",
+          "  \"descripcion\": \"Servicio ficticio para pruebas\",",
+          "  \"proveedor\": \"{{idProveedor}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "33c38f84-bd20-4004-81f5-8f963d997451",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "56 Listar servicios y comprobar persistencia — 200",
+      "url": "{{baseUrl}}/servicios",
+      "method": "GET",
+      "sortNum": 560000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "74d13185-4b37-472b-bcb6-028016eaf846",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "57 Servicio incompleto — 400",
+      "url": "{{baseUrl}}/servicios",
+      "method": "POST",
+      "sortNum": 570000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \" \",",
+          "  \"tipo\": \"Transporte\",",
+          "  \"descripcion\": \"Servicio ficticio para pruebas\",",
+          "  \"proveedor\": \"{{idProveedor}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "8adce090-b694-410d-a635-c0c7440b1d8e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "58 Servicio con ID proveedor inválido — 400",
+      "url": "{{baseUrl}}/servicios",
+      "method": "POST",
+      "sortNum": 580000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Traslado de prueba\",",
+          "  \"tipo\": \"Transporte\",",
+          "  \"descripcion\": \"Servicio ficticio para pruebas\",",
+          "  \"proveedor\": \"no-es-id\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "46ac4e6b-0746-4fc8-8823-594079ab5ac7",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "59 Servicio con proveedor inexistente — 404",
+      "url": "{{baseUrl}}/servicios",
+      "method": "POST",
+      "sortNum": 590000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Traslado de prueba\",",
+          "  \"tipo\": \"Transporte\",",
+          "  \"descripcion\": \"Servicio ficticio para pruebas\",",
+          "  \"proveedor\": \"000000000000000000000000\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "2b524c22-3cf1-481c-bb01-16b42ca2b35e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "60 Desactivar proveedor para probar servicio — 200",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "PATCH",
+      "sortNum": 600000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": false",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "49e857d0-c25e-4104-9774-d25059d4e758",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "61 Servicio con proveedor inactivo — 400",
+      "url": "{{baseUrl}}/servicios",
+      "method": "POST",
+      "sortNum": 610000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Traslado de prueba\",",
+          "  \"tipo\": \"Transporte\",",
+          "  \"descripcion\": \"Servicio ficticio para pruebas\",",
+          "  \"proveedor\": \"{{idProveedor}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "a0ea466e-1d38-4757-9d14-1b2aa5ece50d",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "62 Restaurar proveedor activo — 200",
+      "url": "{{baseUrl}}/proveedores/{{idProveedor}}",
+      "method": "PATCH",
+      "sortNum": 620000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"activo\": true",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "8aa508c3-1593-4367-aa4a-7b7f52a05d4b",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "63 Admin no crea solicitudes — 403",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 630000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "0ffec9e2-c135-4c99-a2d8-4fff9b5ed3d0",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "64 Cerrar sesión admin — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 640000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "1a37af5a-1f4b-4816-bcc5-636d1f874443",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "65 Login cliente para solicitudes — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 650000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveCliente}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "027082ac-8574-4d85-844b-e026c5b849c8",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "66 Cliente no lista servicios administrativos — 403",
+      "url": "{{baseUrl}}/servicios",
+      "method": "GET",
+      "sortNum": 660000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "b93f93cf-e2e5-43db-8c8d-8e9c23224cf8",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "67 Cliente no registra servicios — 403",
+      "url": "{{baseUrl}}/servicios",
+      "method": "POST",
+      "sortNum": 670000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"nombre\": \"Traslado de prueba\",",
+          "  \"tipo\": \"Transporte\",",
+          "  \"descripcion\": \"Servicio ficticio para pruebas\",",
+          "  \"proveedor\": \"{{idProveedor}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "886c10cf-4db6-442e-9c34-8fb6d832bcc8",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "68 Crear solicitud — 201",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 680000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "54f8acfb-e6d2-48a8-9b28-d54ec133fba6",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "69 Solicitud sin destino — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 690000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \" \",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "cc9c7950-5cb7-49b2-83b3-64f01891dec0",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "70 Solicitud con fecha imposible — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 700000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-02-30\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "3b505167-5ba1-4f19-96ae-abd2fe9b8a90",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "71 Solicitud con fecha ausente — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 710000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "46b7d381-4ed0-46fe-9560-dd1f59140a1c",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "72 Regreso anterior a salida — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 720000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-01\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "e56a9683-4b9b-43c4-a18f-e16a7c528745",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "73 Cantidad de viajeros cero — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 730000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 0,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "389c35a2-a819-43d8-8886-c6d2174d02b8",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "74 Cantidad decimal — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 740000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 1.5,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "291ddf34-734a-4fd6-8c78-985767ecb4b6",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "75 Cantidad y edades no coinciden — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 750000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "c2591751-57a9-4bae-bc68-580fd76e4e8f",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "76 Edad negativa — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 760000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    -1",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "40823f0e-3b66-4d55-a7f3-0ab65eb0a2d2",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "77 Edad decimal — 400",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 770000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8.5",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "55ef086b-3abb-4386-8277-3e8517064149",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "78 Cliente y estado enviados se ignoran — 201",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 780000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ],",
+          "  \"cliente\": \"{{idAdmin}}\",",
+          "  \"estado\": \"Aprobada\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "d8dfbb80-8857-451c-9c01-31e5443bf142",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "79 Cerrar sesión cliente — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 790000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "af68df4f-2ec1-452b-b7ed-70862c4dd28f",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "80 Solicitud después del cierre — 401",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 800000,
+      "created": "2026-10-26T00:00:00.000Z",
+      "modified": "2026-10-26T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
     }
   ]
 }
