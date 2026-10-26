@@ -5,5 +5,6 @@ export const API = {
     AUTH: `${API_BASE}/auth`,
     USUARIOS: `${API_BASE}/usuarios`,
     PROVEEDORES: `${API_BASE}/proveedores`,
-    SERVICIOS: `${API_BASE}/servicios`
+    SERVICIOS: `${API_BASE}/servicios`,
+    SOLICITUDES: `${API_BASE}/solicitudes`
 };
