@@ -3,7 +3,9 @@ const router = express.Router();
 
 const {
     crearServicio,
-    obtenerServicios
+    obtenerServicios,
+    actualizarServicio,
+    cambiarVisibilidadServicio
 } = require("../controllers/ServicioController");
 
 const {
@@ -15,5 +17,7 @@ router.use(requiereSesion, requiereAdministrador);
 
 router.get("/", obtenerServicios);
 router.post("/", crearServicio);
+router.put("/:id", actualizarServicio);
+router.patch("/:id/visibilidad", cambiarVisibilidadServicio);
 
 module.exports = router;
