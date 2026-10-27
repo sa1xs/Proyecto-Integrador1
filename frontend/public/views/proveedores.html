@@ -56,6 +56,34 @@
         </div>
     </main>
 
+    <div id="modalDetalleProveedor" class="modal fade" tabindex="-1" aria-labelledby="tituloDetalleProveedor">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="tituloDetalleProveedor" class="modal-title fs-5">Detalle del proveedor</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="mensajeDetalleProveedor" class="d-none" role="status" aria-live="polite"></div>
+                    <div id="datosDetalleProveedor" hidden>
+                        <dl>
+                            <dt>Nombre</dt><dd id="detalleProveedorNombre"></dd>
+                            <dt>Tipo de servicio</dt><dd id="detalleProveedorTipo"></dd>
+                            <dt>Correo</dt><dd id="detalleProveedorCorreo"></dd>
+                            <dt>Teléfono</dt><dd id="detalleProveedorTelefono"></dd>
+                            <dt>Estado</dt><dd id="detalleProveedorEstado"></dd>
+                        </dl>
+                        <h3 class="h6">Servicios asociados</h3>
+                        <ul id="serviciosDetalleProveedor" class="list-group"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="modalProveedor" class="modal fade" tabindex="-1" aria-labelledby="tituloModalProveedor">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

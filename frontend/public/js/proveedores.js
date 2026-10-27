@@ -30,6 +30,55 @@ const elementoEstado = document.getElementById("modalEstado");
 
 const modalProveedor = new bootstrap.Modal(elementoFormulario);
 const modalEstado = new bootstrap.Modal(elementoEstado);
+const elementoDetalle = document.getElementById("modalDetalleProveedor");
+const modalDetalle = new bootstrap.Modal(elementoDetalle);
+let numeroDetalle = 0;
+elementoDetalle.addEventListener("hide.bs.modal", () => { numeroDetalle++; });
+
+async function abrirDetalle(id) {
+  const numero = ++numeroDetalle;
+  const mensaje = document.getElementById("mensajeDetalleProveedor");
+  const datos = document.getElementById("datosDetalleProveedor");
+  const lista = document.getElementById("serviciosDetalleProveedor");
+  datos.hidden = true;
+  lista.replaceChildren();
+  mostrarMensaje(mensaje, "Cargando proveedor y servicios...", "info");
+  modalDetalle.show();
+  try {
+    const [proveedor, servicios] = await Promise.all([
+      consultarAPI(`${API.PROVEEDORES}/${id}`),
+      consultarAPI(API.SERVICIOS)
+    ]);
+    if (numero !== numeroDetalle) return;
+    if (!Array.isArray(servicios)) throw new Error("No se recibió un listado válido de servicios.");
+    for (const [campo, valor] of Object.entries({
+      Nombre: proveedor.nombre, Tipo: proveedor.tipoServicio,
+      Correo: proveedor.correo || "Sin correo", Telefono: proveedor.telefono || "Sin teléfono",
+      Estado: proveedor.activo ? "Activo" : "Inactivo"
+    })) {
+      document.getElementById(`detalleProveedor${campo}`).textContent = valor;
+    }
+    const asociados = servicios.filter((servicio) =>
+      String(servicio.proveedor?._id ?? servicio.proveedor) === id
+    );
+    for (const servicio of asociados) {
+      const item = document.createElement("li");
+      item.className = "list-group-item";
+      item.textContent = `${servicio.nombre} — ${servicio.tipo} — ${servicio.publicado ? "Publicado" : "Uso interno"}`;
+      lista.appendChild(item);
+    }
+    if (!asociados.length) {
+      const item = document.createElement("li");
+      item.className = "list-group-item text-secondary";
+      item.textContent = "Este proveedor no tiene servicios asociados.";
+      lista.appendChild(item);
+    }
+    datos.hidden = false;
+    mostrarMensaje(mensaje, "");
+  } catch (error) {
+    if (numero === numeroDetalle) mostrarMensaje(mensaje, error.message);
+  }
+}
 
 function mostrarMensaje(elemento, texto, tipo = "danger") {
   elemento.textContent = texto;
@@ -122,7 +171,10 @@ async function cargarProveedores() {
             </td>
             <td><span class="estado badge"></span></td>
             <td>
-                <div class="d-flex gap-2">
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="detalle btn btn-outline-secondary btn-sm">
+                        Ver detalle
+                    </button>
                     <button type="button" class="editar btn btn-turquesa btn-sm">
                         Editar
                     </button>
@@ -146,6 +198,7 @@ async function cargarProveedores() {
     );
 
     fila.querySelector(".editar").onclick = () => abrirFormulario(proveedor);
+    fila.querySelector(".detalle").onclick = () => abrirDetalle(proveedor._id);
 
     const botonEstado = fila.querySelector(".cambiar-estado");
     botonEstado.textContent = proveedor.activo ? "Desactivar" : "Reactivar";
