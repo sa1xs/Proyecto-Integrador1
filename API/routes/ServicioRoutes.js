@@ -5,13 +5,18 @@ const {
     crearServicio,
     obtenerServicios,
     actualizarServicio,
-    cambiarVisibilidadServicio
+    cambiarVisibilidadServicio,
+    obtenerCatalogo,
+    obtenerDetallePublico
 } = require("../controllers/ServicioController");
 
 const {
     requiereSesion,
     requiereAdministrador
 } = require("../middleware/auth");
+
+router.get("/publicos", obtenerCatalogo);
+router.get("/publicos/:id", obtenerDetallePublico);
 
 router.use(requiereSesion, requiereAdministrador);
 

@@ -138,4 +138,27 @@ const cambiarVisibilidadServicio = async (req, res, next) => {
     }
 };
 
-module.exports = { crearServicio, obtenerServicios, actualizarServicio, cambiarVisibilidadServicio };
+// La consulta pública no expone información del proveedor ni campos internos.
+const obtenerCatalogo = async (req, res, next) => {
+    try {
+        const servicios = await Servicio.find({ activo: true, publicado: true })
+            .select("_id nombre tipo descripcion").sort({ createdAt: -1 });
+        return res.json(servicios);
+    } catch (error) { return next(error); }
+};
+
+const obtenerDetallePublico = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+            return res.status(400).json({ message: "El identificador del servicio no es válido" });
+        }
+        const servicio = await Servicio.findOne({ _id: id, activo: true, publicado: true })
+            .select("_id nombre tipo descripcion");
+        if (!servicio) return res.status(404).json({ message: "Servicio no disponible" });
+        return res.json(servicio);
+    } catch (error) { return next(error); }
+};
+
+module.exports = { crearServicio, obtenerServicios, actualizarServicio, cambiarVisibilidadServicio,
+    obtenerCatalogo, obtenerDetallePublico };
