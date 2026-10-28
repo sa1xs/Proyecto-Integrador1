@@ -23,6 +23,124 @@ let esAdministrador = false;
 let cargando = false;
 let guardando = false;
 let servicios = [];
+let servicioEditar = null;
+let servicioVisibilidad = null;
+let cambiandoVisibilidad = false;
+let catalogo = [];
+let consultaDetalle = 0;
+const buscarCatalogo = document.getElementById("buscarCatalogo");
+const tarjetas = document.getElementById("tarjetasServicios");
+const sinCatalogo = document.getElementById("sinCatalogo");
+const mensajeCatalogo = document.getElementById("mensajeCatalogo");
+const elementoDetalle = document.getElementById("modalDetalleServicio");
+const elementoVisibilidad = document.getElementById("modalVisibilidad");
+const botonConfirmar = document.getElementById("btnConfirmarVisibilidad");
+
+function crearBoton(texto, accion) {
+    const boton = document.createElement("button");
+    boton.type = "button";
+    boton.className = "btn btn-outline-primary btn-sm me-2";
+    boton.textContent = texto;
+    boton.addEventListener("click", accion);
+    return boton;
+}
+
+function mostrarCatalogo() {
+    const texto = buscarCatalogo.value.trim().toLowerCase();
+    const resultados = catalogo.filter(item => [item.nombre, item.tipo]
+        .some(valor => String(valor).toLowerCase().includes(texto)));
+    tarjetas.replaceChildren();
+    sinCatalogo.hidden = resultados.length !== 0;
+    sinCatalogo.textContent = catalogo.length ? "No hay servicios que coincidan con la búsqueda."
+        : "No hay servicios publicados disponibles.";
+    for (const item of resultados) {
+        const columna = document.createElement("div");
+        columna.className = "col-md-6 col-lg-4";
+        const tarjeta = document.createElement("article");
+        tarjeta.className = "card card-body h-100";
+        const titulo = document.createElement("h2");
+        titulo.className = "h5";
+        titulo.textContent = item.nombre;
+        const categoria = document.createElement("p");
+        categoria.textContent = item.tipo;
+        tarjeta.append(titulo, categoria, crearBoton("Ver detalle", () => abrirDetalle(item._id)));
+        columna.append(tarjeta);
+        tarjetas.append(columna);
+    }
+}
+
+async function cargarCatalogo() {
+    buscarCatalogo.disabled = true;
+    sinCatalogo.hidden = true;
+    tarjetas.replaceChildren();
+    mostrarMensaje(mensajeCatalogo, "Cargando catálogo...", "info");
+    try {
+        const resultado = await consultarAPI(`${API.SERVICIOS}/publicos`);
+        if (!Array.isArray(resultado)) throw new Error("No se recibió un catálogo válido.");
+        catalogo = resultado;
+        mostrarCatalogo();
+        mostrarMensaje(mensajeCatalogo, "");
+    } catch (error) {
+        catalogo = [];
+        mostrarMensaje(mensajeCatalogo, `${error.message} Recargá la página para reintentar.`);
+    } finally { buscarCatalogo.disabled = false; }
+}
+
+async function abrirDetalle(id) {
+    const consulta = ++consultaDetalle;
+    const mensaje = document.getElementById("mensajeDetalleServicio");
+    for (const campo of ["nombre", "tipo", "descripcion"]) {
+        document.getElementById(`${campo}DetalleServicio`).textContent = "";
+    }
+    mostrarMensaje(mensaje, "Cargando detalle...", "info");
+    bootstrap.Modal.getOrCreateInstance(elementoDetalle).show();
+    try {
+        const item = await consultarAPI(`${API.SERVICIOS}/publicos/${encodeURIComponent(id)}`);
+        if (consulta !== consultaDetalle) return;
+        for (const campo of ["nombre", "tipo", "descripcion"]) {
+            document.getElementById(`${campo}DetalleServicio`).textContent = item[campo];
+        }
+        mostrarMensaje(mensaje, "");
+    } catch (error) {
+        if (consulta === consultaDetalle) mostrarMensaje(mensaje, error.message);
+    }
+}
+
+function abrirVisibilidad(servicio) {
+    if (!esAdministrador || cambiandoVisibilidad) return;
+    servicioVisibilidad = servicio;
+    mostrarMensaje(document.getElementById("mensajeVisibilidad"), "");
+    document.getElementById("textoVisibilidad").textContent =
+        `${servicio.publicado ? "¿Ocultar" : "¿Publicar"} el servicio «${servicio.nombre}»?`;
+    bootstrap.Modal.getOrCreateInstance(elementoVisibilidad).show();
+}
+
+async function confirmarVisibilidad() {
+    if (!esAdministrador || !servicioVisibilidad || cambiandoVisibilidad) return;
+    cambiandoVisibilidad = true;
+    botonConfirmar.disabled = true;
+    try {
+        const resultado = await consultarAPI(`${API.SERVICIOS}/${servicioVisibilidad._id}/visibilidad`,
+            "PATCH", { publicado: !servicioVisibilidad.publicado });
+        cambiandoVisibilidad = false;
+        bootstrap.Modal.getOrCreateInstance(elementoVisibilidad).hide();
+        mostrarMensaje(mensajePagina, resultado.mensaje, "success");
+        await actualizarListados();
+    } catch (error) {
+        mostrarMensaje(document.getElementById("mensajeVisibilidad"), error.message);
+    } finally {
+        cambiandoVisibilidad = false;
+        botonConfirmar.disabled = false;
+    }
+}
+
+async function actualizarListados() {
+    try { await cargarServicios(); }
+    catch (error) {
+        mostrarMensaje(mensajePagina, `El cambio se guardó, pero no se pudo actualizar el listado. ${error.message}`, "warning");
+    }
+    await cargarCatalogo();
+}
 
 function mostrarMensaje(elemento, texto, tipo = "danger") {
     elemento.textContent = texto;
@@ -48,7 +166,7 @@ async function consultarAPI(url, metodo = "GET", datos = null) {
         throw new Error("No se pudo conectar con la API.");
     }
 
-    if (respuesta.status === 401) {
+    if (respuesta.status === 401 && !url.startsWith(`${API.SERVICIOS}/publicos`)) {
         window.location.replace("/views/login.html");
         throw new Error("Debés iniciar sesión.");
     }
@@ -105,8 +223,7 @@ function mostrarServicios() {
             servicio.nombre,
             servicio.tipo,
             servicio.proveedor?.nombre || "Proveedor no disponible",
-            servicio.publicado ? "Publicado" : "Uso interno",
-            "—"
+            servicio.publicado ? "Publicado" : "Uso interno"
         ];
 
         // Muestra los datos como texto, sin interpretarlos como HTML.
@@ -116,6 +233,15 @@ function mostrarServicios() {
             fila.appendChild(celda);
         }
 
+        const acciones = document.createElement("td");
+        acciones.append(crearBoton("Editar", () => {
+            servicioEditar = servicio;
+            modal.show();
+        }));
+        const visibilidad = crearBoton(servicio.publicado ? "Ocultar" : "Publicar", () => abrirVisibilidad(servicio));
+        visibilidad.disabled = !servicio.activo && !servicio.publicado;
+        acciones.append(visibilidad);
+        fila.append(acciones);
         tablaServicios.appendChild(fila);
     }
 }
@@ -148,7 +274,12 @@ async function prepararFormulario(evento) {
     }
 
     formulario.reset();
-    document.getElementById("tituloServicio").textContent = "Nuevo servicio";
+    document.getElementById("tituloServicio").textContent = servicioEditar ? "Editar servicio" : "Nuevo servicio";
+    if (servicioEditar) {
+        nombre.value = servicioEditar.nombre;
+        tipo.value = servicioEditar.tipo;
+        descripcion.value = servicioEditar.descripcion;
+    }
 
     mostrarMensaje(mensajePagina, "");
     mostrarMensaje(mensajeFormulario, "Cargando proveedores...", "info");
@@ -174,7 +305,13 @@ async function prepararFormulario(evento) {
             );
         }
 
-        if (activos.length === 0) {
+        const proveedorActual = servicioEditar?.proveedor?._id;
+        if (proveedorActual && !activos.some(item => item._id === proveedorActual)) {
+            proveedor.add(new Option(`${servicioEditar.proveedor.nombre} (actual, inactivo)`, proveedorActual));
+        }
+        if (proveedorActual) proveedor.value = proveedorActual;
+
+        if (activos.length === 0 && !proveedorActual) {
             mostrarMensaje(
                 mensajeFormulario,
                 "No hay proveedores activos. Registrá o reactivá uno en Proveedores.",
@@ -224,7 +361,8 @@ async function guardarServicio(evento) {
 
     try {
         // La API verifica nuevamente el proveedor y define el estado inicial.
-        await consultarAPI(API.SERVICIOS, "POST", datos);
+        await consultarAPI(servicioEditar ? `${API.SERVICIOS}/${servicioEditar._id}` : API.SERVICIOS,
+            servicioEditar ? "PUT" : "POST", datos);
     } catch (error) {
         mostrarMensaje(mensajeFormulario, error.message);
         return;
@@ -239,7 +377,7 @@ async function guardarServicio(evento) {
 
     mostrarMensaje(
         mensajePagina,
-        "Servicio registrado correctamente para uso interno.",
+        servicioEditar ? "Servicio actualizado correctamente." : "Servicio registrado correctamente para uso interno.",
         "success"
     );
 
@@ -247,7 +385,7 @@ async function guardarServicio(evento) {
     botonNuevo.disabled = true;
 
     try {
-        await cargarServicios();
+        await actualizarListados();
     } catch (error) {
         mostrarMensaje(
             mensajePagina,
@@ -287,6 +425,8 @@ async function verificarAdministrador() {
 
     if (!esAdministrador) return;
 
+    document.getElementById("tab-servicios-admin").hidden = false;
+
     try {
         await cargarServicios();
     } catch (error) {
@@ -305,5 +445,13 @@ elementoModal.addEventListener("hide.bs.modal", (evento) => {
 
 formulario.addEventListener("submit", guardarServicio);
 buscarServicio.addEventListener("input", mostrarServicios);
+buscarCatalogo.addEventListener("input", mostrarCatalogo);
+botonNuevo.addEventListener("click", () => { servicioEditar = null; });
+botonConfirmar.addEventListener("click", confirmarVisibilidad);
+elementoVisibilidad.addEventListener("hide.bs.modal", evento => {
+    if (cambiandoVisibilidad) evento.preventDefault();
+});
+elementoDetalle.addEventListener("hide.bs.modal", () => { consultaDetalle++; });
 
 verificarAdministrador();
+cargarCatalogo();

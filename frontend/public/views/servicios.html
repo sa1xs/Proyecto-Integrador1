@@ -22,7 +22,7 @@
                 data-bs-target="#catalogo" role="tab" aria-controls="catalogo" aria-selected="true">
                 Catálogo
             </button>
-            <button id="tab-servicios-admin" type="button" class="nav-link" data-bs-toggle="tab"
+            <button id="tab-servicios-admin" type="button" class="nav-link" data-bs-toggle="tab" hidden
                 data-bs-target="#serviciosAdmin" role="tab" aria-controls="serviciosAdmin" aria-selected="false">
                 Administración
             </button>
@@ -30,6 +30,7 @@
 
         <div class="tab-content">
             <section id="catalogo" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tab-catalogo">
+                <div id="mensajeCatalogo" class="d-none" role="status" aria-live="polite"></div>
                 <label for="buscarCatalogo" class="form-label">Buscar por nombre o tipo</label>
                 <input id="buscarCatalogo" type="search" class="form-control mb-4">
 
@@ -129,7 +130,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="proveedorServicio" class="form-label">Proveedor activo *</label>
+                            <label for="proveedorServicio" class="form-label">Proveedor *</label>
                             <select id="proveedorServicio" name="proveedor" class="form-select" required>
                                 <option value="">Seleccioná un proveedor</option>
                             </select>
