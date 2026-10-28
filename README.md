@@ -1,195 +1,88 @@
 # LSCT — Sistema de cotizaciones y reservas
 
-Prototipo académico: Node.js, Express, MongoDB/Mongoose y HTML/Bootstrap.
-Implementados: cuentas, sesiones, roles, perfil, consulta de clientes, proveedores,
-registro y listado administrativo de servicios y creación de solicitudes de cotización.
-El catálogo público, la visibilidad de servicios y la consulta/gestión de solicitudes
-continúan en el sprint 2; sus interfaces todavía no ofrecen esas operaciones.
+Proyecto académico con API REST en Node.js, Express y MongoDB, e interfaz HTML/Bootstrap.
 
-## Instalación
+## Instalación y ejecución local
 
-Requisitos: Node.js con npm y MongoDB accesible. Usar una base de pruebas.
+Requisitos: Node.js con npm y MongoDB disponible (local o Atlas).
 
-1. En `API`, ejecutar `npm ci`.
-2. Crear `API/.env` con las variables siguientes, sustituyendo los valores locales:
+1. Clonar el repositorio y abrir una terminal en su carpeta.
+2. Instalar las dependencias de la API:
 
-```dotenv
-MONGO_URI=mongodb://127.0.0.1:27017/lsct_pruebas
-PORT=5001
-FRONTEND_URL=http://localhost:5002
-SESSION_SECRET=REEMPLAZAR_POR_UN_VALOR_ALEATORIO_LOCAL
-```
+   ```bash
+   cd API
+   npm ci
+   ```
 
-Generar SESSION_SECRET con este comando y copiar el resultado únicamente al `.env`:
+3. Copiar `API/.env.example` como `API/.env` y completar la conexión y un secreto aleatorio propio. Desde `API`, en PowerShell:
 
-```bash
-node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
-```
+   ```powershell
+   Copy-Item .env.example .env
+   ```
 
-MONGO_URI y SESSION_SECRET son obligatorios. PORT y FRONTEND_URL usan los valores indicados por defecto.
-No subir `.env`, contraseñas, cookies ni cadenas de conexión privadas.
+   La plantilla usa MongoDB local y los puertos 5001 (API) y 5002 (frontend). MongoDB debe estar en ejecución; para Atlas, sustituir `MONGO_URI` por su cadena de conexión. No subir `.env` al repositorio.
 
-3. Desde `API`, ejecutar `npm run dev`.
-4. En otra terminal, entrar en `frontend`, ejecutar `npm ci` y `npm run dev`.
-5. Abrir http://localhost:5002/views/login.html.
+4. Iniciar la API desde `API`:
 
-`npm start` ejecuta cada servidor sin nodemon. Usar `localhost` en ambas aplicaciones;
-no mezclarlo con `127.0.0.1`, porque la sesión depende de una cookie.
-Si cambia el puerto de la API, actualizar `frontend/public/js/config.js`.
+   ```bash
+   npm start
+   ```
 
-## Cuentas y sesiones
+5. En otra terminal, desde la raíz del proyecto, iniciar el frontend:
 
-El registro público siempre crea un cliente activo. Para preparar el primer administrador
-local, registrar una cuenta ficticia y cambiar su campo `rol` a `administrador` directamente
-en la base de pruebas. No existe una ruta pública para cambiar roles.
+   ```bash
+   cd frontend
+   npm ci
+   npm start
+   ```
 
-El login guarda la cookie `lsct.sid`. El frontend envía `credentials: "include"`.
-Thunder Client debe conservar las cookies entre peticiones. Cerrar sesión antes de cambiar
-entre administrador y cliente. Las sesiones duran una hora y se pierden al reiniciar la API:
-se usa almacenamiento en memoria para este prototipo local HTTP.
+6. Abrir [la aplicación](http://localhost:5002/views/login.html). API: `http://localhost:5001`.
 
-Las contraseñas se almacenan con bcrypt; las respuestas no incluyen `clave` ni su hash.
-Un cliente solo modifica su perfil. Solo el administrador consulta cuentas, modifica otros
-perfiles, cambia estados y administra proveedores. El último administrador activo no puede
-ser desactivado; tampoco se permite que un administrador desactive su propia cuenta.
+Para desarrollo, ambos servidores también admiten `npm run dev`. Usar `localhost` en ambas direcciones; si cambia el puerto de la API, actualizar `frontend/public/js/config.js`.
 
-## Rutas implementadas
+## Acceso
 
-Base: `http://localhost:5001`. Las peticiones con cuerpo usan `Content-Type: application/json`.
+El registro crea cuentas de cliente. Para preparar el primer administrador local, registrar una cuenta y cambiar su campo `rol` a `administrador` en la base de pruebas.
 
-| Método | Ruta | Acceso | Datos / resultado |
+La autenticación usa la cookie `lsct.sid`: iniciar sesión antes de las peticiones protegidas y conservar las cookies en Thunder Client. Las sesiones duran una hora y se pierden al reiniciar la API.
+
+## Rutas de la API REST
+
+Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: application/json`.
+`:id` representa el identificador MongoDB del registro. Los filtros indicados se envían en la URL como parámetros de consulta; son opcionales. `—` indica que no se requiere cuerpo ni parámetros adicionales.
+
+| Método | URL | Acceso | Parámetros o cuerpo esperado |
 |---|---|---|---|
-| GET | `/` | Público | Mensaje de disponibilidad |
-| POST | `/usuarios` | Público | Registro; devuelve 201 y `{mensaje, datos}` |
-| POST | `/auth/login` | Público | correo, clave; devuelve 200, datos y cookie |
-| GET | `/auth/sesion` | Sesión | Devuelve `{datos}` con identidad y rol |
-| POST | `/auth/logout` | Público | Invalida sesión y borra cookie; 200 |
-| GET | `/usuarios/perfil` | Sesión | `{datos}` con nombre, correo, telefono, direccion |
-| PUT | `/usuarios/perfil` | Sesión | Actualiza solo esos cuatro campos; 200 |
-| GET | `/usuarios` | Administrador | Array; filtros opcionales `rol` y `buscar` |
-| GET | `/usuarios/:id` | Administrador | Cuenta sin contraseña; 200 |
-| PUT | `/usuarios/:id` | Administrador | Campos de contacto; `{mensaje, datos}` |
-| PATCH | `/usuarios/:id/estado` | Administrador | `{ "activo": false }` o true; 200 |
-| GET | `/proveedores` | Administrador | Array; filtros opcionales `nombre` y `tipoServicio` |
-| GET | `/proveedores/:id` | Administrador | Proveedor; 200 |
-| POST | `/proveedores` | Administrador | Registro; 201 y `{mensaje, datos, advertencia}` |
-| PUT | `/proveedores/:id` | Administrador | Editar datos; 200 y `{mensaje, datos}` |
-| PATCH | `/proveedores/:id` | Administrador | `{ "activo": false }` o true; 200 |
-| GET | `/servicios` | Administrador | Array con proveedor asociado (nombre), ordenado del más reciente al más antiguo |
-| POST | `/servicios` | Administrador | nombre, tipo, descripcion, proveedor; 201 y `{mensaje, datos}` |
-| POST | `/solicitudes` | Cliente | destino, fechaSalida, fechaRegreso, cantidadViajeros, edades; 201 y `{mensaje, datos}` |
+| GET | `/` | Público | —; comprueba disponibilidad |
+| POST | `/auth/login` | Público | `{"correo":"cliente@example.com","clave":"CONTRASEÑA_LOCAL"}` |
+| GET | `/auth/sesion` | Sesión | —; devuelve identidad y rol |
+| POST | `/auth/logout` | Público | —; cierra la sesión |
+| POST | `/usuarios` | Público | `{"nombre":"Ana","correo":"cliente@example.com","clave":"CONTRASEÑA_LOCAL","telefono":"88888888","direccion":"San José"}`; teléfono y dirección opcionales |
+| GET | `/usuarios/perfil` | Sesión | —; consulta el perfil propio |
+| PUT | `/usuarios/perfil` | Sesión | Uno o más campos: `nombre`, `correo`, `telefono`, `direccion` (texto) |
+| GET | `/usuarios` | Administrador | Filtros: `rol` (`cliente` o `administrador`), `buscar` (nombre, correo o teléfono) |
+| GET | `/usuarios/:id` | Administrador | ID en la URL |
+| PUT | `/usuarios/:id` | Administrador | Uno o más campos: `nombre`, `correo`, `telefono`, `direccion` (texto) |
+| PATCH | `/usuarios/:id/estado` | Administrador | `{"activo":false}` para desactivar o `true` para reactivar |
+| GET | `/proveedores` | Administrador | Filtros: `nombre`, `tipoServicio` (texto) |
+| GET | `/proveedores/:id` | Administrador | ID en la URL; consulta datos del proveedor |
+| POST | `/proveedores` | Administrador | `{"nombre":"Hotel Ejemplo","tipoServicio":"Hotel","correo":"hotel@example.com","telefono":"88888888"}`; exige al menos un contacto |
+| PUT | `/proveedores/:id` | Administrador | Uno o más campos: `nombre`, `tipoServicio`, `correo`, `telefono` (texto); conserva al menos un contacto |
+| PATCH | `/proveedores/:id` | Administrador | `{"activo":false}` o `{"activo":true}` |
+| GET | `/servicios` | Administrador | —; listado con proveedor asociado |
+| POST | `/servicios` | Administrador | `{"nombre":"Traslado","tipo":"Transporte","descripcion":"Traslado privado","proveedor":"ID_PROVEEDOR_ACTIVO"}`; todos obligatorios |
+| PUT | `/servicios/:id` | Administrador | Uno o más campos: `nombre`, `tipo`, `descripcion`, `proveedor` (texto) |
+| PATCH | `/servicios/:id/visibilidad` | Administrador | `{"publicado":true}` para publicar o `false` para ocultar |
+| GET | `/servicios/publicos` | Público | —; catálogo de servicios activos y publicados |
+| GET | `/servicios/publicos/:id` | Público | ID en la URL; nombre, tipo y descripción del servicio público |
+| POST | `/solicitudes` | Cliente | `{"destino":"La Fortuna","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8]}`; todos obligatorios |
 
-Los PUT existentes conservan los campos omitidos. Rol, estado y contraseña no son editables
-mediante estas actualizaciones. No hay eliminación física de cuentas o proveedores.
+Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
 
-### Ejemplos de cuerpos
+Los servicios nuevos son de uso interno. Cambiar de proveedor exige uno activo; se permite conservar el proveedor actual inactivo. El catálogo público excluye servicios ocultos o inactivos y no expone datos privados del proveedor; su detalle devuelve 404 si no está disponible.
 
-Registro de cliente (sustituir la contraseña localmente):
+Respuestas: `200` operación correcta, `201` creación, `400` datos inválidos, `401` sin sesión o credenciales inválidas, `403` sin permisos, `404` no encontrado, `409` conflicto, `413` cuerpo demasiado grande y `500` error interno. Los errores usan `{"message":"Descripción"}`, con un array `errores` opcional. Las listas sin resultados devuelven `[]`.
 
-```json
-{"nombre":"Cliente de prueba","correo":"cliente@example.com","clave":"REEMPLAZAR_LOCALMENTE","telefono":"88888888","direccion":"San José"}
-```
+## Colección de pruebas
 
-Login:
-
-```json
-{"correo":"cliente@example.com","clave":"REEMPLAZAR_LOCALMENTE"}
-```
-
-Edición de perfil propio o de otro usuario por administrador:
-
-```json
-{"nombre":"Cliente actualizado","telefono":"88887777","direccion":"Alajuela"}
-```
-
-Registro de proveedor:
-
-```json
-{"nombre":"Hotel de prueba","tipoServicio":"Hotel","correo":"hotel@example.com","telefono":"88888888"}
-```
-
-Nombre, tipo y al menos un contacto son obligatorios. Un nombre repetido produce una
-advertencia, pero permite guardar. La edición acepta estos mismos cuatro campos.
-
-### Servicios y solicitudes
-
-Registro de servicio (sustituir el identificador por el de un proveedor activo):
-
-```json
-{"nombre":"Traslado al aeropuerto","tipo":"Transporte","descripcion":"Traslado privado de prueba","proveedor":"507f1f77bcf86cd799439011"}
-```
-
-Los cuatro campos son obligatorios y deben ser texto no vacío. Un ID mal formado
-produce 400; un proveedor inexistente, 404; un proveedor inactivo, 400.
-El servidor crea el servicio con `activo: true` y `publicado: false` (uso interno).
-La respuesta 201 contiene `mensaje` y `datos`, incluyendo el identificador generado.
-El GET administrativo incluye el nombre del proveedor asociado. No hay todavía
-rutas públicas de catálogo, edición de servicios ni cambio de visibilidad.
-
-Creación de solicitud desde una sesión de cliente:
-
-```json
-{"destino":"La Fortuna","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8]}
-```
-
-Las fechas deben ser fechas reales en formato YYYY-MM-DD; se almacenan como texto
-para conservar el día de calendario. El regreso puede ser el mismo día o posterior
-a la salida. No se aplica una restricción adicional contra fechas pasadas.
-La cantidad es un entero positivo y debe coincidir con la longitud de edades;
-cada edad es un entero no negativo. No se exigen nombres de viajeros.
-El servidor toma `cliente` desde la sesión y asigna `estado: "Nueva"`, aunque el
-body intente proporcionar otros valores. Los errores de estos datos devuelven 400.
-Una sesión de administrador recibe 403; sin sesión válida se recibe 401.
-
-Respuesta de creación (identificadores ficticios; se omiten timestamps):
-
-```json
-{"mensaje":"Solicitud registrada","datos":{"_id":"507f1f77bcf86cd799439012","cliente":"507f1f77bcf86cd799439011","destino":"La Fortuna","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8],"estado":"Nueva"}}
-```
-
-Error de fechas:
-
-```json
-{"message":"Indicá fechas válidas; el regreso no puede ser anterior a la salida"}
-```
-
-En el navegador, usar una cuenta cliente en /views/solicitudes.html. El formulario
-genera las edades al cambiar la cantidad; confirma código y estado al guardar y
-conserva los datos ante errores. Mis solicitudes y Gestión administrativa permanecen
-deshabilitadas hasta implementar sus operaciones.
-
-### Búsquedas
-
-`GET /usuarios?rol=cliente&buscar=ana` busca por nombre, correo o teléfono.
-`GET /proveedores?nombre=hotel&tipoServicio=hotel` combina ambos filtros (deben cumplirse ambos).
-La búsqueda de proveedores es parcial, ignora mayúsculas y trata símbolos como texto literal.
-Filtros vacíos listan todo; sin coincidencias devuelve `200` con `[]`.
-Usar `URLSearchParams` para codificar espacios y símbolos.
-
-### Respuestas de error
-
-Formato: `{ "message": "Descripción" }`, con `errores` opcional como array de mensajes.
-
-| HTTP | Significado |
-|---|---|
-| 400 | Validación, identificador o JSON inválido |
-| 401 | Sesión ausente/inactiva o credenciales incorrectas |
-| 403 | Rol sin permisos |
-| 404 | Registro o ruta inexistente |
-| 409 | Dato único duplicado o cambio de estado no permitido |
-| 413 | Cuerpo demasiado grande |
-| 500 | Error inesperado, con mensaje genérico |
-
-Los controladores pasan las excepciones a `middleware/errores.js` mediante `next(error)`.
-Los rechazos de reglas del negocio, como falta de permisos, mantienen su respuesta explícita.
-
-## Pruebas
-
-- [Colección consolidada de Thunder Client](API/docs/pruebas/Collection.json).
-- [Preparación, orden de ejecución y evidencia pendiente](API/docs/pruebas/GUIA.md).
-
-La colección no contiene credenciales ni IDs de la base real. Importarla, configurar las
-variables locales y ejecutarla antes de dar por completadas las pruebas manuales de Jira.
-La colección contiene 80 peticiones con el código esperado en el nombre. No incluye
-aserciones automáticas: comparar cada respuesta con la guía y comprobar persistencia
-en MongoDB. No sustituye la validación visual en navegador.
+Importar [Collection.json](API/docs/pruebas/Collection.json) en Thunder Client y configurar las variables locales siguiendo la [guía de pruebas](API/docs/pruebas/GUIA.md). La colección incluye los casos y códigos esperados en sus nombres; comparar las respuestas y comprobar los cambios en la base de pruebas.
