@@ -2,7 +2,7 @@
   "clientName": "Thunder Client",
   "collectionName": "LSCT — API implementada",
   "collectionId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
-  "dateExported": "2026-10-26T00:00:00.000Z",
+  "dateExported": "2026-10-28T00:00:00.000Z",
   "version": "1.4",
   "folders": [],
   "requests": [
@@ -1798,6 +1798,486 @@
         ],
         "form": []
       }
+    },
+    {
+      "_id": "1f5d9754-0d77-4cdc-80e2-d1685558eeba",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "81 Login cliente para consultas — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 810000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveCliente}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "281a215e-0537-483d-a229-89c248ac2013",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "82 Crear solicitud para consulta y edición — 201",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "POST",
+      "sortNum": 820000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"La Fortuna\",",
+          "  \"fechaSalida\": \"2026-12-10\",",
+          "  \"fechaRegreso\": \"2026-12-15\",",
+          "  \"cantidadViajeros\": 2,",
+          "  \"edades\": [",
+          "    30,",
+          "    8",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "1b536625-30eb-4576-b491-f7f93d12d55e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "83 Listar solicitudes propias — 200",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "GET",
+      "sortNum": 830000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "851cb7fb-1451-4ed9-8dc9-6fbfaccb0ff4",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "84 Detalle de solicitud propia — 200",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "GET",
+      "sortNum": 840000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "a34e4da7-cf57-4b8d-b27c-df18caeb3d60",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "85 Solicitud con ID inválido — 400",
+      "url": "{{baseUrl}}/solicitudes/no-es-id",
+      "method": "GET",
+      "sortNum": 850000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "72e2205a-74a2-418f-8ddd-9d0281cb75db",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "86 Editar solicitud Nueva — 200",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "PUT",
+      "sortNum": 860000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"Monteverde\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "c4981320-b0e2-48c9-acaf-a3d5c72a68ad",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "87 Edición inválida conserva información — 400",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "PUT",
+      "sortNum": 870000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"edades\": [",
+          "    30",
+          "  ]",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "09631954-7e93-4851-9869-8a5c0d8a854c",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "88 Edición no cambia propietario — 400",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "PUT",
+      "sortNum": 880000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"cliente\": \"{{idAdmin}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "b9f260a6-bed6-4d09-98c4-4fa8b4f160d6",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "89 Cliente no cambia estado — 403",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}/estado",
+      "method": "PATCH",
+      "sortNum": 890000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"estado\": \"En cotización\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "88c875e1-d230-46da-9492-035d65741133",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "90 Cerrar sesión cliente — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 900000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "aa75c737-944d-440a-8b3f-9d7b8559659e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "91 Login administrativo — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 910000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoAdmin}}\",",
+          "  \"clave\": \"{{claveAdmin}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "9d3b4954-1ee1-4154-8d29-5704c9a7058c",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "92 Listado administrativo de solicitudes — 200",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "GET",
+      "sortNum": 920000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "4d2ba5fc-9fbf-450d-9710-92e7cf8d015e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "93 Filtrar solicitudes de cliente — 200",
+      "url": "{{baseUrl}}/solicitudes?cliente={{idCliente}}&estado=Nueva",
+      "method": "GET",
+      "sortNum": 930000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "1af3b229-1ce6-4d6d-be6c-443807027dcd",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "94 Detalle administrativo con cliente — 200",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "GET",
+      "sortNum": 940000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "4ae9e3e1-c4bf-4afc-8972-4a82d3990e5d",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "95 No marcar Cotizada sin publicar oferta — 409",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}/estado",
+      "method": "PATCH",
+      "sortNum": 950000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"estado\": \"Cotizada\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "d8dd5a2c-b70a-49e0-baa5-2ac96cf1a7e0",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "96 Iniciar atención de solicitud — 200",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}/estado",
+      "method": "PATCH",
+      "sortNum": 960000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"estado\": \"En cotización\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "83b6dd53-3d2f-43e9-91e1-f6788c227b7e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "97 No regresar a Nueva — 409",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}/estado",
+      "method": "PATCH",
+      "sortNum": 970000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"estado\": \"Nueva\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "1d6163d9-513a-46db-b9a0-394d08a43cac",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "98 Estado de filtro inválido — 400",
+      "url": "{{baseUrl}}/solicitudes?estado=otro",
+      "method": "GET",
+      "sortNum": 980000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "54481088-c80f-4d3e-acf6-31493f7e154f",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "99 Cerrar sesión administrador — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 990000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "96408255-382b-4fd7-a905-696c63446ffd",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "100 Login cliente para bloqueo de edición — 200",
+      "url": "{{baseUrl}}/auth/login",
+      "method": "POST",
+      "sortNum": 1000000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"correo\": \"{{correoCliente}}\",",
+          "  \"clave\": \"{{claveCliente}}\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "e276e309-15a0-46ac-9058-bc27a4d75fa4",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "101 Edición bloqueada En cotización — 409",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "PUT",
+      "sortNum": 1010000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "type": "json",
+        "raw": [
+          "{",
+          "  \"destino\": \"Otro destino\"",
+          "}"
+        ],
+        "form": []
+      }
+    },
+    {
+      "_id": "86f0b1c7-f850-408b-8bfa-35ed77a35d22",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "102 Detalle mantiene estado En cotización — 200",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "GET",
+      "sortNum": 1020000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "0325a833-a8fa-4567-94d5-41b57e44e42e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "103 Cerrar sesión de pruebas de solicitudes — 200",
+      "url": "{{baseUrl}}/auth/logout",
+      "method": "POST",
+      "sortNum": 1030000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "7b48da14-c0e2-4e25-8459-0e5e42b1cc9e",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "104 Listado sin sesión — 401",
+      "url": "{{baseUrl}}/solicitudes",
+      "method": "GET",
+      "sortNum": 1040000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
+    },
+    {
+      "_id": "11d1d846-c111-4ae5-b431-7b315e0fc598",
+      "colId": "9c35f726-40a8-48b2-9e19-b5685c33085c",
+      "containerId": "",
+      "name": "105 Detalle sin sesión — 401",
+      "url": "{{baseUrl}}/solicitudes/{{idSolicitud}}",
+      "method": "GET",
+      "sortNum": 1050000,
+      "created": "2026-10-28T00:00:00.000Z",
+      "modified": "2026-10-28T00:00:00.000Z",
+      "headers": []
     }
   ]
 }

@@ -23,8 +23,9 @@ const SolicitudSchema = new mongoose.Schema({
                 valores.every((edad) => Number.isSafeInteger(edad) && edad >= 0);
         }
     },
-    estado: { type: String, enum: ["Nueva"], default: "Nueva", required: true }
-}, { timestamps: true });
+    estado: { type: String, enum: ["Nueva", "En cotización", "Cotizada"], default: "Nueva", required: true },
+    cotizacion: { type: mongoose.Schema.Types.ObjectId, ref: "Cotizacion" }
+}, { timestamps: true, optimisticConcurrency: true });
 
 module.exports = mongoose.model("Solicitud", SolicitudSchema);
 module.exports.fechaValida = fechaValida;

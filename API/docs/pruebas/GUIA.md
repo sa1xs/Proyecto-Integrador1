@@ -1,4 +1,4 @@
-# Pruebas de API — sprint 1
+# Pruebas de API — base existente y solicitudes del sprint 2
 
 ## Importación y entorno
 
@@ -19,6 +19,7 @@
 | idCliente | Copiar datos._id de la respuesta 02 |
 | idAdmin | Copiar datos._id de la respuesta 16 |
 | idProveedor | Copiar datos._id de la respuesta 30 |
+| idSolicitud | Copiar datos._id de la respuesta 82 antes de ejecutar 84 |
 
 Preparar antes el administrador: registrar otra cuenta ficticia y cambiar su rol
  directamente en MongoDB, como indica el README. Usar correos distintos para cliente
@@ -46,6 +47,10 @@ de la colección original de Thunder Client.
 | 68–77 | Solicitud válida; destino, fechas, cantidad y edades inválidas |
 | 78 | Ignorar cliente/estado del body: usar cliente de sesión y estado Nueva |
 | 79–80 | Logout y rechazo de solicitud sin sesión |
+| 81–88 | Crear solicitud para pruebas, copiar ID, listar/detallar, editar y rechazar cambios inválidos/protegidos |
+| 89–90 | Cliente no cambia estado; cierre de sesión |
+| 91–98 | Administración: listado, filtros/detalle, inicio de atención y estados/transiciones inválidos |
+| 99–105 | Edición bloqueada, consulta de estado, logout y consultas sin sesión |
 
 La 29 supone un único administrador activo; con varios, el intento de desactivar la
 propia cuenta también devuelve 409, con otro mensaje. Los IDs inexistentes utilizados
@@ -59,15 +64,28 @@ Las búsquedas sin coincidencias deben devolver un array vacío.
 Después de 55, comprobar el servicio en 56 y MongoDB: activo true, publicado false,
 proveedor correcto. Después de 68 y 78, revisar solicitudes en MongoDB: referencia al
 cliente autenticado, fechas exactas, cantidad, edades y estado Nueva. Los casos inválidos
-no deben crear registros. Aún no hay GET de solicitudes; Mis solicitudes no es una
-prueba de persistencia en este sprint.
+no deben crear registros. GET /solicitudes permite comprobar los registros por API;
+la conexión de Mis solicitudes en la interfaz continúa pendiente.
+
+Después de 82, copiar datos._id a idSolicitud. Después de 86, comprobar por GET que
+destino es Monteverde y conserva fechas, cantidad y edades; 87 y 88 no deben
+alterarlos. 94 incluye datos del cliente sin clave. 96 cambia a En cotización y
+101 devuelve 409; 102 conserva Monteverde y el nuevo estado. No puede pasarse
+a Cotizada desde este endpoint: esa transición pertenece a publicación de oferta.
+
+Con un segundo cliente ficticio, consultar y editar el idSolicitud del primero
+debe devolver 404. Su listado devuelve únicamente registros propios (o []). Las
+pruebas automáticas del README cubren accesos cruzados, cambios concurrentes,
+filtros inválidos y compatibilidad de registros existentes.
 
 ## Restauración y repetición
 
 50 y 62 restauran cliente y proveedor activos. Si se interrumpe la ejecución, iniciar
 sesión como administrador y reactivarlos antes de repetir. La colección crea y modifica
 registros de prueba; no los elimina. Para repetir desde 02, elegir un correo nuevo y
-actualizar los IDs obtenidos. Cerrar sesión al finalizar.
+actualizar los IDs obtenidos. Cerrar sesión al finalizar. Para repetir 81–105,
+crear una solicitud nueva en 82 y reemplazar idSolicitud: la anterior permanece
+En cotización.
 
 ## Evidencia para Jira
 

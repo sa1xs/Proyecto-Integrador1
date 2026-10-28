@@ -1,4 +1,4 @@
-# LSCT — Sistema de cotizaciones y reservas
+# LSCT — Sistema de solicitudes y cotizaciones
 
 Proyecto académico con API REST en Node.js, Express y MongoDB, e interfaz HTML/Bootstrap.
 
@@ -76,8 +76,16 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | GET | `/servicios/publicos` | Público | —; catálogo de servicios activos y publicados |
 | GET | `/servicios/publicos/:id` | Público | ID en la URL; nombre, tipo y descripción del servicio público |
 | POST | `/solicitudes` | Cliente | `{"destino":"La Fortuna","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8]}`; todos obligatorios |
+| GET | `/solicitudes` | Sesión | Cliente: solo propias. Administrador: todas. Filtro opcional `estado`; `cliente` (ID) es solo administrativo |
+| GET | `/solicitudes/:id` | Sesión | Propietario o administrador; administración ve nombre, correo y teléfono del cliente |
+| PUT | `/solicitudes/:id` | Cliente propietario | Uno o más campos: `destino`, `fechaSalida`, `fechaRegreso`, `cantidadViajeros`, `edades`; solo en Nueva |
+| PATCH | `/solicitudes/:id/estado` | Administrador | `{"estado":"En cotización"}`; solo permite iniciar la atención de una Nueva |
 
 Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
+
+La edición de solicitudes rechaza campos distintos de los documentados (incluidos `cliente`, `estado` y `cotizacion`) y valida el resultado completo antes de guardar. Una solicitud ajena devuelve 404. Fuera de Nueva la edición devuelve 409; una modificación concurrente también devuelve 409 y exige volver a consultar el registro. Las consultas de cliente excluyen información interna.
+
+Los estados del modelo son Nueva, En cotización y Cotizada. El cambio manual solo permite Nueva → En cotización; Cotizada queda reservado a la publicación de una oferta en el módulo de cotizaciones, aún pendiente. El campo opcional `cotizacion` prepara esa relación sin modificar registros anteriores. Viajeros individuales y contactos se incorporan en sus módulos posteriores; se conservan cantidad y edades actuales.
 
 Los servicios nuevos son de uso interno. Cambiar de proveedor exige uno activo; se permite conservar el proveedor actual inactivo. El catálogo público excluye servicios ocultos o inactivos y no expone datos privados del proveedor; su detalle devuelve 404 si no está disponible.
 

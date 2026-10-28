@@ -1,12 +1,19 @@
 const router = require("express").Router();
-const { requiereSesion } = require("../middleware/auth");
-const { crearSolicitud } = require("../controllers/SolicitudController");
+const { requiereSesion, requiereAdministrador } = require("../middleware/auth");
+const { crearSolicitud, obtenerSolicitudes, obtenerSolicitud, actualizarSolicitud, cambiarEstadoSolicitud } = require("../controllers/SolicitudController");
 
-router.post("/", requiereSesion, (req, res, next) => {
+const requiereCliente = (req, res, next) => {
     if (req.usuario.rol !== "cliente") {
-        return res.status(403).json({ message: "Solo los clientes pueden crear solicitudes de cotización" });
+        return res.status(403).json({ message: "Esta operación requiere una cuenta de cliente" });
     }
     return next();
-}, crearSolicitud);
+};
+
+router.use(requiereSesion);
+router.get("/", obtenerSolicitudes);
+router.get("/:id", obtenerSolicitud);
+router.post("/", requiereCliente, crearSolicitud);
+router.put("/:id", requiereCliente, actualizarSolicitud);
+router.patch("/:id/estado", requiereAdministrador, cambiarEstadoSolicitud);
 
 module.exports = router;

@@ -15,6 +15,9 @@ function manejarErrores(error, req, res, next) {
   if (error.code === 11000) {
     return res.status(409).json({ message: "Ya existe un registro con ese dato único" });
   }
+  if (error.name === "VersionError") {
+    return res.status(409).json({ message: "El registro cambió durante la operación. Consultalo de nuevo antes de reintentar" });
+  }
   if (error.name === "ValidationError") {
     // No devuelve valores recibidos ni mensajes internos de Mongoose.
     const errores = Object.keys(error.errors).map((campo) => `Revisá el campo ${campo}`);
