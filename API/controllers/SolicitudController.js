@@ -106,6 +106,9 @@ const actualizarSolicitud = async (req, res, next) => {
         if (error) return res.status(400).json({ message: error });
         datos.destino = datos.destino.trim();
         Object.assign(solicitud, datos);
+        if (body.edades !== undefined || body.cantidadViajeros !== undefined) {
+            solicitud.actualizarComposicion(datos.edades);
+        }
         await solicitud.save();
         return res.json({ mensaje: "Solicitud actualizada", datos: solicitud });
     } catch (error) { return next(error); }
