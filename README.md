@@ -80,12 +80,18 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | GET | `/solicitudes/:id` | Sesión | Propietario o administrador; administración ve nombre, correo y teléfono del cliente |
 | PUT | `/solicitudes/:id` | Cliente propietario | Uno o más campos: `destino`, `fechaSalida`, `fechaRegreso`, `cantidadViajeros`, `edades`; solo en Nueva |
 | PATCH | `/solicitudes/:id/estado` | Administrador | `{"estado":"En cotización"}`; solo permite iniciar la atención de una Nueva |
+| GET | `/solicitudes/:id/viajeros` | Cliente propietario | Lista de viajeros con `_id`, nombre opcional y edad |
+| POST | `/solicitudes/:id/viajeros` | Cliente propietario | `{"nombre":"Ana","edad":25}`; nombre opcional, edad entera no negativa; solo Nueva |
+| PUT | `/solicitudes/:id/viajeros/:viajeroId` | Cliente propietario | `{"nombre":"Ana","edad":26}`; uno o ambos campos; solo Nueva |
+| DELETE | `/solicitudes/:id/viajeros/:viajeroId` | Cliente propietario | Sin cuerpo; retira un viajero; solo Nueva y conserva al menos uno |
 
 Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
 
 La edición de solicitudes rechaza campos distintos de los documentados (incluidos `cliente`, `estado` y `cotizacion`) y valida el resultado completo antes de guardar. Una solicitud ajena devuelve 404. Fuera de Nueva la edición devuelve 409; una modificación concurrente también devuelve 409 y exige volver a consultar el registro. Las consultas de cliente excluyen información interna.
 
-Los estados del modelo son Nueva, En cotización y Cotizada. El cambio manual solo permite Nueva → En cotización; Cotizada queda reservado a la publicación de una oferta en el módulo de cotizaciones, aún pendiente. El campo opcional `cotizacion` prepara esa relación sin modificar registros anteriores. Viajeros individuales y contactos se incorporan en sus módulos posteriores; se conservan cantidad y edades actuales.
+Los estados del modelo son Nueva, En cotización y Cotizada. El cambio manual solo permite Nueva → En cotización; Cotizada queda reservado a la publicación de una oferta en el módulo de cotizaciones, aún pendiente. El campo opcional `cotizacion` prepara esa relación. Los contactos se incorporan posteriormente.
+
+Viajeros es la fuente de verdad: `cantidadViajeros` y `edades` se calculan al guardar. Los registros anteriores generan viajeros con las edades existentes e IDs estables al consultarse; se persisten al guardar la solicitud, sin migración masiva. El POST anterior sigue aceptando cantidad/edades y el PUT conserva los IDs y nombres por posición al actualizar la composición. Para editar o retirar una persona concreta, usar su `viajeroId`. No se acepta elegir cliente, ID ni estado desde el cuerpo de viajeros. Solicitud o viajero ajeno devuelve 404; cambios fuera de Nueva o retiro del último viajero devuelven 409. Los administradores consultan viajeros mediante el detalle administrativo de solicitudes; las rutas de viajeros son exclusivas de clientes propietarios.
 
 Los servicios nuevos son de uso interno. Cambiar de proveedor exige uno activo; se permite conservar el proveedor actual inactivo. El catálogo público excluye servicios ocultos o inactivos y no expone datos privados del proveedor; su detalle devuelve 404 si no está disponible.
 
