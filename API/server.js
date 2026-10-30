@@ -43,6 +43,7 @@ app.use("/usuarios", require("./routes/UsuarioRoutes"));
 app.use("/proveedores", require("./routes/ProveedorRoutes"));
 app.use("/servicios", require("./routes/ServicioRoutes"));
 app.use("/solicitudes", require("./routes/SolicitudRoutes"));
+app.use("/cotizaciones", require("./routes/CotizacionRoutes"));
 
 app.use(rutaNoEncontrada);
 app.use(manejarErrores);

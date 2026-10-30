@@ -84,12 +84,22 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | POST | `/solicitudes/:id/viajeros` | Cliente propietario | `{"nombre":"Ana","edad":25}`; nombre opcional, edad entera no negativa; solo Nueva |
 | PUT | `/solicitudes/:id/viajeros/:viajeroId` | Cliente propietario | `{"nombre":"Ana","edad":26}`; uno o ambos campos; solo Nueva |
 | DELETE | `/solicitudes/:id/viajeros/:viajeroId` | Cliente propietario | Sin cuerpo; retira un viajero; solo Nueva y conserva al menos uno |
+| POST | `/cotizaciones` | Administrador | `{"solicitud":"ID_SOLICITUD","partidas":[{"servicio":"ID_SERVICIO","cantidad":2,"precio":12500.50}]}`; partidas opcionales para iniciar borrador vacío |
+| GET | `/cotizaciones` | Sesión | Filtros `estado`, `solicitud`; `cliente` solo administrativo. Cliente ve solo propias publicadas/respondidas |
+| GET | `/cotizaciones/:id` | Sesión | Detalle administrativo o comercial propio; borrador/ajena devuelve 404 al cliente |
+| PUT | `/cotizaciones/:id` | Administrador | `{"partidas":[{"servicio":"ID_SERVICIO","cantidad":2,"precio":12500.50}]}`; reemplaza partidas únicamente en Borrador |
+| PATCH | `/cotizaciones/:id/publicar` | Administrador | Sin cuerpo o `{}`; publica Borrador con partidas y cambia Solicitud a Cotizada |
+| PATCH | `/cotizaciones/:id/respuesta` | Cliente propietario | `{"estado":"Aceptada"}` o `{"estado":"Rechazada"}`; solo Publicada, una vez |
 
 Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
 
 La edición de solicitudes rechaza campos distintos de los documentados (incluidos `cliente`, `estado` y `cotizacion`) y valida el resultado completo antes de guardar. Una solicitud ajena devuelve 404. Fuera de Nueva la edición devuelve 409; una modificación concurrente también devuelve 409 y exige volver a consultar el registro. Las consultas de cliente excluyen información interna.
 
-Los estados del modelo son Nueva, En cotización y Cotizada. El cambio manual solo permite Nueva → En cotización; Cotizada queda reservado a la publicación de una oferta en el módulo de cotizaciones, aún pendiente. El campo opcional `cotizacion` prepara esa relación. Los contactos se incorporan posteriormente.
+Los estados de Solicitud son Nueva, En cotización y Cotizada. El cambio manual solo permite Nueva → En cotización; publicar una cotización cambia la solicitud a Cotizada. Los contactos se incorporan posteriormente.
+
+Cotizaciones: una por solicitud completa en estado En cotización, vinculada al cliente de esa solicitud. Moneda fija CRC; cantidad entera positiva y precio numérico no negativo con máximo dos decimales. El servidor calcula subtotales y total en centavos, rechaza servicios duplicados y no admite totales, cliente, moneda ni estado elegidos desde el cuerpo. El borrador vacío es válido, pero no se publica hasta agregar partidas. Servicios activos de proveedores activos pueden cotizarse aunque estén ocultos del catálogo; se revisa su disponibilidad al crear, editar y publicar. La copia de nombre, tipo y descripción preserva lo ofrecido. Después de publicar no se editan las partidas. La respuesta guarda cliente/fecha y termina el flujo; no crea reservas ni versiones.
+
+Se usan guardados normales de Mongoose, compatibles con MongoDB local. Si falla asociar un borrador nuevo, se retira ese borrador; si falla guardar la publicación, se intenta devolver la solicitud a En cotización. Los cambios simultáneos se rechazan mediante el control de versión. Son dos guardados separados: si se interrumpe el proceso o MongoDB durante ambos pasos, revisar la oferta y su solicitud antes de reintentar.
 
 Viajeros es la fuente de verdad: `cantidadViajeros` y `edades` se calculan al guardar. Los registros anteriores generan viajeros con las edades existentes e IDs estables al consultarse; se persisten al guardar la solicitud, sin migración masiva. El POST anterior sigue aceptando cantidad/edades y el PUT conserva los IDs y nombres por posición al actualizar la composición. Para editar o retirar una persona concreta, usar su `viajeroId`. No se acepta elegir cliente, ID ni estado desde el cuerpo de viajeros. Solicitud o viajero ajeno devuelve 404; cambios fuera de Nueva o retiro del último viajero devuelven 409. Los administradores consultan viajeros mediante el detalle administrativo de solicitudes; las rutas de viajeros son exclusivas de clientes propietarios.
 
