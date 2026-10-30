@@ -84,6 +84,8 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | POST | `/solicitudes/:id/viajeros` | Cliente propietario | `{"nombre":"Ana","edad":25}`; nombre opcional, edad entera no negativa; solo Nueva |
 | PUT | `/solicitudes/:id/viajeros/:viajeroId` | Cliente propietario | `{"nombre":"Ana","edad":26}`; uno o ambos campos; solo Nueva |
 | DELETE | `/solicitudes/:id/viajeros/:viajeroId` | Cliente propietario | Sin cuerpo; retira un viajero; solo Nueva y conserva al menos uno |
+| POST | `/solicitudes/:id/contactos` | Administrador | `{"fecha":"2026-10-29","canal":"Teléfono","nota":"Se confirmó el destino"}`; tres campos obligatorios |
+| GET | `/solicitudes/:id/contactos` | Administrador | Lista ordenada por fecha descendente; sin contactos devuelve `[]` |
 | POST | `/cotizaciones` | Administrador | `{"solicitud":"ID_SOLICITUD","partidas":[{"servicio":"ID_SERVICIO","cantidad":2,"precio":12500.50}]}`; partidas opcionales para iniciar borrador vacío |
 | GET | `/cotizaciones` | Sesión | Filtros `estado`, `solicitud`; `cliente` solo administrativo. Cliente ve solo propias publicadas/respondidas |
 | GET | `/cotizaciones/:id` | Sesión | Detalle administrativo o comercial propio; borrador/ajena devuelve 404 al cliente |
@@ -95,7 +97,9 @@ Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso 
 
 La edición de solicitudes rechaza campos distintos de los documentados (incluidos `cliente`, `estado` y `cotizacion`) y valida el resultado completo antes de guardar. Una solicitud ajena devuelve 404. Fuera de Nueva la edición devuelve 409; una modificación concurrente también devuelve 409 y exige volver a consultar el registro. Las consultas de cliente excluyen información interna.
 
-Los estados de Solicitud son Nueva, En cotización y Cotizada. El cambio manual solo permite Nueva → En cotización; publicar una cotización cambia la solicitud a Cotizada. Los contactos se incorporan posteriormente.
+Los estados de Solicitud son Nueva, En cotización y Cotizada. El cambio manual solo permite Nueva → En cotización; publicar una cotización cambia la solicitud a Cotizada.
+
+Contactos: notas administrativas dentro de la solicitud, con ID, fecha de calendario `YYYY-MM-DD`, canal y nota de texto no vacíos. Se pueden registrar en cualquier estado de la solicitud. Los clientes no pueden consultarlos ni registrarlos, y las respuestas de solicitudes para clientes excluyen esas notas. Las solicitudes anteriores se consultan sin migración y muestran una lista de contactos vacía. No hay edición, eliminación ni recordatorios.
 
 Cotizaciones: una por solicitud completa en estado En cotización, vinculada al cliente de esa solicitud. Moneda fija CRC; cantidad entera positiva y precio numérico no negativo con máximo dos decimales. El servidor calcula subtotales y total en centavos, rechaza servicios duplicados y no admite totales, cliente, moneda ni estado elegidos desde el cuerpo. El borrador vacío es válido, pero no se publica hasta agregar partidas. Servicios activos de proveedores activos pueden cotizarse aunque estén ocultos del catálogo; se revisa su disponibilidad al crear, editar y publicar. La copia de nombre, tipo y descripción preserva lo ofrecido. Después de publicar no se editan las partidas. La respuesta guarda cliente/fecha y termina el flujo; no crea reservas ni versiones.
 

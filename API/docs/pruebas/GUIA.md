@@ -17,7 +17,7 @@
 | `idServicio` | `datos._id` de 34 |
 | `idCotizacion` | `datos._id` de 46 |
 
-3. Ejecutar las 64 peticiones en orden, conservando cookies y pausando para copiar IDs.
+3. Ejecutar las 76 peticiones en orden, conservando cookies y pausando para copiar IDs.
 
 | Peticiones | Comprobación principal |
 |---|---|
@@ -27,9 +27,12 @@
 | 34–44 | Crear/editar servicio, publicar/ocultar, catálogo y proveedor inactivo |
 | 45–54 | Borrador único, cálculo, publicación y solicitud Cotizada |
 | 55–64 | Cotización privada, consulta propia y respuesta única |
+| 65–76 | Contactos administrativos: lista vacía, registro, fecha inválida y permisos |
 
 Cada nombre indica el HTTP esperado. Revisar también la respuesta y la persistencia por GET/MongoDB: la colección no tiene aserciones automáticas. En 49, tres unidades a 0.10 deben totalizar 0.30 CRC; en 52 la solicitud debe estar Cotizada. Los errores no deben alterar datos válidos ni exponer contraseñas o datos privados del proveedor.
 
 Para probar rechazo, repetir con una solicitud y cotización nuevas y enviar `{"estado":"Rechazada"}` en 62. Para repetir el recorrido completo, usar correos nuevos y reemplazar todos los IDs. La colección crea/modifica datos de prueba; no los elimina.
+
+Contactos: 66 debe devolver `[]`; 67 devuelve ID, fecha, canal y nota; 68 muestra el registro y 69 no lo modifica. Los casos 72, 74 y 75 deben devolver 401/403. Para verificar orden, registrar otra fecha y consultar de nuevo. En el detalle de solicitud del cliente no deben aparecer las notas.
 
 Para Jira, adjuntar capturas con método, URL, HTTP y respuesta de los casos del módulo, y el commit correspondiente. No exportar credenciales ni cookies.

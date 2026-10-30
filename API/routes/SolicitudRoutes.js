@@ -2,6 +2,7 @@ const router = require("express").Router();
 const { requiereSesion, requiereAdministrador } = require("../middleware/auth");
 const { crearSolicitud, obtenerSolicitudes, obtenerSolicitud, actualizarSolicitud, cambiarEstadoSolicitud } = require("../controllers/SolicitudController");
 const { obtenerViajeros, crearViajero, actualizarViajero, retirarViajero } = require("../controllers/ViajeroController");
+const { registrarContacto, obtenerContactos } = require("../controllers/SeguimientoController");
 
 const requiereCliente = (req, res, next) => {
     if (req.usuario.rol !== "cliente") {
@@ -11,6 +12,8 @@ const requiereCliente = (req, res, next) => {
 };
 
 router.use(requiereSesion);
+router.get("/:id/contactos", requiereAdministrador, obtenerContactos);
+router.post("/:id/contactos", requiereAdministrador, registrarContacto);
 router.get("/:id/viajeros", requiereCliente, obtenerViajeros);
 router.post("/:id/viajeros", requiereCliente, crearViajero);
 router.put("/:id/viajeros/:viajeroId", requiereCliente, actualizarViajero);
