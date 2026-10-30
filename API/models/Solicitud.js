@@ -6,6 +6,12 @@ const ViajeroSchema = new mongoose.Schema({
     edad: { type: Number, required: true, min: 0, validate: Number.isSafeInteger }
 });
 
+const ContactoSchema = new mongoose.Schema({
+    fecha: { type: String, required: true, validate: fechaValida },
+    canal: { type: String, required: true, trim: true },
+    nota: { type: String, required: true, trim: true }
+});
+
 // Conserva fechas de calendario exactas, sin desplazamientos de zona horaria.
 function fechaValida(valor) {
     if (typeof valor !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
@@ -30,6 +36,8 @@ const SolicitudSchema = new mongoose.Schema({
         }
     },
     viajeros: { type: [ViajeroSchema], default: undefined, validate: viajeros => viajeros.length > 0 },
+    // Las notas comerciales se consultan solo desde las rutas administrativas.
+    contactos: { type: [ContactoSchema], default: [], select: false },
     estado: { type: String, enum: ["Nueva", "En cotización", "Cotizada"], default: "Nueva", required: true },
     cotizacion: { type: mongoose.Schema.Types.ObjectId, ref: "Cotizacion" }
 }, { timestamps: true, optimisticConcurrency: true });
