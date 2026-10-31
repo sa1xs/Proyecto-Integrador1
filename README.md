@@ -92,6 +92,13 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | PUT | `/cotizaciones/:id` | Administrador | `{"partidas":[{"servicio":"ID_SERVICIO","cantidad":2,"precio":12500.50}]}`; reemplaza partidas únicamente en Borrador |
 | PATCH | `/cotizaciones/:id/publicar` | Administrador | Sin cuerpo o `{}`; publica Borrador con partidas y cambia Solicitud a Cotizada |
 | PATCH | `/cotizaciones/:id/respuesta` | Cliente propietario | `{"estado":"Aceptada"}` o `{"estado":"Rechazada"}`; solo Publicada, una vez |
+| GET | `/destinos/publicos` | Público | Destinos activos con nombre, país y descripción; sin registros devuelve `[]` |
+| GET | `/destinos/publicos/:id` | Público | Detalle activo; inactivo o inexistente devuelve 404 |
+| GET | `/destinos` | Administrador | Listado con destinos activos e inactivos |
+| GET | `/destinos/:id` | Administrador | Datos del destino, incluido estado |
+| POST | `/destinos` | Administrador | `{"nombre":"La Fortuna","pais":"Costa Rica","descripcion":"Destino de naturaleza"}`; campos de texto obligatorios; inicia activo |
+| PUT | `/destinos/:id` | Administrador | Uno o más campos: `nombre`, `pais`, `descripcion`; conserva campos omitidos |
+| PATCH | `/destinos/:id/estado` | Administrador | `{"activo":false}` para desactivar o `true` para reactivar |
 
 Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
 
@@ -110,6 +117,8 @@ Viajeros es la fuente de verdad: `cantidadViajeros` y `edades` se calculan al gu
 Los servicios nuevos son de uso interno. Cambiar de proveedor exige uno activo; se permite conservar el proveedor actual inactivo. El catálogo público excluye servicios ocultos o inactivos y no expone datos privados del proveedor; su detalle devuelve 404 si no está disponible.
 
 Respuestas: `200` operación correcta, `201` creación, `400` datos inválidos, `401` sin sesión o credenciales inválidas, `403` sin permisos, `404` no encontrado, `409` conflicto, `413` cuerpo demasiado grande y `500` error interno. Los errores usan `{"message":"Descripción"}`, con un array `errores` opcional. Las listas sin resultados devuelven `[]`.
+
+Destinos es un catálogo independiente: no exige nuevas referencias ni modifica el destino de texto de solicitudes existentes. Los datos vacíos, tipos incorrectos y campos ajenos al cuerpo documentado se rechazan; desactivar conserva el registro y lo retira de las consultas públicas. No hay eliminación física.
 
 ## Colección de pruebas
 
