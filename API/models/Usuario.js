@@ -30,6 +30,12 @@ const UsuarioSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    favoritos: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Servicio' }],
+        default: [],
+        select: false,
+        validate: valores => Array.isArray(valores) && new Set(valores.map(String)).size === valores.length
+    },
     rol: {
         type: String,
         enum: ['cliente', 'administrador'],
