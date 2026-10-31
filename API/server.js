@@ -45,6 +45,7 @@ app.use("/servicios", require("./routes/ServicioRoutes"));
 app.use("/solicitudes", require("./routes/SolicitudRoutes"));
 app.use("/cotizaciones", require("./routes/CotizacionRoutes"));
 app.use("/destinos", require("./routes/DestinoRoutes"));
+app.use("/favoritos", require("./routes/FavoritoRoutes"));
 
 app.use(rutaNoEncontrada);
 app.use(manejarErrores);

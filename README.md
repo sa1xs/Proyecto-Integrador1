@@ -99,6 +99,9 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | POST | `/destinos` | Administrador | `{"nombre":"La Fortuna","pais":"Costa Rica","descripcion":"Destino de naturaleza"}`; campos de texto obligatorios; inicia activo |
 | PUT | `/destinos/:id` | Administrador | Uno o más campos: `nombre`, `pais`, `descripcion`; conserva campos omitidos |
 | PATCH | `/destinos/:id/estado` | Administrador | `{"activo":false}` para desactivar o `true` para reactivar |
+| GET | `/favoritos` | Cliente | Servicios favoritos propios activos y publicados; sin resultados devuelve `[]` |
+| POST | `/favoritos` | Cliente | `{"servicio":"ID_SERVICIO"}`; exige servicio activo y publicado; repetir devuelve 200 sin duplicar |
+| DELETE | `/favoritos/:servicioId` | Cliente | Sin cuerpo; retira la referencia propia, incluso oculta o inexistente; repetir devuelve 200 |
 
 Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
 
@@ -119,6 +122,8 @@ Los servicios nuevos son de uso interno. Cambiar de proveedor exige uno activo; 
 Respuestas: `200` operación correcta, `201` creación, `400` datos inválidos, `401` sin sesión o credenciales inválidas, `403` sin permisos, `404` no encontrado, `409` conflicto, `413` cuerpo demasiado grande y `500` error interno. Los errores usan `{"message":"Descripción"}`, con un array `errores` opcional. Las listas sin resultados devuelven `[]`.
 
 Destinos es un catálogo independiente: no exige nuevas referencias ni modifica el destino de texto de solicitudes existentes. Los datos vacíos, tipos incorrectos y campos ajenos al cuerpo documentado se rechazan; desactivar conserva el registro y lo retira de las consultas públicas. No hay eliminación física.
+
+Favoritos pertenece al cliente de la sesión; no admite seleccionar otro usuario mediante cuerpo o filtros. Las cuentas anteriores comienzan con lista vacía sin migración manual. Agregar/retirar usa operaciones sobre el array que evitan duplicados y pérdida de cambios simultáneos. Consultar devuelve solo nombre, tipo, descripción e ID del servicio, sin datos del proveedor; servicios ocultos o inactivos se excluyen. Retirar un favorito no elimina el servicio ni afecta a otros clientes.
 
 ## Colección de pruebas
 
