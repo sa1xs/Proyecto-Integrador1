@@ -102,6 +102,10 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | GET | `/favoritos` | Cliente | Servicios favoritos propios activos y publicados; sin resultados devuelve `[]` |
 | POST | `/favoritos` | Cliente | `{"servicio":"ID_SERVICIO"}`; exige servicio activo y publicado; repetir devuelve 200 sin duplicar |
 | DELETE | `/favoritos/:servicioId` | Cliente | Sin cuerpo; retira la referencia propia, incluso oculta o inexistente; repetir devuelve 200 |
+| POST | `/consultas` | Cliente | `{"pregunta":"¿Qué incluye el traslado?"}`; texto obligatorio, cliente de sesión y estado Pendiente |
+| GET | `/consultas` | Sesión | Cliente: propias; administrador: todas. Filtro opcional `estado`: Pendiente o Respondida |
+| GET | `/consultas/:id` | Sesión | Detalle propio o administrativo; una consulta ajena devuelve 404 al cliente |
+| PATCH | `/consultas/:id/respuesta` | Administrador | `{"respuesta":"Incluye transporte privado"}`; texto obligatorio; solo Pendiente |
 
 Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
 
@@ -124,6 +128,8 @@ Respuestas: `200` operación correcta, `201` creación, `400` datos inválidos, 
 Destinos es un catálogo independiente: no exige nuevas referencias ni modifica el destino de texto de solicitudes existentes. Los datos vacíos, tipos incorrectos y campos ajenos al cuerpo documentado se rechazan; desactivar conserva el registro y lo retira de las consultas públicas. No hay eliminación física.
 
 Favoritos pertenece al cliente de la sesión; no admite seleccionar otro usuario mediante cuerpo o filtros. Las cuentas anteriores comienzan con lista vacía sin migración manual. Agregar/retirar usa operaciones sobre el array que evitan duplicados y pérdida de cambios simultáneos. Consultar devuelve solo nombre, tipo, descripción e ID del servicio, sin datos del proveedor; servicios ocultos o inactivos se excluyen. Retirar un favorito no elimina el servicio ni afecta a otros clientes.
+
+Consultas: pregunta y respuesta deben ser texto no vacío. Crear admite solo pregunta; cliente, respuesta, estado y fechas no pueden elegirse desde el cuerpo. Responder guarda texto, fecha y estado Respondida en una misma actualización; repetir devuelve 409 sin modificar la primera respuesta. No hay edición, eliminación ni chat en tiempo real.
 
 ## Colección de pruebas
 

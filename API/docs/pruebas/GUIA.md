@@ -17,8 +17,9 @@
 | `idServicio` | `datos._id` de 34 |
 | `idCotizacion` | `datos._id` de 46 |
 | `idDestino` | `datos._id` de 83 |
+| `idConsulta` | `datos._id` de 110 |
 
-3. Ejecutar las 106 peticiones en orden, conservando cookies y pausando para copiar IDs.
+3. Ejecutar las 125 peticiones en orden, conservando cookies y pausando para copiar IDs.
 
 | Peticiones | Comprobación principal |
 |---|---|
@@ -31,6 +32,7 @@
 | 65–76 | Contactos administrativos: lista vacía, registro, fecha inválida y permisos |
 | 77–93 | Destinos públicos y administración: registro, edición, validación y activar/desactivar |
 | 94–106 | Favoritos propios: sesión/rol, agregar sin duplicados, listar y retirar |
+| 107–125 | Consultas propias, pregunta válida, privacidad y respuesta administrativa única |
 
 Cada nombre indica el HTTP esperado. Revisar también la respuesta y la persistencia por GET/MongoDB: la colección no tiene aserciones automáticas. En 49, tres unidades a 0.10 deben totalizar 0.30 CRC; en 52 la solicitud debe estar Cotizada. Los errores no deben alterar datos válidos ni exponer contraseñas o datos privados del proveedor.
 
@@ -41,5 +43,7 @@ Contactos: 66 debe devolver `[]`; 67 devuelve ID, fecha, canal y nota; 68 muestr
 Destinos: copiar el ID de 83 antes de editar. El nombre inválido de 86 conserva los datos; 88 devuelve 404 por destino inactivo, 89 mantiene el registro administrativo y 93 vuelve a mostrarlo públicamente tras reactivar. Las solicitudes anteriores conservan su destino de texto.
 
 Favoritos: 100 y 105 devuelven `[]`; después de 101/102, la lista de 103 debe tener el servicio una sola vez y no exponer el proveedor. Para comprobar privacidad, iniciar sesión con el segundo cliente: debe ver su propia lista vacía. Ocultar el servicio lo excluye del listado, pero aún permite retirarlo. Repetir la retirada devuelve 200 y no elimina el servicio.
+
+Consultas: 109 devuelve `[]`; copiar el ID de 110. En 119 se guardan respuesta, fechaRespuesta y estado Respondida; 120 devuelve 409 sin reemplazarlos. El propietario ve la respuesta en 123, otro cliente recibe 404 en 115 y no puede responder (124: 403).
 
 Para Jira, adjuntar capturas con método, URL, HTTP y respuesta de los casos del módulo, y el commit correspondiente. No exportar credenciales ni cookies.
