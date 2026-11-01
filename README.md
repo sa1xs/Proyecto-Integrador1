@@ -2,9 +2,11 @@
 
 Proyecto académico con API REST en Node.js, Express y MongoDB, e interfaz HTML/Bootstrap.
 
+Módulos de API: usuarios, clientes, proveedores, servicios, solicitudes, viajeros, cotizaciones, destinos, favoritos, consultas, seguimiento y reportes. Clientes reutiliza Usuario; viajeros y contactos se guardan dentro de Solicitud.
+
 ## Instalación y ejecución local
 
-Requisitos: Node.js con npm y MongoDB disponible (local o Atlas).
+Requisitos: Node.js 20.19 o superior con npm y MongoDB disponible (local o Atlas).
 
 1. Clonar el repositorio y abrir una terminal en su carpeta.
 2. Instalar las dependencias de la API:
@@ -45,6 +47,8 @@ Para desarrollo, ambos servidores también admiten `npm run dev`. Usar `localhos
 El registro crea cuentas de cliente. Para preparar el primer administrador local, registrar una cuenta y cambiar su campo `rol` a `administrador` en la base de pruebas.
 
 La autenticación usa la cookie `lsct.sid`: iniciar sesión antes de las peticiones protegidas y conservar las cookies en Thunder Client. Las sesiones duran una hora y se pierden al reiniciar la API.
+
+Para esta entrega, ejecutar una sola instancia de la API con `npm start`. Los cambios de estado de cuentas se procesan de uno en uno; otro cambio simultáneo recibe 409 para reintentar. Se vuelve a comprobar que quien ejecuta la acción sea un administrador activo, y no se permite desactivar al último ni al propio administrador.
 
 ## Rutas de la API REST
 
@@ -125,6 +129,8 @@ Viajeros es la fuente de verdad: `cantidadViajeros` y `edades` se calculan al gu
 Los servicios nuevos son de uso interno. Cambiar de proveedor exige uno activo; se permite conservar el proveedor actual inactivo. El catálogo público excluye servicios ocultos o inactivos y no expone datos privados del proveedor; su detalle devuelve 404 si no está disponible.
 
 Respuestas: `200` operación correcta, `201` creación, `400` datos inválidos, `401` sin sesión o credenciales inválidas, `403` sin permisos, `404` no encontrado, `409` conflicto, `413` cuerpo demasiado grande y `500` error interno. Los errores usan `{"message":"Descripción"}`, con un array `errores` opcional. Las listas sin resultados devuelven `[]`.
+
+Los campos de texto de usuarios y proveedores rechazan números, booleanos y otros tipos en registro y edición. El teléfono opcional del proveedor admite entre 7 y 15 dígitos, `+` inicial, espacios, guiones y paréntesis; se exige al menos un correo o teléfono válido. Si MongoDB no conecta al arrancar, la API informa el fallo y termina con código 1.
 
 Destinos es un catálogo independiente: no exige nuevas referencias ni modifica el destino de texto de solicitudes existentes. Los datos vacíos, tipos incorrectos y campos ajenos al cuerpo documentado se rechazan; desactivar conserva el registro y lo retira de las consultas públicas. No hay eliminación física.
 

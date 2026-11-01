@@ -19,7 +19,7 @@
 | `idDestino` | `datos._id` de 83 |
 | `idConsulta` | `datos._id` de 110 |
 
-3. Ejecutar las 132 peticiones en orden, conservando cookies y pausando para copiar IDs.
+3. Ejecutar las 138 peticiones en orden, conservando cookies y pausando para copiar IDs.
 
 | Peticiones | Comprobación principal |
 |---|---|
@@ -34,6 +34,7 @@
 | 94–106 | Favoritos propios: sesión/rol, agregar sin duplicados, listar y retirar |
 | 107–125 | Consultas propias, pregunta válida, privacidad y respuesta administrativa única |
 | 126–132 | Reporte administrativo de cantidades por estado y rechazo sin sesión/por rol |
+| 133–138 | Correcciones finales: tipos de datos de usuarios/proveedores y teléfono inválido |
 
 Cada nombre indica el HTTP esperado. Revisar también la respuesta y la persistencia por GET/MongoDB: la colección no tiene aserciones automáticas. En 49, tres unidades a 0.10 deben totalizar 0.30 CRC; en 52 la solicitud debe estar Cotizada. Los errores no deben alterar datos válidos ni exponer contraseñas o datos privados del proveedor.
 
@@ -49,4 +50,12 @@ Consultas: 109 devuelve `[]`; copiar el ID de 110. En 119 se guardan respuesta, 
 
 Reportes: 126 devuelve 401, 128 devuelve 403 y 131 muestra los siete contadores. En una base sin solicitudes ni cotizaciones deben ser cero. Con datos, comparar cada cantidad con los registros de MongoDB por estado; el GET no debe guardar registros nuevos.
 
+Validación final: 133, 135, 136 y 137 devuelven 400 sin modificar datos anteriores. Para concurrencia, preparar dos administradores y enviar dos desactivaciones cruzadas simultáneas desde sus sesiones: debe quedar al menos uno activo; el segundo cambio recibe 409 o 401 si su cuenta ya fue desactivada. Ejecutar una sola instancia de la API.
+
+Arranque: probar con una conexión MongoDB inválida en un entorno de prueba; debe informar el fallo y finalizar con código 1. Restaurar la conexión antes de ejecutar la colección.
+
 Para Jira, adjuntar capturas con método, URL, HTTP y respuesta de los casos del módulo, y el commit correspondiente. No exportar credenciales ni cookies.
+
+## Resultado de la revisión final — 1 de noviembre de 2026
+
+Se ejecutaron las 138 peticiones por HTTP contra Express y MongoDB local en una base temporal: todas devolvieron el código esperado. Pasaron 418 comprobaciones de datos, permisos, persistencia, concurrencia y arranque. Las 54 rutas coinciden con el README. Se verificaron `npm ci` y arranque desde una copia limpia, y tres páginas del frontend respondieron HTTP 200. Los servidores y bases temporales se eliminaron al finalizar. La ejecución e importación visual desde Thunder Client quedan como comprobación manual; la integración de interfaces corresponde a su etapa del proyecto.

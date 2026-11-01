@@ -61,6 +61,7 @@ const iniciarServidor = async () => {
         });
     } catch (error) {
         console.error("No se pudo iniciar la aplicación. Revisá la configuración y MongoDB.");
+        process.exitCode = 1;
     }
 };
 

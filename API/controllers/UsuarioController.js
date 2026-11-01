@@ -1,5 +1,6 @@
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcrypt");
+let cambioEstadoEnCurso = false;
 
 //GET.
 const obtenerUsuarios = async (req, res, next) => {
@@ -167,6 +168,11 @@ const actualizarUsuario = async (req, res, next) => {
 };
 
 const cambiarEstadoUsuario = async (req, res, next) => {
+  // Esta API se ejecuta en un proceso: evita verificar y desactivar dos admins a la vez.
+  if (cambioEstadoEnCurso) {
+    return res.status(409).json({ message: "Hay otro cambio de estado en curso. Volvé a intentar" });
+  }
+  cambioEstadoEnCurso = true;
   try {
     const { id } = req.params;
     const { activo } = req.body ?? {};
@@ -181,6 +187,11 @@ const cambiarEstadoUsuario = async (req, res, next) => {
       return res.status(400).json({
         message: "El estado activo debe ser true o false",
       });
+    }
+
+    const administrador = await Usuario.findOne({ _id: req.usuario._id, rol: "administrador", activo: true });
+    if (!administrador) {
+      return res.status(401).json({ message: "La sesión ya no es válida" });
     }
 
     const usuario = await Usuario.findById(id);
@@ -225,6 +236,8 @@ const cambiarEstadoUsuario = async (req, res, next) => {
     });
   } catch (error) {
         return next(error);
+    } finally {
+        cambioEstadoEnCurso = false;
     }
 };
 

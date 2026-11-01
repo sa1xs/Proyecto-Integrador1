@@ -52,4 +52,14 @@ const UsuarioSchema = new mongoose.Schema({
     timestamps: true
 });
 
+// Rechaza tipos incorrectos antes de que Mongoose los convierta en texto.
+for (const campo of ['nombre', 'correo', 'telefono', 'direccion']) {
+    UsuarioSchema.path(campo).set(function (valor) {
+        if (valor !== undefined && typeof valor !== 'string') {
+            throw new mongoose.Error.CastError('String', valor, campo);
+        }
+        return valor;
+    });
+}
+
 module.exports = mongoose.model('Usuario', UsuarioSchema);
