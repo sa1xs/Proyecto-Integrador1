@@ -17,6 +17,10 @@
         <h1>Clientes</h1>
 
         <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
+        <p id="cargandoPerfil" class="alert alert-info" role="status" hidden>Cargando tu perfil…</p>
+        <div id="errorCargaPerfil" class="alert alert-danger" role="alert" hidden>
+            No se pudo cargar tu perfil. Intentá nuevamente.
+        </div>
 
         <div class="nav nav-tabs mb-4" role="tablist" aria-label="Vistas de clientes">
             <button id="tab-perfil" type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#perfil"
@@ -62,6 +66,13 @@
             </section>
 
             <section id="clientes" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-clientes">
+                <h2 class="h4">Consultar clientes</h2>
+                <p class="text-secondary">La consulta de fichas de otros clientes está disponible para administradores.</p>
+                <p id="cargandoClientes" class="alert alert-info" role="status" hidden>Cargando clientes…</p>
+                <div id="errorCargaClientes" class="alert alert-danger" role="alert" hidden>
+                    No se pudo cargar el listado de clientes. Intentá nuevamente.
+                </div>
+                <p id="sinClientesRegistrados" class="text-secondary" hidden>No hay clientes registrados.</p>
 
                 <label for="buscarCliente" class="form-label">
                     Buscar por nombre, correo o teléfono
@@ -104,7 +115,8 @@
 
                         <div class="mb-3">
                             <label for="nombrePerfil" class="form-label">Nombre completo *</label>
-                            <input id="nombrePerfil" name="nombre" class="form-control" autocomplete="name" required>
+                            <input id="nombrePerfil" name="nombre" class="form-control" autocomplete="name"
+                                pattern=".*\S.*" title="Ingresá un nombre; no puede contener solo espacios." required>
                         </div>
 
                         <div class="mb-3">
@@ -144,13 +156,15 @@
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="tituloCliente" class="modal-title fs-5">Detalle del cliente</h2>
+                    <h2 id="tituloCliente" class="modal-title fs-5">Ficha del cliente</h2>
 
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
 
                 <div class="modal-body">
                     <div id="mensajeDetalleCliente" class="d-none" role="alert"></div>
+                    <p id="cargandoFichaCliente" class="alert alert-info" role="status" hidden>Cargando ficha del cliente…</p>
+                    <p id="clienteNoDisponible" class="alert alert-warning" hidden>El cliente seleccionado no está disponible.</p>
 
                     <h3 class="h5">Información del cliente</h3>
 
@@ -168,7 +182,19 @@
                         <dd id="detalleClienteDireccion" class="col-sm-9"></dd>
                     </dl>
 
-                    <h3 class="h5 mt-4">Historial del cliente</h3>
+                    <h3 class="h5 mt-4">Solicitudes y cotizaciones</h3>
+                    <p>Consultá los registros asociados al cliente desde cada módulo.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button id="btnSolicitudesCliente" type="button" class="btn btn-azul" disabled>
+                            Ver solicitudes
+                        </button>
+                        <button id="btnCotizacionesCliente" type="button" class="btn btn-outline-primary" disabled>
+                            Ver cotizaciones
+                        </button>
+                    </div>
+
+                    <!-- Compatibilidad con el script existente; se retira al integrar los accesos por cliente. -->
+                    <div hidden>
                     <div id="mensajeHistorialCliente" class="d-none" role="status"></div>
 
                     <h4 class="h6 mt-3">Solicitudes</h4>
@@ -188,6 +214,7 @@
                     <p id="sinHistorialReservas" class="text-secondary" hidden>
                         No hay reservas asociadas.
                     </p>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
