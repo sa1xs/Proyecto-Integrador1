@@ -77,17 +77,15 @@
                     </button>
                 </form>
 
-                <div class="mt-4">
-                    <h2 class="h5">¿Necesitás orientación?</h2>
-                    <p>Contactarnos por WhatsApp no registra una solicitud automáticamente.</p>
-                    <button id="botonWhatsApp" type="button" class="btn btn-turquesa" disabled>
-                        Contactar por WhatsApp
-                    </button>
-                </div>
             </section>
 
             <section id="misSolicitudes" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-mis-solicitudes">
                 <h2 class="h4">Mis solicitudes</h2>
+                <p class="text-secondary">Abrí el detalle de una solicitud para consultar y administrar sus viajeros.</p>
+                <p id="cargandoMisSolicitudes" class="alert alert-info" role="status" hidden>Cargando tus solicitudes…</p>
+                <div id="errorMisSolicitudes" class="alert alert-danger" role="alert" hidden>
+                    No se pudieron cargar tus solicitudes. Intentá nuevamente.
+                </div>
 
                 <div class="table-responsive">
                     <table class="table align-middle">
@@ -106,13 +104,41 @@
                     </table>
                 </div>
 
-                <p id="sinMisSolicitudes" class="text-secondary" hidden>
-                    Todavía no tenés solicitudes.
+                <!-- La integración creará una fila por solicitud real y cargará su detalle. -->
+                <template id="filaMiSolicitud">
+                    <tr>
+                        <td data-campo="codigo"></td>
+                        <td data-campo="destino"></td>
+                        <td data-campo="fechaSalida"></td>
+                        <td data-campo="fechaRegreso"></td>
+                        <td data-campo="cantidadViajeros"></td>
+                        <td data-campo="estado"></td>
+                        <td>
+                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                data-accion="detalle" data-bs-toggle="modal" data-bs-target="#modalDetalleSolicitud">
+                                Ver detalle
+                            </button>
+                            <!-- Mostrar Editar solamente si la solicitud está en Nueva y pertenece al cliente. -->
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-accion="editar"
+                                data-bs-toggle="modal" data-bs-target="#modalEditarSolicitud">
+                                Editar
+                            </button>
+                        </td>
+                    </tr>
+                </template>
+
+                <p id="sinMisSolicitudes" class="text-secondary">
+                    No hay solicitudes para mostrar.
                 </p>
             </section>
 
             <section id="gestion" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-gestion">
                 <h2 class="h4">Gestión de solicitudes</h2>
+                <p class="text-secondary">Solo el administrador puede preparar solicitudes para cotización.</p>
+                <p id="cargandoGestion" class="alert alert-info" role="status" hidden>Cargando solicitudes…</p>
+                <div id="errorGestion" class="alert alert-danger" role="alert" hidden>
+                    No se pudieron cargar las solicitudes. Intentá nuevamente.
+                </div>
 
                 <label for="buscarSolicitud" class="form-label">Buscar por código, cliente o destino</label>
                 <input id="buscarSolicitud" type="search" class="form-control mb-3">
@@ -120,6 +146,9 @@
                 <label for="filtroEstadoSolicitud" class="form-label">Filtrar por estado</label>
                 <select id="filtroEstadoSolicitud" class="form-select mb-3">
                     <option value="">Todos los estados</option>
+                    <option value="Nueva">Nueva</option>
+                    <option value="En cotización">En cotización</option>
+                    <option value="Cotizada">Cotizada</option>
                 </select>
 
                 <div class="table-responsive">
@@ -138,15 +167,30 @@
                     </table>
                 </div>
 
-                <p id="sinSolicitudes" class="text-secondary" hidden>
-                    No hay solicitudes que coincidan con la búsqueda.
+                <template id="filaSolicitudAdministrativa">
+                    <tr>
+                        <td data-campo="codigo"></td><td data-campo="cliente"></td>
+                        <td data-campo="destino"></td><td data-campo="cantidadViajeros"></td>
+                        <td data-campo="estado"></td>
+                        <td>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle"
+                                data-bs-toggle="modal" data-bs-target="#modalDetalleSolicitud">Ver detalle</button>
+                            <!-- Mostrar únicamente cuando el estado sea Nueva. -->
+                            <button type="button" class="btn btn-azul btn-sm" data-accion="preparar"
+                                data-bs-toggle="modal" data-bs-target="#modalGestionSolicitud">Preparar cotización</button>
+                        </td>
+                    </tr>
+                </template>
+                <p id="sinSolicitudes" class="text-secondary">
+                    No hay solicitudes para mostrar.
                 </p>
+                <p id="sinCoincidenciasSolicitudes" class="text-secondary" hidden>No hay solicitudes que coincidan con los filtros.</p>
             </section>
         </div>
     </main>
 
     <div id="modalDetalleSolicitud" class="modal fade" tabindex="-1" aria-labelledby="tituloDetalle">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 id="tituloDetalle" class="modal-title fs-5">Detalle de solicitud</h2>
@@ -155,6 +199,8 @@
 
                 <div class="modal-body">
                     <div id="mensajeDetalleSolicitud" class="d-none" role="alert"></div>
+                    <p id="cargandoDetalleSolicitud" class="alert alert-info" role="status" hidden>Cargando detalle de la solicitud…</p>
+                    <p id="sinSolicitudSeleccionada" class="text-secondary">No hay una solicitud seleccionada.</p>
 
                     <dl class="row">
                         <dt class="col-sm-4">Código</dt>
@@ -178,6 +224,69 @@
                         <dt class="col-sm-4">Estado</dt>
                         <dd id="detalleEstado" class="col-sm-8"></dd>
                     </dl>
+
+                    <!-- SCRUM-160: viajeros dentro del detalle de la solicitud. -->
+                    <section id="viajerosSolicitud" aria-labelledby="tituloViajerosSolicitud" class="border-top pt-3">
+                        <h3 id="tituloViajerosSolicitud" class="h5">Viajeros de la solicitud</h3>
+                        <p class="text-secondary">Podés modificar los viajeros de tu solicitud mientras esté en Nueva.
+                            Debe quedar al menos un viajero.</p>
+                        <p id="viajerosSoloConsulta" class="alert alert-info" hidden>
+                            Solo consulta: el administrador y las solicitudes En cotización o Cotizada no permiten editar viajeros.
+                        </p>
+                        <p id="cargandoViajeros" class="alert alert-info" role="status" hidden>Cargando viajeros…</p>
+                        <p id="errorViajeros" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los viajeros.</p>
+                        <div id="detalleListaViajeros" class="table-responsive">
+                            <table class="table align-middle">
+                                <thead><tr><th scope="col">Nombre</th><th scope="col">Edad</th><th scope="col" data-edicion-viajeros>Acciones</th></tr></thead>
+                                <tbody id="filasViajeros"></tbody>
+                            </table>
+                        </div>
+                        <p id="sinViajeros" class="text-secondary">No hay viajeros para mostrar.</p>
+                        <p id="avisoUltimoViajero" class="alert alert-warning" role="status" hidden>
+                            No podés retirar al último viajero. La solicitud debe conservar al menos uno.
+                        </p>
+                        <template id="filaViajero">
+                            <tr>
+                                <td data-campo="nombre"></td><td data-campo="edad"></td>
+                                <td data-edicion-viajeros>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-accion="editar-viajero"
+                                        data-bs-toggle="collapse" data-bs-target="#editorViajero">Editar</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-accion="retirar-viajero"
+                                        data-bs-toggle="modal" data-bs-target="#modalRetirarViajero" disabled>Retirar</button>
+                                </td>
+                            </tr>
+                        </template>
+                        <!-- La integración mostrará estas acciones solo al cliente dueño de una solicitud Nueva. -->
+                        <div data-edicion-viajeros>
+                            <button id="btnAgregarViajero" type="button" class="btn btn-outline-primary"
+                                data-bs-toggle="collapse" data-bs-target="#editorViajero"
+                                aria-expanded="false" aria-controls="editorViajero">Agregar viajero</button>
+                            <div id="editorViajero" class="collapse mt-3">
+                                <form id="formularioViajero" class="border rounded p-3">
+                                    <h4 id="tituloEditorViajero" class="h6">Datos del viajero</h4>
+                                    <input id="idViajeroEditar" name="id" type="hidden">
+                                    <div id="errorFormularioViajero" class="alert alert-danger" role="alert" hidden>
+                                        Revisá los datos del viajero.
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="nombreViajero" class="form-label">Nombre (opcional)</label>
+                                        <input id="nombreViajero" name="nombre" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="edadViajero" class="form-label">Edad *</label>
+                                        <input id="edadViajero" name="edad" type="number" min="0" step="1" class="form-control" required>
+                                        <div class="form-text">Ingresá una edad entera igual o mayor a cero.</div>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button id="btnGuardarViajero" type="submit" class="btn btn-azul" disabled>Guardar viajero</button>
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse"
+                                            data-bs-target="#editorViajero">Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="seguimientoComercial" aria-label="Seguimiento comercial" hidden></section>
                 </div>
 
                 <div class="modal-footer">
@@ -201,6 +310,10 @@
                     <div class="modal-body">
                         <div id="mensajeEditarSolicitud" class="d-none" role="alert"></div>
                         <input id="idSolicitudEditar" name="id" type="hidden">
+                        <p class="alert alert-info">Solo podés editar tu solicitud cuando esté en Nueva.</p>
+                        <p id="solicitudSoloConsulta" class="alert alert-warning" hidden>
+                            Esta solicitud ya está en cotización y no admite modificaciones.
+                        </p>
 
                         <div class="mb-3">
                             <label for="editarDestino" class="form-label">Destino *</label>
@@ -242,7 +355,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             Cancelar
                         </button>
-                        <button id="btnGuardarSolicitud" type="button" class="btn btn-azul">
+                        <button id="btnGuardarSolicitud" type="button" class="btn btn-azul" disabled>
                             Guardar cambios
                         </button>
                     </div>
@@ -285,9 +398,12 @@
                         <dd id="gestionEstadoActual"></dd>
                     </dl>
 
+                    <p>Preparar la cotización cambia la solicitud de Nueva a En cotización.
+                        El cliente dejará de poder editar la solicitud y sus viajeros.</p>
                     <label for="estadoSolicitud" class="form-label">Nuevo estado</label>
                     <select id="estadoSolicitud" name="estado" class="form-select">
                         <option value="">Seleccioná un estado</option>
+                        <option value="En cotización">En cotización</option>
                     </select>
                 </div>
 
@@ -295,12 +411,51 @@
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button id="btnGuardarEstadoSolicitud" type="button" class="btn btn-azul">
-                        Guardar estado
+                    <button type="button" class="btn btn-azul" data-bs-toggle="modal"
+                        data-bs-target="#modalConfirmarCotizacion">
+                        Preparar cotización
                     </button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="modalConfirmarCotizacion" class="modal fade" tabindex="-1" aria-labelledby="tituloConfirmarCotizacion">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+            <div class="modal-header">
+                <h2 id="tituloConfirmarCotizacion" class="modal-title fs-5">Confirmar preparación de cotización</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Querés pasar la solicitud seleccionada de Nueva a En cotización?</p>
+                <p>El cliente ya no podrá editar la solicitud ni sus viajeros. Esto no publica una cotización.</p>
+                <div id="errorConfirmarCotizacion" class="alert alert-danger" role="alert" hidden>No se pudo actualizar la solicitud.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#modalGestionSolicitud">Cancelar</button>
+                <button id="btnGuardarEstadoSolicitud" type="button" class="btn btn-azul" disabled>Confirmar</button>
+            </div>
+        </div></div>
+    </div>
+    <div id="modalRetirarViajero" class="modal fade" tabindex="-1" aria-labelledby="tituloRetirarViajero">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+            <div class="modal-header">
+                <h2 id="tituloRetirarViajero" class="modal-title fs-5">Retirar viajero</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Querés retirar al viajero seleccionado de esta solicitud?</p>
+                <p id="nombreViajeroRetirar" class="fw-semibold"></p>
+                <p class="text-secondary">Debe quedar al menos un viajero.</p>
+                <div id="errorRetirarViajero" class="alert alert-danger" role="alert" hidden>No se pudo retirar al viajero.</div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#modalDetalleSolicitud">Cancelar</button>
+                <button id="btnConfirmarRetiro" type="button" class="btn btn-danger" disabled>Retirar viajero</button>
+            </div>
+        </div></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

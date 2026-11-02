@@ -117,12 +117,6 @@ async function iniciar() {
     } catch {
         mostrarMensaje("No se pudo verificar la sesión. Recargá la página.");
     }
-    // Las consultas y gestión se implementan en el sprint 2.
-    for (const id of ["tab-mis-solicitudes", "tab-gestion"]) {
-        const tab = document.getElementById(id);
-        tab.disabled = true;
-        tab.title = "Disponible en una próxima entrega";
-    }
 }
 
 iniciar();
