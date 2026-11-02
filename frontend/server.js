@@ -10,6 +10,13 @@ app.get("/", (req, res) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.listen(PORT, () => {
+app.listen(PORT, (error) => {
+    if (error) {
+        console.error(error.code === "EADDRINUSE"
+            ? `El puerto ${PORT} ya está ocupado. Cerrá la otra instancia del frontend o usá otro puerto.`
+            : `No se pudo iniciar el frontend: ${error.message}`);
+        process.exitCode = 1;
+        return;
+    }
     console.log(`Frontend disponible en http://localhost:${PORT}`);
 });
