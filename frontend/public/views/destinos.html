@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Destinos turísticos | LSCT</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header><nav class="navbar px-3" aria-label="Navegación principal">
+        <div class="container-fluid justify-content-start flex-wrap gap-4">
+            <a class="navbar-brand" href="./servicios.html">LSCT</a>
+            <a class="nav-link" href="./solicitudes.html">Solicitudes</a>
+            <a class="nav-link" href="./cotizaciones.html">Cotizaciones</a>
+            <a class="nav-link" href="./destinos.html">Destinos</a>
+        </div>
+    </nav></header>
+    <main class="container-fluid px-3 px-md-5 py-4">
+        <h1 class="mb-4">Destinos turísticos</h1>
+        <div id="mensajePagina" class="alert alert-success" role="status" hidden></div>
+    <!-- SCRUM-164: diseño HTML. El catálogo es público; la administración requiere ese rol. -->
+    <div class="nav nav-tabs mb-4" role="tablist" aria-label="Vistas de destinos">
+        <button id="tabCatalogoDestinos" class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#catalogoDestinos"
+            aria-controls="catalogoDestinos" aria-selected="true">Explorar destinos</button>
+        <button id="tabAdminDestinos" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#administracionDestinos"
+            aria-controls="administracionDestinos" aria-selected="false">Administración</button>
+    </div>
+    <div class="tab-content">
+        <section id="catalogoDestinos" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tabCatalogoDestinos">
+            <h2 class="h4">Explorar destinos</h2>
+        <p id="catalogoDestinosCarga" class="alert alert-info" role="status" hidden>Cargando los destinos…</p>
+        <p id="catalogoDestinosError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los destinos. Intentá nuevamente.</p>
+            <div id="tarjetasDestinos" class="row g-3"></div>
+            <p id="sinDestinosPublicos" class="text-secondary">No hay destinos disponibles para mostrar.</p>
+            <template id="tarjetaDestino">
+                <div class="col-sm-6 col-lg-4"><article class="card h-100"><div class="card-body">
+                    <h3 class="h5" data-campo="nombre"></h3><p data-campo="pais" class="text-secondary"></p>
+                    <p data-campo="descripcion" class="text-break"></p>
+                    <button type="button" class="btn btn-outline-primary" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleDestino">Ver destino</button>
+                </div></article></div>
+            </template>
+        </section>
+        <!-- Ocultar a visitantes y clientes al integrar la sesión. -->
+        <section id="administracionDestinos" class="tab-pane fade" role="tabpanel" aria-labelledby="tabAdminDestinos">
+            <div class="d-flex flex-wrap justify-content-between gap-3 mb-3"><h2 class="h4">Administrar destinos</h2>
+                <button type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#formularioDestinoModal">Nuevo destino</button>
+            </div>
+            <p class="text-secondary">Los destinos desactivados permanecen registrados y no aparecen en el catálogo público.</p>
+        <p id="adminDestinosCarga" class="alert alert-info" role="status" hidden>Cargando los destinos…</p>
+        <p id="adminDestinosError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los destinos. Intentá nuevamente.</p>
+            <div class="table-responsive"><table class="table align-middle">
+                <thead><tr><th scope="col">Nombre</th><th scope="col">País</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+                <tbody id="filasDestinos"></tbody>
+            </table></div>
+            <p id="sinDestinosAdmin" class="text-secondary">No hay destinos registrados.</p>
+            <template id="filaDestino">
+                <tr><td data-campo="nombre"></td><td data-campo="pais"></td><td data-campo="estado"></td>
+                    <td><div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleDestino">Consultar</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-accion="editar" data-bs-toggle="modal" data-bs-target="#formularioDestinoModal">Editar</button>
+                        <!-- La integración muestra Desactivar o Reactivar según activo. -->
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-accion="desactivar" data-bs-toggle="modal" data-bs-target="#desactivarDestino">Desactivar</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-accion="reactivar" data-bs-toggle="modal" data-bs-target="#reactivarDestino" hidden>Reactivar</button>
+                    </div></td>
+                </tr>
+            </template>
+        </section>
+    </div>
+    <div id="detalleDestino" class="modal fade" tabindex="-1" aria-labelledby="detalleDestinoTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header"><h2 id="detalleDestinoTitulo" class="modal-title fs-5">Detalle del destino</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="detalleDestinoCarga" class="alert alert-info" role="status" hidden>Cargando destino…</p>
+                <p id="detalleDestinoError" class="alert alert-danger" role="alert" hidden>Este destino no está disponible.</p>
+                <dl>
+                    <dt>Nombre</dt><dd id="detalleDestinoNombre">—</dd>
+                    <dt>País</dt><dd id="detalleDestinoPais">—</dd>
+                    <dt>Descripción</dt><dd id="detalleDestinoDescripcion" class="text-break">—</dd>
+                </dl>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+            </div>
+        </div></div>
+    </div>
+    <div id="formularioDestinoModal" class="modal fade" tabindex="-1" aria-labelledby="formularioDestinoModalTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header"><h2 id="formularioDestinoModalTitulo" class="modal-title fs-5">Datos del destino</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formularioDestino">
+                    <input id="idDestino" name="id" type="hidden">
+                    <p>Los campos con * son obligatorios.</p>
+                    <p id="errorFormularioDestino" class="alert alert-danger" role="alert" hidden>No se pudo guardar. Completá el nombre, el país y la descripción.</p>
+                <div class="mb-3"><label for="nombreDestino" class="form-label">Nombre *</label>
+                    <input id="nombreDestino" name="nombre" type="text" class="form-control" required pattern=".*\S.*" title="Ingresá el nombre del destino.">
+                </div>
+                <div class="mb-3"><label for="paisDestino" class="form-label">País *</label>
+                    <input id="paisDestino" name="pais" type="text" class="form-control" required pattern=".*\S.*" title="Ingresá el país.">
+                </div>
+                    <label for="descripcionDestino" class="form-label">Descripción *</label>
+                    <textarea id="descripcionDestino" name="descripcion" rows="4" class="form-control" required></textarea>
+                    <p class="form-text">Los destinos nuevos se registran activos. La activación y desactivación se confirma desde el listado.</p>
+                    <p id="guardandoDestino" class="alert alert-info" role="status" hidden>Guardando destino…</p>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnGuardarDestino" type="submit" form="formularioDestino" class="btn btn-azul" disabled>Guardar destino</button>
+            </div>
+        </div></div>
+    </div>
+    <div id="desactivarDestino" class="modal fade" tabindex="-1" aria-labelledby="desactivarDestinoTitulo" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header"><h2 id="desactivarDestinoTitulo" class="modal-title fs-5">Desactivar destino</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Querés desactivar el destino seleccionado?</p>
+                <p>Dejará de aparecer en el catálogo público. Podrás reactivarlo después.</p>
+                <p id="errorDesactivarDestino" class="alert alert-danger" role="alert" hidden>No se pudo desactivar el destino.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnDesactivarDestino" type="button" class="btn btn-danger" disabled>Confirmar desactivación</button>
+            </div>
+        </div></div>
+    </div>
+    <div id="reactivarDestino" class="modal fade" tabindex="-1" aria-labelledby="reactivarDestinoTitulo" aria-hidden="true">
+        <div class="modal-dialog  modal-dialog-centered modal-dialog-scrollable"><div class="modal-content">
+            <div class="modal-header"><h2 id="reactivarDestinoTitulo" class="modal-title fs-5">Reactivar destino</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Querés reactivar el destino seleccionado?</p>
+                <p>Volverá a estar disponible en el catálogo público.</p>
+                <p id="errorReactivarDestino" class="alert alert-danger" role="alert" hidden>No se pudo reactivar el destino.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnReactivarDestino" type="button" class="btn btn-azul" disabled>Confirmar reactivación</button>
+            </div>
+        </div></div>
+    </div>
+
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
