@@ -14,7 +14,13 @@
     <header id="menu"></header>
 
     <main class="container-fluid px-3 px-md-5 py-4">
-        <h1>Solicitudes de cotización</h1>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
+            <h1 class="mb-0">Solicitudes de cotización</h1>
+            <nav class="d-flex flex-wrap gap-2" aria-label="Módulos relacionados">
+                <a class="btn btn-outline-primary" href="./cotizaciones.html">Cotizaciones</a>
+                <a class="btn btn-outline-primary" href="./destinos.html">Destinos</a>
+            </nav>
+        </div>
         <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
 
         <div class="nav nav-tabs my-4" role="tablist" aria-label="Vistas de solicitudes">
@@ -175,6 +181,8 @@
                         <td>
                             <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle"
                                 data-bs-toggle="modal" data-bs-target="#modalDetalleSolicitud">Ver detalle</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-accion="seguimiento"
+                                data-bs-toggle="modal" data-bs-target="#modalGestionSolicitud">Seguimiento comercial</button>
                             <!-- Mostrar únicamente cuando el estado sea Nueva. -->
                             <button type="button" class="btn btn-azul btn-sm" data-accion="preparar"
                                 data-bs-toggle="modal" data-bs-target="#modalGestionSolicitud">Preparar cotización</button>
@@ -286,7 +294,6 @@
                             </div>
                         </div>
                     </section>
-                    <section id="seguimientoComercial" aria-label="Seguimiento comercial" hidden></section>
                 </div>
 
                 <div class="modal-footer">
@@ -365,7 +372,7 @@
     </div>
 
     <div id="modalGestionSolicitud" class="modal fade" tabindex="-1" aria-labelledby="tituloGestion">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2 id="tituloGestion" class="modal-title fs-5">Gestionar solicitud</h2>
@@ -397,6 +404,47 @@
                         <dt>Estado actual</dt>
                         <dd id="gestionEstadoActual"></dd>
                     </dl>
+
+                    <!-- SCRUM-168: contactos privados de la solicitud, solo para administración. -->
+                    <section id="seguimientoComercial" aria-labelledby="tituloSeguimiento" class="border-top pt-3 mb-4">
+                        <h3 id="tituloSeguimiento" class="h5">Seguimiento comercial</h3>
+                        <p class="text-secondary">Notas de contacto de esta solicitud. Solo disponibles para administradores.</p>
+                        <p id="cargandoContactos" class="alert alert-info" role="status" hidden>Cargando contactos…</p>
+                        <p id="errorContactos" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los contactos.</p>
+                        <div class="table-responsive"><table class="table align-middle">
+                            <caption>Contactos de más reciente a más antiguo</caption>
+                            <thead><tr><th scope="col">Fecha</th><th scope="col">Canal</th><th scope="col">Nota</th></tr></thead>
+                            <tbody id="filasContactos"></tbody>
+                        </table></div>
+                        <template id="filaContacto">
+                            <tr><td data-campo="fecha"></td><td data-campo="canal"></td><td data-campo="nota" class="text-break"></td></tr>
+                        </template>
+                        <p id="sinContactos" class="text-secondary">No hay contactos registrados para esta solicitud.</p>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse"
+                            data-bs-target="#nuevoContacto" aria-controls="nuevoContacto" aria-expanded="false">Registrar contacto</button>
+                        <div id="nuevoContacto" class="collapse mt-3">
+                            <form id="formularioContacto" class="border rounded p-3">
+                                <h4 class="h6">Nuevo contacto</h4>
+                                <p class="text-secondary">Los campos con * son obligatorios. Las notas guardadas no se editan ni se eliminan.</p>
+                                <div id="errorFormularioContacto" class="alert alert-danger" role="alert" hidden>Revisá la fecha, el canal y la nota.</div>
+                                <label for="fechaContacto" class="form-label">Fecha *</label>
+                                <input id="fechaContacto" name="fecha" type="date" class="form-control mb-3" required>
+                                <label for="canalContacto" class="form-label">Canal *</label>
+                                <input id="canalContacto" name="canal" class="form-control mb-3" required pattern=".*\S.*" title="Indicá el canal de contacto.">
+                                <label for="notaContacto" class="form-label">Nota *</label>
+                                <textarea id="notaContacto" name="nota" class="form-control mb-3" rows="3" required></textarea>
+                                <button type="button" class="btn btn-azul" data-bs-toggle="collapse" data-bs-target="#confirmarContacto"
+                                    aria-controls="confirmarContacto" aria-expanded="false">Revisar registro</button>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#nuevoContacto">Cancelar</button>
+                                <div id="confirmarContacto" class="collapse mt-3"><div class="alert alert-warning">
+                                    <p>¿Querés guardar esta nota? No podrá editarse ni eliminarse.</p>
+                                    <button id="btnGuardarContacto" type="submit" class="btn btn-azul" disabled>Confirmar registro</button>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#confirmarContacto">Volver a revisar</button>
+                                </div></div>
+                                <p id="contactoGuardado" class="alert alert-success mt-3" role="status" hidden>Contacto registrado correctamente.</p>
+                            </form>
+                        </div>
+                    </section>
 
                     <p>Preparar la cotización cambia la solicitud de Nueva a En cotización.
                         El cliente dejará de poder editar la solicitud y sus viajeros.</p>
