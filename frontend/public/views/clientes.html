@@ -11,9 +11,10 @@
 </head>
 
 <body>
+    <a class="visually-hidden-focusable salto-contenido" href="#contenidoPrincipal">Saltar al contenido</a>
     <header id="menu"></header>
 
-    <main class="container-fluid px-3 px-md-5 py-4">
+    <main id="contenidoPrincipal" class="container-fluid px-3 px-md-5 py-4">
         <h1>Clientes</h1>
 
         <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
@@ -193,28 +194,7 @@
                         </button>
                     </div>
 
-                    <!-- Compatibilidad con el script existente; se retira al integrar los accesos por cliente. -->
-                    <div hidden>
-                    <div id="mensajeHistorialCliente" class="d-none" role="status"></div>
 
-                    <h4 class="h6 mt-3">Solicitudes</h4>
-                    <div id="historialSolicitudes"></div>
-                    <p id="sinHistorialSolicitudes" class="text-secondary" hidden>
-                        No hay solicitudes asociadas.
-                    </p>
-
-                    <h4 class="h6 mt-3">Cotizaciones</h4>
-                    <div id="historialCotizaciones"></div>
-                    <p id="sinHistorialCotizaciones" class="text-secondary" hidden>
-                        No hay cotizaciones asociadas.
-                    </p>
-
-                    <h4 class="h6 mt-3">Reservas</h4>
-                    <div id="historialReservas"></div>
-                    <p id="sinHistorialReservas" class="text-secondary" hidden>
-                        No hay reservas asociadas.
-                    </p>
-                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -226,9 +206,10 @@
         </div>
     </div>
 
+    <footer class="pie-pagina px-3 px-md-5 py-3"><p class="mb-0">LSCT · Solicitudes y cotizaciones turísticas</p></footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="../js/menu.js"></script>
-    <script type="module" src="../js/clientes.js"></script>
+    <script type="module" src="../js/pagina.js"></script>
 </body>
 
 </html>

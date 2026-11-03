@@ -11,15 +11,12 @@
 </head>
 
 <body>
+    <a class="visually-hidden-focusable salto-contenido" href="#contenidoPrincipal">Saltar al contenido</a>
     <header id="menu"></header>
 
-    <main class="container-fluid px-3 px-md-5 py-4">
+    <main id="contenidoPrincipal" class="container-fluid px-3 px-md-5 py-4">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
             <h1 class="mb-0">Servicios turísticos</h1>
-            <nav class="d-flex flex-wrap gap-2" aria-label="Módulos relacionados">
-                <a href="./destinos.html" class="btn btn-outline-primary">Destinos</a>
-                <a href="./consultas.html" class="btn btn-outline-primary">Consultas</a>
-            </nav>
         </div>
         <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
 
@@ -258,9 +255,10 @@
         </div>
     </div>
 
+    <footer class="pie-pagina px-3 px-md-5 py-3"><p class="mb-0">LSCT · Solicitudes y cotizaciones turísticas</p></footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script type="module" src="../js/menu.js"></script>
-    <script type="module" src="../js/servicios.js"></script>
+    <script type="module" src="../js/pagina.js"></script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 :root {
     --lsct-primary: #173B7A;
-    --lsct-secondary: #28AEB0;
+    --lsct-secondary: #147D80;
     --lsct-accent: #F28C28;
     --lsct-background: #EEF7F8;
     --lsct-text: #30343B;
@@ -37,7 +37,7 @@ body {
 }
 
 main {
-    min-height: calc(100vh - 58px);
+    min-height: calc(100vh - 120px);
     padding: 2rem;
     background-color: var(--lsct-surface);
 }
@@ -61,29 +61,60 @@ h3 {
 }
 
 .btn-turquesa {
-    background-color: #28AEB0 !important;
-    border-color: #28AEB0 !important;
+    background-color: var(--lsct-secondary) !important;
+    border-color: var(--lsct-secondary) !important;
     color: white !important;
 }
 
 .btn-turquesa:hover {
-    background-color: #208D8F !important;
-    border-color: #208D8F !important;
+    background-color: #116467 !important;
+    border-color: #116467 !important;
     color: white !important;
 }
 
 .btn-naranja {
     background-color: #F28C28 !important;
     border-color: #F28C28 !important;
-    color: white !important;
+    color: #172433 !important;
 }
 
 .btn-naranja:hover {
     background-color: #D87518 !important;
     border-color: #D87518 !important;
-    color: white !important;
+    color: #172433 !important;
 }
 
 .form-label {
     color: var(--bs-emphasis-color);
+}
+
+.formulario-acceso { max-width: 500px; }
+.pie-pagina { background: var(--lsct-background); color: var(--lsct-primary); }
+.aviso-revision { background: #f3f6fa; border-bottom: 1px solid #ced8e5; }
+.salto-contenido:focus { display: block; padding: .75rem; background: white; color: var(--lsct-primary); }
+h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); overflow-wrap: anywhere; }
+.navbar .nav-link { border-radius: .25rem; }
+.navbar .nav-link:hover, .navbar .nav-link.active { background: rgb(255 255 255 / 12%); color: white; }
+.btn, .nav-link { transition: background-color .15s ease, color .15s ease; }
+.btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid var(--lsct-primary); outline-offset: 3px;
+}
+.navbar a:focus-visible, .navbar button:focus-visible { outline-color: white; }
+.table-responsive { max-width: 100%; }
+.table-responsive > .table { min-width: 30rem; }
+.table td, dd, .card p, .modal-body p { overflow-wrap: anywhere; }
+.modal-body { overscroll-behavior: contain; }
+.estructura-revision { border-color: #aebdce; }
+/* Bootstrap usa display en botones y alertas: hidden debe seguir ocultándolos. */
+[hidden] { display: none !important; }
+@media (max-width: 575.98px) {
+    .nav-tabs .nav-link { padding: .7rem; }
+    .form-control, .form-select, .btn { min-height: 44px; }
+    .modal-footer { gap: .5rem; }
+    .modal-footer > .btn { flex: 1 1 auto; margin: 0; }
+    .modal-dialog { margin: .5rem; }
+    .navbar-brand { margin-right: .5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }

@@ -21,7 +21,6 @@ const sinClientes = document.getElementById("sinClientes");
 const elementoModalCliente = document.getElementById("modalCliente");
 const modalCliente = new bootstrap.Modal(elementoModalCliente);
 const mensajeDetalle = document.getElementById("mensajeDetalleCliente");
-const mensajeHistorial = document.getElementById("mensajeHistorialCliente");
 
 let perfil = null;
 let esAdministrador = false;
@@ -274,13 +273,7 @@ async function abrirDetalle(id) {
         document.getElementById(campo).textContent = "";
     }
 
-    for (const tipo of ["Solicitudes", "Cotizaciones", "Reservas"]) {
-        document.getElementById(`historial${tipo}`).replaceChildren();
-        document.getElementById(`sinHistorial${tipo}`).hidden = true;
-    }
-
     mostrarMensaje(mensajeDetalle, "Cargando cliente...", "info");
-    mostrarMensaje(mensajeHistorial, "");
     modalCliente.show();
 
     try {
@@ -298,11 +291,6 @@ async function abrirDetalle(id) {
         mostrarDato("detalleClienteDireccion", cliente.direccion);
 
         mostrarMensaje(mensajeDetalle, "");
-        mostrarMensaje(
-            mensajeHistorial,
-            "El historial todavía no está disponible.",
-            "info"
-        );
     } catch (error) {
         if (numero !== numeroDetalle) return;
 
