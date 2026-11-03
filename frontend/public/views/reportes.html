@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reportes básicos | LSCT</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <header><nav class="navbar px-3" aria-label="Navegación principal">
+        <div class="container-fluid justify-content-start flex-wrap gap-3">
+            <a class="navbar-brand" href="./servicios.html">LSCT</a>
+            <a class="nav-link" href="./solicitudes.html">Solicitudes</a>
+            <a class="nav-link" href="./cotizaciones.html">Cotizaciones</a>
+            <a class="nav-link" href="./destinos.html">Destinos</a>
+            <a class="nav-link" href="./consultas.html">Consultas</a>
+            <a class="nav-link" href="./reportes.html">Reportes</a>
+        </div>
+    </nav></header>
+    <main class="container-fluid px-3 px-md-5 py-4">
+        <h1 class="mb-4">Reportes básicos</h1>
+    <!-- SCRUM-179: cantidades por estado. Sin gráficos, filtros ni exportaciones. -->
+    <p class="text-secondary">Resumen administrativo de solicitudes y cotizaciones por estado.</p>
+    <div id="reportesSinSesion" class="alert alert-info" hidden>Iniciá sesión con una cuenta de administrador. <a href="./login.html">Iniciar sesión</a></div>
+    <div id="reportesSinPermiso" class="alert alert-warning" hidden>Tu cuenta no tiene permisos para consultar estos reportes.</div>
+    <p id="cargandoReportes" class="alert alert-info" role="status" hidden>Cargando cantidades por estado…</p>
+    <p id="errorReportes" class="alert alert-danger" role="alert" hidden>No se pudo cargar el reporte. Intentá nuevamente.</p>
+    <p id="reportesSinDatos" class="alert alert-info" hidden>No hay registros. Todos los contadores muestran cero.</p>
+    <!-- La integración poblará cada contador con su cantidad real, incluido 0; antes de cargar se muestra —. -->
+    <div id="contenidoReportes">
+        <section aria-labelledby="tituloReporteSolicitudes" class="mb-4">
+            <h2 id="tituloReporteSolicitudes" class="h4">Solicitudes</h2>
+            <div class="row g-3">
+                <div class="col-sm-6 col-lg-3"><article class="card h-100"><div class="card-body">
+                    <h3 id="solicitudesNuevaTitulo" class="h6">Nueva</h3>
+                    <output id="solicitudesNueva" class="display-6" aria-labelledby="solicitudesNuevaTitulo" data-entidad="solicitudes" data-estado="Nueva">—</output>
+                </div></article></div>
+                <div class="col-sm-6 col-lg-3"><article class="card h-100"><div class="card-body">
+                    <h3 id="solicitudesEnCotizacionTitulo" class="h6">En cotización</h3>
+                    <output id="solicitudesEnCotizacion" class="display-6" aria-labelledby="solicitudesEnCotizacionTitulo" data-entidad="solicitudes" data-estado="En cotización">—</output>
+                </div></article></div>
+                <div class="col-sm-6 col-lg-3"><article class="card h-100"><div class="card-body">
+                    <h3 id="solicitudesCotizadaTitulo" class="h6">Cotizada</h3>
+                    <output id="solicitudesCotizada" class="display-6" aria-labelledby="solicitudesCotizadaTitulo" data-entidad="solicitudes" data-estado="Cotizada">—</output>
+                </div></article></div>
+            </div>
+        </section>
+        <section aria-labelledby="tituloReporteCotizaciones" class="mb-4">
+            <h2 id="tituloReporteCotizaciones" class="h4">Cotizaciones</h2>
+            <div class="row g-3">
+                <div class="col-sm-6 col-lg-3"><article class="card h-100"><div class="card-body">
+                    <h3 id="cotizacionesBorradorTitulo" class="h6">Borrador</h3>
+                    <output id="cotizacionesBorrador" class="display-6" aria-labelledby="cotizacionesBorradorTitulo" data-entidad="cotizaciones" data-estado="Borrador">—</output>
+                </div></article></div>
+                <div class="col-sm-6 col-lg-3"><article class="card h-100"><div class="card-body">
+                    <h3 id="cotizacionesPublicadaTitulo" class="h6">Publicada</h3>
+                    <output id="cotizacionesPublicada" class="display-6" aria-labelledby="cotizacionesPublicadaTitulo" data-entidad="cotizaciones" data-estado="Publicada">—</output>
+                </div></article></div>
+                <div class="col-sm-6 col-lg-3"><article class="card h-100"><div class="card-body">
+                    <h3 id="cotizacionesAceptadaTitulo" class="h6">Aceptada</h3>
+                    <output id="cotizacionesAceptada" class="display-6" aria-labelledby="cotizacionesAceptadaTitulo" data-entidad="cotizaciones" data-estado="Aceptada">—</output>
+                </div></article></div>
+                <div class="col-sm-6 col-lg-3"><article class="card h-100"><div class="card-body">
+                    <h3 id="cotizacionesRechazadaTitulo" class="h6">Rechazada</h3>
+                    <output id="cotizacionesRechazada" class="display-6" aria-labelledby="cotizacionesRechazadaTitulo" data-entidad="cotizaciones" data-estado="Rechazada">—</output>
+                </div></article></div>
+            </div>
+        </section>
+    </div>
+
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
