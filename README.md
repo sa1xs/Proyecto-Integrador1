@@ -9,11 +9,12 @@ La integración completa de solicitudes, viajeros, contactos, cotizaciones, dest
 favoritos, consultas y reportes corresponde a Sprint 3. Las funciones ya conectadas
 del primer avance se conservan al usar una sesión real.
 
-### Iniciar y revisar sin API
+### Ejecutar la aplicación
 
 Requisito: Node.js 20.19 o superior.
 
-1. Desde la raíz del repositorio:
+1. Configurá MongoDB e iniciá el backend siguiendo la [guía de la API](API/docs/API.md).
+2. En otra terminal, desde la raíz del repositorio:
 
    ```bash
    cd frontend
@@ -21,24 +22,8 @@ Requisito: Node.js 20.19 o superior.
    npm start
    ```
 
-2. Abrir una perspectiva de revisión:
-
-   - [Visitante](http://localhost:5002/views/servicios.html?maqueta=visitante)
-   - [Cliente](http://localhost:5002/views/servicios.html?maqueta=cliente)
-   - [Administrador](http://localhost:5002/views/servicios.html?maqueta=administrador)
-
-3. Navegar por el menú común. El parámetro `maqueta` se conserva entre pantallas.
-   Elegir **Estado visual** para revisar carga, vacío y error, y **Variante del diseño**
-   para consulta, guardado o último viajero, según el módulo.
-
-Este modo no inicia sesión, no llama a la API, no guarda datos y no contiene
-registros ficticios. Las filas y tarjetas con **—** permiten abrir los componentes
-del HTML sin representar registros. Las confirmaciones finales están deshabilitadas.
-Los ceros de Reportes en “Sin registros” muestran exclusivamente el diseño de ese estado.
-
-Para salir, usar **Salir de revisión**. En el modo normal se requiere API para las
-funciones existentes; si no responde, se conserva la pantalla con enlaces a revisión.
-No usar el modo de maquetación para comprobar autenticación ni permisos del backend.
+3. Abrí [Iniciar sesión](http://localhost:5002/views/login.html). El menú muestra las
+   opciones correspondientes al rol de tu cuenta.
 
 ### Matriz de vistas, Jira y API
 
@@ -68,8 +53,7 @@ Mapeos para la siguiente integración:
 - Estado de proveedor/destino/cuenta: `activo` booleano; visibilidad del servicio: `publicado` booleano.
 - Aceptación/rechazo de cotización envía `estado`; responder una consulta envía `respuesta`.
 - Total, subtotales, identidad del cliente y fechas del servidor no se toman de campos editables.
-- Las pantallas restringen visualmente acciones por perspectiva y estado durante revisión;
-  la autorización real siempre corresponde a la API.
+- La API aplica los permisos por rol y estado en cada operación.
 
 ### Capturas y revisión responsive
 
@@ -77,15 +61,14 @@ Las [capturas de escritorio y móvil](frontend/docs/capturas/README.md) cubren l
 12 módulos, incluyendo listados, formularios, detalles y confirmaciones representativas.
 Se tomaron del frontend el 3 de noviembre de 2026 con anchos de 1366 y 390 px.
 Las páginas completas pueden superar el alto de la ventana; los modales conservan
-su desplazamiento interno. El modo de revisión muestra los contenedores sin datos
-y no constituye una prueba de integración con la API.
+su desplazamiento interno. Las imágenes corresponden a la revisión visual del segundo avance.
 
 ## Estructura
 
 - `frontend/public/views/`: 11 pantallas HTML; Viajeros, Favoritos y Seguimiento son secciones de sus módulos.
 - `frontend/public/css/styles.css`: identidad visual, contraste, foco y ajustes responsive.
-- `frontend/public/js/`: menú común, revisión de maquetación y controladores existentes.
-- `frontend/docs/`: revisión y capturas de la entrega.
+- `frontend/public/js/`: menú común y controladores.
+- `frontend/docs/`: capturas de la entrega.
 - `API/`: configuración, modelos, controladores, rutas y middleware del backend.
 - No hay imágenes decorativas en las pantallas actuales. Si se agregan, ubicarlas
   en `frontend/public/img/` con un texto alternativo adecuado.

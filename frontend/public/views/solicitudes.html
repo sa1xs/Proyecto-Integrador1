@@ -84,7 +84,7 @@
 
             <section id="misSolicitudes" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-mis-solicitudes">
                 <h2 class="h4">Mis solicitudes</h2>
-                <p class="text-secondary">Abrí el detalle de una solicitud para consultar y administrar sus viajeros.</p>
+                <p class="text-secondary">Abrí el detalle para consultar los datos y el estado de tu solicitud.</p>
                 <p id="cargandoMisSolicitudes" class="alert alert-info" role="status" hidden>Cargando tus solicitudes…</p>
                 <div id="errorMisSolicitudes" class="alert alert-danger" role="alert" hidden>
                     No se pudieron cargar tus solicitudes. Intentá nuevamente.
@@ -107,7 +107,6 @@
                     </table>
                 </div>
 
-                <!-- La integración creará una fila por solicitud real y cargará su detalle. -->
                 <template id="filaMiSolicitud">
                     <tr>
                         <td data-campo="codigo"></td>
@@ -359,7 +358,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                             Cancelar
                         </button>
-                        <button id="btnGuardarSolicitud" type="button" class="btn btn-azul" disabled>
+                        <button id="btnGuardarSolicitud" type="submit" class="btn btn-azul" disabled>
                             Guardar cambios
                         </button>
                     </div>
@@ -456,7 +455,7 @@
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button type="button" class="btn btn-azul" data-bs-toggle="modal"
+                    <button id="btnPrepararCotizacion" type="button" class="btn btn-azul" data-bs-toggle="modal"
                         data-bs-target="#modalConfirmarCotizacion">
                         Preparar cotización
                     </button>
