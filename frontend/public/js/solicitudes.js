@@ -132,6 +132,15 @@ const editarEdades = document.getElementById("editarEdadesViajeros");
 const editarSalida = document.getElementById("editarSalida");
 const editarRegreso = document.getElementById("editarRegreso");
 const modalDetalle = document.getElementById("modalDetalleSolicitud");
+const seccionViajeros = document.getElementById("viajerosSolicitud");
+const filasViajeros = document.getElementById("filasViajeros");
+const formularioViajero = document.getElementById("formularioViajero");
+const editorViajero = document.getElementById("editorViajero");
+const guardarViajero = document.getElementById("btnGuardarViajero");
+const agregarViajero = document.getElementById("btnAgregarViajero");
+const modalRetiro = document.getElementById("modalRetirarViajero");
+const confirmarRetiro = document.getElementById("btnConfirmarRetiro");
+const volverAlDetalle = document.getElementById("btnVolverAlDetalle");
 const modalEditar = document.getElementById("modalEditarSolicitud");
 const modalGestion = document.getElementById("modalGestionSolicitud");
 const modalConfirmar = document.getElementById("modalConfirmarCotizacion");
@@ -141,6 +150,9 @@ const estadoSolicitud = document.getElementById("estadoSolicitud");
 let solicitudes = [];
 let numeroListado = 0;
 let solicitudEditar = null;
+let solicitudDetalle = null;
+let viajeroRetiro = null;
+let guardandoViajero = false;
 let solicitudGestion = null;
 let guardandoSolicitud = false;
 let guardandoEstado = false;
@@ -250,6 +262,7 @@ document.getElementById("tab-mis-solicitudes").addEventListener("shown.bs.tab", 
 document.getElementById("tab-gestion").addEventListener("shown.bs.tab", cargarSolicitudes);
 
 function completarDetalle(solicitud) {
+    solicitudDetalle = solicitud;
     mostrarDato("detalleCodigo", solicitud._id);
     mostrarDato("detalleDestino", solicitud.destino);
     mostrarDato("detalleSalida", solicitud.fechaSalida);
@@ -257,7 +270,147 @@ function completarDetalle(solicitud) {
     mostrarDato("detalleViajeros", solicitud.cantidadViajeros);
     mostrarDato("detalleEdades", solicitud.edades.join(", "));
     mostrarDato("detalleEstado", solicitud.estado);
+    pintarViajeros(solicitud);
 }
+
+function puedeEditarViajeros() {
+    return esCliente && solicitudDetalle?.estado === "Nueva" && !guardandoViajero;
+}
+
+function pintarViajeros(solicitud) {
+    const viajeros = solicitud.viajeros ?? [];
+    const editable = esCliente && solicitud.estado === "Nueva";
+    const plantilla = document.getElementById("filaViajero");
+    filasViajeros.replaceChildren();
+    seccionViajeros.querySelectorAll("[data-edicion-viajeros]").forEach(elemento => {
+        elemento.hidden = !editable;
+    });
+    for (const viajero of viajeros) {
+        const fila = plantilla.content.firstElementChild.cloneNode(true);
+        fila.querySelector('[data-campo="nombre"]').textContent = viajero.nombre || "Sin nombre";
+        fila.querySelector('[data-campo="edad"]').textContent = viajero.edad;
+        fila.querySelector("[data-edicion-viajeros]").hidden = !editable;
+        fila.querySelector('[data-accion="editar-viajero"]').addEventListener("click", () => abrirEditorViajero(viajero));
+        const retirar = fila.querySelector('[data-accion="retirar-viajero"]');
+        retirar.dataset.viajeroId = viajero._id;
+        retirar.disabled = viajeros.length <= 1;
+        filasViajeros.appendChild(fila);
+    }
+    document.getElementById("detalleListaViajeros").hidden = viajeros.length === 0;
+    document.getElementById("sinViajeros").hidden = viajeros.length > 0;
+    const avisoConsulta = document.getElementById("viajerosSoloConsulta");
+    avisoConsulta.hidden = editable;
+    avisoConsulta.textContent = esAdministrador
+        ? "Solo consulta."
+        : "Solo consulta. Podés editar los viajeros mientras la solicitud esté en estado Nueva.";
+    document.getElementById("avisoUltimoViajero").hidden = !editable || viajeros.length !== 1;
+    seccionViajeros.hidden = false;
+}
+
+function abrirEditorViajero(viajero) {
+    if (!puedeEditarViajeros()) return;
+    formularioViajero.reset();
+    document.getElementById("tituloEditorViajero").textContent = viajero ? "Editar viajero" : "Agregar viajero";
+    document.getElementById("idViajeroEditar").value = viajero?._id ?? "";
+    document.getElementById("nombreViajero").value = viajero?.nombre ?? "";
+    document.getElementById("edadViajero").value = viajero?.edad ?? "";
+    mensajeEn("errorFormularioViajero", "");
+    guardarViajero.disabled = false;
+    bootstrap.Collapse.getOrCreateInstance(editorViajero, { toggle: false }).show();
+}
+
+agregarViajero.addEventListener("click", () => abrirEditorViajero());
+
+formularioViajero.addEventListener("submit", async evento => {
+    evento.preventDefault();
+    if (!puedeEditarViajeros() || !formularioViajero.reportValidity()) return;
+    const edad = Number(document.getElementById("edadViajero").value);
+    if (!Number.isSafeInteger(edad) || edad < 0) {
+        mensajeEn("errorFormularioViajero", "La edad debe ser un entero no negativo.");
+        return;
+    }
+    const solicitudId = solicitudDetalle._id;
+    const viajeroId = document.getElementById("idViajeroEditar").value;
+    const url = `${API.SOLICITUDES}/${encodeURIComponent(solicitudId)}/viajeros`;
+    guardandoViajero = true;
+    guardarViajero.disabled = true;
+    mensajeEn("errorFormularioViajero", "");
+    try {
+        await consultarAPI(viajeroId ? `${url}/${encodeURIComponent(viajeroId)}` : url,
+            viajeroId ? "PUT" : "POST",
+            { nombre: document.getElementById("nombreViajero").value.trim(), edad });
+    } catch (error) {
+        mensajeEn("errorFormularioViajero", error.message);
+        return;
+    } finally {
+        guardandoViajero = false;
+        guardarViajero.disabled = false;
+    }
+    bootstrap.Collapse.getOrCreateInstance(editorViajero, { toggle: false }).hide();
+    formularioViajero.reset();
+    guardarViajero.disabled = true;
+    seccionViajeros.hidden = true;
+    solicitudDetalle = null;
+    const version = versionesModal.get(modalDetalle);
+    mensajeEn("mensajeDetalleSolicitud", "Actualizando viajeros…", "info");
+    try {
+        const solicitud = await consultarAPI(`${API.SOLICITUDES}/${encodeURIComponent(solicitudId)}`);
+        if (versionesModal.get(modalDetalle) === version) {
+            completarDetalle(solicitud);
+            mensajeEn("mensajeDetalleSolicitud", viajeroId ? "Viajero actualizado." : "Viajero registrado.", "success");
+        }
+    } catch (error) {
+        if (versionesModal.get(modalDetalle) === version) {
+            mensajeEn("mensajeDetalleSolicitud", `Se guardó el cambio, pero no se pudo actualizar el detalle. ${error.message}`);
+        }
+    }
+    await cargarSolicitudes();
+});
+
+modalRetiro.addEventListener("show.bs.modal", evento => {
+    const id = evento.relatedTarget?.dataset.viajeroId;
+    const viajeros = solicitudDetalle?.viajeros ?? [];
+    viajeroRetiro = viajeros.find(viajero => viajero._id === id);
+    if (!puedeEditarViajeros() || viajeros.length <= 1 || !viajeroRetiro) {
+        evento.preventDefault();
+        return;
+    }
+    volverAlDetalle.dataset.solicitudId = solicitudDetalle._id;
+    mostrarDato("nombreViajeroRetirar", viajeroRetiro.nombre || `Viajero de ${viajeroRetiro.edad} años`);
+    confirmarRetiro.disabled = true;
+    mensajeEn("errorRetirarViajero", "");
+});
+
+modalRetiro.addEventListener("shown.bs.modal", () => { confirmarRetiro.disabled = false; });
+for (const modal of [modalDetalle, modalRetiro]) {
+    modal.addEventListener("hide.bs.modal", evento => {
+        if (guardandoViajero) evento.preventDefault();
+    });
+}
+
+confirmarRetiro.addEventListener("click", async () => {
+    if (!puedeEditarViajeros() || !viajeroRetiro || solicitudDetalle.viajeros.length <= 1) return;
+    const solicitudId = solicitudDetalle._id;
+    const viajeroId = viajeroRetiro._id;
+    guardandoViajero = true;
+    confirmarRetiro.disabled = true;
+    mensajeEn("errorRetirarViajero", "");
+    try {
+        await consultarAPI(`${API.SOLICITUDES}/${encodeURIComponent(solicitudId)}/viajeros/${encodeURIComponent(viajeroId)}`, "DELETE");
+    } catch (error) {
+        mensajeEn("errorRetirarViajero", error.message);
+        return;
+    } finally {
+        guardandoViajero = false;
+        confirmarRetiro.disabled = false;
+    }
+    modalRetiro.addEventListener("hidden.bs.modal", () => {
+        bootstrap.Modal.getOrCreateInstance(modalDetalle).show(volverAlDetalle);
+    }, { once: true });
+    bootstrap.Modal.getOrCreateInstance(modalRetiro).hide();
+    mensajeEn("mensajePagina", "Viajero retirado correctamente.", "success");
+    await cargarSolicitudes();
+});
 
 function completarEdicion(solicitud) {
     solicitudEditar = solicitud;
@@ -302,6 +455,12 @@ for (const [elemento, mensajeId, completar] of [
         const version = (versionesModal.get(elemento) || 0) + 1;
         versionesModal.set(elemento, version);
         elemento.querySelectorAll("dd").forEach(campo => { campo.textContent = ""; });
+        if (elemento === modalDetalle) {
+            solicitudDetalle = null;
+            seccionViajeros.hidden = true;
+            formularioViajero.reset();
+            editorViajero.classList.remove("show");
+        }
         if (elemento === modalEditar) {
             solicitudEditar = null;
             formularioEditar.reset();
@@ -331,10 +490,8 @@ for (const [elemento, mensajeId, completar] of [
     });
 }
 
-// Estas secciones se habilitan al conectar sus tareas de integración.
-document.getElementById("viajerosSolicitud").hidden = true;
+// El seguimiento comercial se conecta en SCRUM-169.
 document.getElementById("seguimientoComercial").hidden = true;
-document.getElementById("formularioViajero").addEventListener("submit", evento => evento.preventDefault());
 document.getElementById("formularioContacto").addEventListener("submit", evento => evento.preventDefault());
 
 editarCantidad.addEventListener("input", () => actualizarEdades(editarCantidad, editarEdades, "editarEdad"));

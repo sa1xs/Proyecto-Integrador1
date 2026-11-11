@@ -230,13 +230,11 @@
                     </dl>
 
                     <!-- SCRUM-160: viajeros dentro del detalle de la solicitud. -->
-                    <section id="viajerosSolicitud" aria-labelledby="tituloViajerosSolicitud" class="border-top pt-3">
+                    <section id="viajerosSolicitud" aria-labelledby="tituloViajerosSolicitud" class="border-top pt-3" hidden>
                         <h3 id="tituloViajerosSolicitud" class="h5">Viajeros de la solicitud</h3>
-                        <p class="text-secondary">Podés modificar los viajeros de tu solicitud mientras esté en Nueva.
+                        <p class="text-secondary" data-edicion-viajeros>Podés modificar los viajeros de tu solicitud mientras esté en Nueva.
                             Debe quedar al menos un viajero.</p>
-                        <p id="viajerosSoloConsulta" class="alert alert-info" hidden>
-                            Solo consulta: el administrador y las solicitudes En cotización o Cotizada no permiten editar viajeros.
-                        </p>
+                        <p id="viajerosSoloConsulta" class="small text-secondary" hidden></p>
                         <p id="cargandoViajeros" class="alert alert-info" role="status" hidden>Cargando viajeros…</p>
                         <p id="errorViajeros" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los viajeros.</p>
                         <div id="detalleListaViajeros" class="table-responsive">
@@ -254,17 +252,15 @@
                                 <td data-campo="nombre"></td><td data-campo="edad"></td>
                                 <td data-edicion-viajeros>
                                     <button type="button" class="btn btn-outline-primary btn-sm" data-accion="editar-viajero"
-                                        data-bs-toggle="collapse" data-bs-target="#editorViajero">Editar</button>
+                                        aria-controls="editorViajero">Editar</button>
                                     <button type="button" class="btn btn-outline-danger btn-sm" data-accion="retirar-viajero"
                                         data-bs-toggle="modal" data-bs-target="#modalRetirarViajero" disabled>Retirar</button>
                                 </td>
                             </tr>
                         </template>
-                        <!-- La integración mostrará estas acciones solo al cliente dueño de una solicitud Nueva. -->
                         <div data-edicion-viajeros>
                             <button id="btnAgregarViajero" type="button" class="btn btn-outline-primary"
-                                data-bs-toggle="collapse" data-bs-target="#editorViajero"
-                                aria-expanded="false" aria-controls="editorViajero">Agregar viajero</button>
+                                aria-controls="editorViajero">Agregar viajero</button>
                             <div id="editorViajero" class="collapse mt-3">
                                 <form id="formularioViajero" class="border rounded p-3">
                                     <h4 id="tituloEditorViajero" class="h6">Datos del viajero</h4>
@@ -495,7 +491,7 @@
                 <div id="errorRetirarViajero" class="alert alert-danger" role="alert" hidden>No se pudo retirar al viajero.</div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                <button id="btnVolverAlDetalle" type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
                     data-bs-target="#modalDetalleSolicitud">Cancelar</button>
                 <button id="btnConfirmarRetiro" type="button" class="btn btn-danger" disabled>Retirar viajero</button>
             </div>
