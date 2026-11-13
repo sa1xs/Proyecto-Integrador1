@@ -143,6 +143,11 @@ const confirmarRetiro = document.getElementById("btnConfirmarRetiro");
 const volverAlDetalle = document.getElementById("btnVolverAlDetalle");
 const modalEditar = document.getElementById("modalEditarSolicitud");
 const modalGestion = document.getElementById("modalGestionSolicitud");
+const seguimiento = document.getElementById("seguimientoComercial");
+const formularioContacto = document.getElementById("formularioContacto");
+const registrarContacto = document.getElementById("btnRegistrarContacto");
+const confirmarContacto = document.getElementById("confirmarContacto");
+const guardarContacto = document.getElementById("btnGuardarContacto");
 const modalConfirmar = document.getElementById("modalConfirmarCotizacion");
 const prepararCotizacion = document.getElementById("btnPrepararCotizacion");
 const guardarEstado = document.getElementById("btnGuardarEstadoSolicitud");
@@ -156,6 +161,7 @@ let guardandoViajero = false;
 let solicitudGestion = null;
 let guardandoSolicitud = false;
 let guardandoEstado = false;
+let guardandoContacto = false;
 const versionesModal = new Map();
 
 function mensajeEn(id, texto, tipo = "danger") {
@@ -223,8 +229,6 @@ function pintarListado() {
             if (["editar", "preparar"].includes(accion.dataset.accion)) {
                 accion.hidden = solicitud.estado !== "Nueva";
             }
-            // El módulo de contactos se conecta en SCRUM-169.
-            if (accion.dataset.accion === "seguimiento") accion.hidden = true;
         });
         tabla.appendChild(fila);
     }
@@ -442,6 +446,10 @@ function completarGestion(solicitud) {
     estadoSolicitud.value = solicitud.estado === "Nueva" ? "En cotización" : "";
     estadoSolicitud.disabled = solicitud.estado !== "Nueva";
     prepararCotizacion.disabled = solicitud.estado !== "Nueva";
+    if (esAdministrador) {
+        seguimiento.hidden = false;
+        cargarContactos(solicitud._id);
+    }
 }
 
 for (const [elemento, mensajeId, completar] of [
@@ -450,7 +458,8 @@ for (const [elemento, mensajeId, completar] of [
     [modalGestion, "mensajeGestionSolicitud", completarGestion]
 ]) {
     elemento.addEventListener("show.bs.modal", async evento => {
-        const id = evento.relatedTarget?.dataset.solicitudId;
+        const id = evento.relatedTarget?.dataset.solicitudId ||
+            (elemento === modalGestion ? solicitudGestion?._id : null);
         if (!id) return;
         const version = (versionesModal.get(elemento) || 0) + 1;
         versionesModal.set(elemento, version);
@@ -470,6 +479,9 @@ for (const [elemento, mensajeId, completar] of [
         }
         if (elemento === modalGestion) {
             solicitudGestion = null;
+            seguimiento.hidden = true;
+            cerrarFormularioContacto();
+            document.getElementById("contactoGuardado").hidden = true;
             prepararCotizacion.disabled = true;
             estadoSolicitud.value = "";
             estadoSolicitud.disabled = true;
@@ -490,9 +502,121 @@ for (const [elemento, mensajeId, completar] of [
     });
 }
 
-// El seguimiento comercial se conecta en SCRUM-169.
-document.getElementById("seguimientoComercial").hidden = true;
-document.getElementById("formularioContacto").addEventListener("submit", evento => evento.preventDefault());
+function rutaContactos(id) {
+    return `${API.SOLICITUDES}/${encodeURIComponent(id)}/contactos`;
+}
+
+async function cargarContactos(id) {
+    const version = versionesModal.get(modalGestion);
+    const cargando = document.getElementById("cargandoContactos");
+    const tabla = document.getElementById("tablaContactos");
+    const filas = document.getElementById("filasContactos");
+    const vacio = document.getElementById("sinContactos");
+    cargando.hidden = false;
+    tabla.hidden = true;
+    vacio.hidden = true;
+    registrarContacto.disabled = true;
+    filas.replaceChildren();
+    mensajeEn("errorContactos", "");
+    try {
+        const contactos = await consultarAPI(rutaContactos(id));
+        if (version !== versionesModal.get(modalGestion)) return;
+        const plantilla = document.getElementById("filaContacto");
+        for (const contacto of contactos) {
+            const fila = plantilla.content.cloneNode(true);
+            fila.querySelectorAll("[data-campo]").forEach(celda => {
+                celda.textContent = contacto[celda.dataset.campo];
+            });
+            filas.appendChild(fila);
+        }
+        tabla.hidden = contactos.length === 0;
+        vacio.hidden = contactos.length > 0;
+    } catch (error) {
+        if (version === versionesModal.get(modalGestion)) mensajeEn("errorContactos", error.message);
+    } finally {
+        if (version === versionesModal.get(modalGestion)) {
+            cargando.hidden = true;
+            registrarContacto.disabled = false;
+        }
+    }
+}
+
+function cerrarConfirmacionContacto() {
+    confirmarContacto.hidden = true;
+    guardarContacto.disabled = true;
+}
+
+function cerrarFormularioContacto() {
+    formularioContacto.reset();
+    formularioContacto.hidden = true;
+    registrarContacto.hidden = false;
+    cerrarConfirmacionContacto();
+    mensajeEn("errorFormularioContacto", "");
+}
+
+function datosContacto() {
+    return {
+        fecha: formularioContacto.elements.fecha.value,
+        canal: formularioContacto.elements.canal.value.trim(),
+        nota: formularioContacto.elements.nota.value.trim()
+    };
+}
+
+registrarContacto.addEventListener("click", () => {
+    if (!esAdministrador || !solicitudGestion) return;
+    document.getElementById("contactoGuardado").hidden = true;
+    registrarContacto.hidden = true;
+    formularioContacto.hidden = false;
+    formularioContacto.elements.fecha.focus();
+});
+
+document.getElementById("btnCancelarContacto").addEventListener("click", () => {
+    if (guardandoContacto) return;
+    cerrarFormularioContacto();
+    registrarContacto.focus();
+});
+document.getElementById("btnVolverContacto").addEventListener("click", cerrarConfirmacionContacto);
+formularioContacto.addEventListener("input", cerrarConfirmacionContacto);
+document.getElementById("btnRevisarContacto").addEventListener("click", () => {
+    if (guardandoContacto || !formularioContacto.reportValidity()) return;
+    const { canal, nota } = datosContacto();
+    if (!canal || !nota) {
+        mensajeEn("errorFormularioContacto", "Completá el canal y la nota.");
+        return;
+    }
+    mensajeEn("errorFormularioContacto", "");
+    confirmarContacto.hidden = false;
+    guardarContacto.disabled = false;
+    guardarContacto.focus();
+});
+
+modalGestion.addEventListener("hide.bs.modal", evento => {
+    if (guardandoContacto) evento.preventDefault();
+});
+
+formularioContacto.addEventListener("submit", async evento => {
+    evento.preventDefault();
+    if (!esAdministrador || !solicitudGestion || guardandoContacto ||
+        confirmarContacto.hidden || evento.submitter !== guardarContacto) return;
+    const id = solicitudGestion._id;
+    guardandoContacto = true;
+    guardarContacto.disabled = true;
+    prepararCotizacion.disabled = true;
+    mensajeEn("errorFormularioContacto", "");
+    try {
+        await consultarAPI(rutaContactos(id), "POST", datosContacto());
+        cerrarFormularioContacto();
+        document.getElementById("contactoGuardado").hidden = false;
+        await cargarContactos(id);
+        registrarContacto.focus();
+    } catch (error) {
+        mensajeEn("errorFormularioContacto", error.message);
+    } finally {
+        guardandoContacto = false;
+        guardarContacto.disabled = confirmarContacto.hidden;
+        prepararCotizacion.disabled = solicitudGestion?.estado !== "Nueva";
+    }
+});
 
 editarCantidad.addEventListener("input", () => actualizarEdades(editarCantidad, editarEdades, "editarEdad"));
 function validarFechasEdicion() {

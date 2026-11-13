@@ -398,12 +398,11 @@
                     </dl>
 
                     <!-- SCRUM-168: contactos privados de la solicitud, solo para administración. -->
-                    <section id="seguimientoComercial" aria-labelledby="tituloSeguimiento" class="border-top pt-3 mb-4">
+                    <section id="seguimientoComercial" aria-labelledby="tituloSeguimiento" class="border-top pt-3 mb-4" hidden>
                         <h3 id="tituloSeguimiento" class="h5">Seguimiento comercial</h3>
-                        <p class="text-secondary">Notas de contacto de esta solicitud. Solo disponibles para administradores.</p>
                         <p id="cargandoContactos" class="alert alert-info" role="status" hidden>Cargando contactos…</p>
                         <p id="errorContactos" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los contactos.</p>
-                        <div class="table-responsive"><table class="table align-middle">
+                        <div id="tablaContactos" class="table-responsive" hidden><table class="table align-middle">
                             <caption>Contactos de más reciente a más antiguo</caption>
                             <thead><tr><th scope="col">Fecha</th><th scope="col">Canal</th><th scope="col">Nota</th></tr></thead>
                             <tbody id="filasContactos"></tbody>
@@ -411,13 +410,12 @@
                         <template id="filaContacto">
                             <tr><td data-campo="fecha"></td><td data-campo="canal"></td><td data-campo="nota" class="text-break"></td></tr>
                         </template>
-                        <p id="sinContactos" class="text-secondary">No hay contactos registrados para esta solicitud.</p>
-                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="collapse"
-                            data-bs-target="#nuevoContacto" aria-controls="nuevoContacto" aria-expanded="false">Registrar contacto</button>
-                        <div id="nuevoContacto" class="collapse mt-3">
-                            <form id="formularioContacto" class="border rounded p-3">
+                        <p id="sinContactos" class="text-secondary" hidden>No hay contactos registrados para esta solicitud.</p>
+                        <p id="contactoGuardado" class="alert alert-success" role="status" hidden>Contacto registrado correctamente.</p>
+                        <button id="btnRegistrarContacto" type="button" class="btn btn-outline-primary"
+                            aria-controls="formularioContacto" disabled>Registrar contacto</button>
+                            <form id="formularioContacto" class="border rounded p-3" hidden>
                                 <h4 class="h6">Nuevo contacto</h4>
-                                <p class="text-secondary">Los campos con * son obligatorios. Las notas guardadas no se editan ni se eliminan.</p>
                                 <div id="errorFormularioContacto" class="alert alert-danger" role="alert" hidden>Revisá la fecha, el canal y la nota.</div>
                                 <label for="fechaContacto" class="form-label">Fecha *</label>
                                 <input id="fechaContacto" name="fecha" type="date" class="form-control mb-3" required>
@@ -425,17 +423,15 @@
                                 <input id="canalContacto" name="canal" class="form-control mb-3" required pattern=".*\S.*" title="Indicá el canal de contacto.">
                                 <label for="notaContacto" class="form-label">Nota *</label>
                                 <textarea id="notaContacto" name="nota" class="form-control mb-3" rows="3" required></textarea>
-                                <button type="button" class="btn btn-azul" data-bs-toggle="collapse" data-bs-target="#confirmarContacto"
-                                    aria-controls="confirmarContacto" aria-expanded="false">Revisar registro</button>
-                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#nuevoContacto">Cancelar</button>
-                                <div id="confirmarContacto" class="collapse mt-3"><div class="alert alert-warning">
+                                <button id="btnRevisarContacto" type="button" class="btn btn-azul"
+                                    aria-controls="confirmarContacto">Revisar registro</button>
+                                <button id="btnCancelarContacto" type="button" class="btn btn-outline-secondary">Cancelar</button>
+                                <div id="confirmarContacto" class="alert alert-warning mt-3 mb-0" hidden>
                                     <p>¿Querés guardar esta nota? No podrá editarse ni eliminarse.</p>
                                     <button id="btnGuardarContacto" type="submit" class="btn btn-azul" disabled>Confirmar registro</button>
-                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#confirmarContacto">Volver a revisar</button>
-                                </div></div>
-                                <p id="contactoGuardado" class="alert alert-success mt-3" role="status" hidden>Contacto registrado correctamente.</p>
+                                    <button id="btnVolverContacto" type="button" class="btn btn-outline-secondary">Volver a revisar</button>
+                                </div>
                             </form>
-                        </div>
                     </section>
 
                     <p>Preparar la cotización cambia la solicitud de Nueva a En cotización.
