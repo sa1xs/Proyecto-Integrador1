@@ -13,8 +13,6 @@
     <main id="contenidoPrincipal" class="container-fluid px-3 px-md-5 py-4">
         <h1 class="mb-4">Cotizaciones</h1>
         <div id="mensajePagina" class="alert alert-success" role="status" hidden></div>
-    <!-- SCRUM-84: diseño HTML. La integración resolverá sesión, rol, datos y operaciones. -->
-    <p id="cotizacionesSinSesion" class="alert alert-info" hidden>Iniciá sesión para consultar tus cotizaciones.</p>
     <div class="nav nav-tabs mb-4" role="tablist" aria-label="Vistas de cotizaciones">
         <button id="tabMisCotizaciones" class="nav-link active" type="button" role="tab" data-bs-toggle="tab"
             data-bs-target="#misCotizaciones" aria-controls="misCotizaciones" aria-selected="true">Mis cotizaciones</button>
@@ -42,10 +40,9 @@
                 <td><button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleCotizacion">Ver cotización</button></td>
             </tr></template>
         </section>
-        <!-- Solo administración: la integración ocultará este panel a clientes y visitantes. -->
         <section id="cotizacionesAdmin" class="tab-pane fade" role="tabpanel" aria-labelledby="tabCotizacionesAdmin">
             <div class="d-flex flex-wrap justify-content-between gap-3 mb-3"><h2 class="h4">Administrar cotizaciones</h2>
-                <button type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#editorCotizacion">Nueva cotización</button>
+                <button id="btnNuevaCotizacion" type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#editorCotizacion">Nueva cotización</button>
             </div>
             <p class="text-secondary">Creá un borrador para una solicitud En cotización. Solo los borradores admiten cambios.</p>
         <p id="cotizacionesAdminCarga" class="alert alert-info" role="status" hidden>Cargando las cotizaciones…</p>
@@ -77,11 +74,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form id="formularioCotizacion">
+                <p id="editorCotizacionCarga" class="alert alert-info" role="status" hidden>Cargando datos del borrador…</p>
+                <p id="errorEditorCotizacion" class="alert alert-danger" role="alert" hidden></p>
+                <form id="formularioCotizacion" hidden>
                     <input id="idCotizacion" name="id" type="hidden">
                     <p>Los campos con * son obligatorios. Moneda fija: <strong>CRC — colones costarricenses</strong>.</p>
-                    <p id="cotizacionNoEditable" class="alert alert-warning" hidden>Esta cotización ya fue publicada y no permite editar partidas.</p>
-                    <p id="errorEditorCotizacion" class="alert alert-danger" role="alert" hidden>No se pudo guardar la cotización. Revisá los datos.</p>
                     <label for="solicitudCotizacion" class="form-label">Solicitud En cotización *</label>
                     <select id="solicitudCotizacion" name="solicitud" class="form-select mb-3" required><option value="">Seleccioná una solicitud</option></select>
                     <p id="sinSolicitudesCotizables" class="text-secondary">No hay solicitudes disponibles para seleccionar.</p>
@@ -115,7 +112,7 @@
                         <td data-campo="subtotal"></td>
                         <td><button type="button" class="btn btn-outline-danger btn-sm" data-accion="quitar-partida">Quitar</button></td>
                     </tr></template>
-                    <p class="text-end fs-5">Total (CRC): <output id="totalCotizacionEditor">—</output></p>
+                    <p class="text-end fs-5">Total estimado (CRC): <output id="totalCotizacionEditor">—</output></p>
                     <p id="guardandoCotizacion" class="alert alert-info" role="status" hidden>Guardando borrador…</p>
                 </form>
                 <!-- Validación independiente para permitir guardar un borrador sin partidas. -->
@@ -135,6 +132,7 @@
             <div class="modal-body">
                 <p id="detalleCotizacionCarga" role="status" class="alert alert-info" hidden>Cargando cotización…</p>
                 <p id="detalleCotizacionError" role="alert" class="alert alert-danger" hidden>La cotización no está disponible.</p>
+                <div id="contenidoDetalleCotizacion" hidden>
                 <dl class="row">
                     <dt class="col-sm-4">Código</dt><dd id="cotizacionCodigo" class="col-sm-8">—</dd>
                     <dt class="col-sm-4">Solicitud</dt><dd id="cotizacionSolicitud" class="col-sm-8">—</dd>
@@ -155,10 +153,10 @@
                     <button type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#aceptarCotizacion">Aceptar</button>
                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rechazarCotizacion">Rechazar</button>
                 </div>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div></div>
     </div>
@@ -169,6 +167,7 @@
             </div>
             <div class="modal-body">
                 <p>¿Querés publicar esta cotización para el cliente de la solicitud?</p>
+                <p id="resumenPublicarCotizacion" class="fw-semibold"></p>
                 <p>Revisá las partidas y el total. Después de publicar no podrás editarlos y la solicitud pasará a Cotizada.</p>
                 <p id="errorPublicarCotizacion" class="alert alert-danger" role="alert" hidden>No se pudo publicar. Verificá las partidas y la disponibilidad de servicios y proveedores.</p>
             </div>
@@ -185,11 +184,12 @@
             </div>
             <div class="modal-body">
                 <p>¿Confirmás que aceptás la cotización seleccionada y su total?</p>
+                <p id="resumenAceptarCotizacion" class="fw-semibold"></p>
                 <p>Esta respuesta es definitiva.</p>
                 <p id="errorAceptarCotizacion" class="alert alert-danger" role="alert" hidden>No se pudo registrar tu respuesta.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="volverDesdeAceptar" type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#detalleCotizacion">Cancelar</button>
                 <button id="btnAceptarCotizacion" type="button" class="btn btn-azul" disabled>Confirmar aceptación</button>
             </div>
         </div></div>
@@ -201,11 +201,12 @@
             </div>
             <div class="modal-body">
                 <p>¿Confirmás que rechazás la cotización seleccionada?</p>
+                <p id="resumenRechazarCotizacion" class="fw-semibold"></p>
                 <p>Esta respuesta es definitiva.</p>
                 <p id="errorRechazarCotizacion" class="alert alert-danger" role="alert" hidden>No se pudo registrar tu respuesta.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="volverDesdeRechazar" type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#detalleCotizacion">Cancelar</button>
                 <button id="btnRechazarCotizacion" type="button" class="btn btn-danger" disabled>Confirmar rechazo</button>
             </div>
         </div></div>

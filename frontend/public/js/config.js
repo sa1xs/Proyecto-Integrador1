@@ -6,5 +6,6 @@ export const API = {
     USUARIOS: `${API_BASE}/usuarios`,
     PROVEEDORES: `${API_BASE}/proveedores`,
     SERVICIOS: `${API_BASE}/servicios`,
-    SOLICITUDES: `${API_BASE}/solicitudes`
+    SOLICITUDES: `${API_BASE}/solicitudes`,
+    COTIZACIONES: `${API_BASE}/cotizaciones`
 };
