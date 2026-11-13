@@ -21,6 +21,7 @@ const sinClientes = document.getElementById("sinClientes");
 const elementoModalCliente = document.getElementById("modalCliente");
 const modalCliente = new bootstrap.Modal(elementoModalCliente);
 const mensajeDetalle = document.getElementById("mensajeDetalleCliente");
+const contenidoFicha = document.getElementById("contenidoFichaCliente");
 
 let perfil = null;
 let esAdministrador = false;
@@ -264,20 +265,12 @@ async function abrirDetalle(id) {
 
     const numero = ++numeroDetalle;
 
-    for (const campo of [
-        "detalleClienteNombre",
-        "detalleClienteCorreo",
-        "detalleClienteTelefono",
-        "detalleClienteDireccion"
-    ]) {
-        document.getElementById(campo).textContent = "";
-    }
-
+    contenidoFicha.hidden = true;
     mostrarMensaje(mensajeDetalle, "Cargando cliente...", "info");
     modalCliente.show();
 
     try {
-        const cliente = await consultarAPI(`${API.USUARIOS}/${id}`);
+        const cliente = await consultarAPI(`${API.USUARIOS}/${encodeURIComponent(id)}`);
 
         if (numero !== numeroDetalle) return;
 
@@ -290,6 +283,10 @@ async function abrirDetalle(id) {
         mostrarDato("detalleClienteTelefono", cliente.telefono);
         mostrarDato("detalleClienteDireccion", cliente.direccion);
 
+        const filtro = new URLSearchParams({ cliente: cliente._id });
+        document.getElementById("enlaceSolicitudesCliente").href = `/views/solicitudes.html?${filtro}`;
+        document.getElementById("enlaceCotizacionesCliente").href = `/views/cotizaciones.html?${filtro}`;
+        contenidoFicha.hidden = false;
         mostrarMensaje(mensajeDetalle, "");
     } catch (error) {
         if (numero !== numeroDetalle) return;
@@ -325,6 +322,11 @@ async function iniciarPagina() {
     }
 
     if (esAdministrador) {
+        const clienteId = new URLSearchParams(location.search).get("cliente");
+        if (clienteId) {
+            bootstrap.Tab.getOrCreateInstance(document.getElementById("tab-clientes")).show();
+            abrirDetalle(clienteId);
+        }
         buscador.disabled = false;
         await cargarClientes(++numeroBusqueda);
     }

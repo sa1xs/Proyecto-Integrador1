@@ -136,6 +136,10 @@
 
             <section id="gestion" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-gestion">
                 <h2 class="h4">Gestión de solicitudes</h2>
+                <p id="filtroClienteSolicitudes" class="alert alert-info" hidden>
+                    Solicitudes del cliente seleccionado.
+                    <a href="/views/solicitudes.html" class="alert-link">Ver todas</a>
+                </p>
                 <p class="text-secondary">Solo el administrador puede preparar solicitudes para cotización.</p>
                 <p id="cargandoGestion" class="alert alert-info" role="status" hidden>Cargando solicitudes…</p>
                 <div id="errorGestion" class="alert alert-danger" role="alert" hidden>
@@ -203,6 +207,7 @@
 
                 <div class="modal-body">
                     <div id="mensajeDetalleSolicitud" class="d-none" role="alert"></div>
+                    <a id="enlaceFichaDesdeSolicitud" class="btn btn-outline-primary mb-3" hidden>Ver ficha del cliente</a>
                     <p id="cargandoDetalleSolicitud" class="alert alert-info" role="status" hidden>Cargando detalle de la solicitud…</p>
                     <p id="sinSolicitudSeleccionada" class="text-secondary">No hay una solicitud seleccionada.</p>
 

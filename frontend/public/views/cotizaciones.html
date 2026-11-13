@@ -44,6 +44,10 @@
             <div class="d-flex flex-wrap justify-content-between gap-3 mb-3"><h2 class="h4">Administrar cotizaciones</h2>
                 <button id="btnNuevaCotizacion" type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#editorCotizacion">Nueva cotización</button>
             </div>
+            <p id="filtroClienteCotizaciones" class="alert alert-info" hidden>
+                Cotizaciones del cliente seleccionado.
+                <a href="/views/cotizaciones.html" class="alert-link">Ver todas</a>
+            </p>
             <p class="text-secondary">Creá un borrador para una solicitud En cotización. Solo los borradores admiten cambios.</p>
         <p id="cotizacionesAdminCarga" class="alert alert-info" role="status" hidden>Cargando las cotizaciones…</p>
         <p id="cotizacionesAdminError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar las cotizaciones. Intentá nuevamente.</p>

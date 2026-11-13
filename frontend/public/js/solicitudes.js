@@ -116,6 +116,8 @@ async function iniciar() {
         const resultado = await respuesta.json();
         esCliente = resultado.datos?.rol === "cliente";
         esAdministrador = resultado.datos?.rol === "administrador";
+        clienteFiltro = esAdministrador ? new URLSearchParams(location.search).get("cliente") : null;
+        document.getElementById("filtroClienteSolicitudes").hidden = !clienteFiltro;
         boton.disabled = !esCliente;
         await cargarSolicitudes();
     } catch {
@@ -132,6 +134,7 @@ const editarEdades = document.getElementById("editarEdadesViajeros");
 const editarSalida = document.getElementById("editarSalida");
 const editarRegreso = document.getElementById("editarRegreso");
 const modalDetalle = document.getElementById("modalDetalleSolicitud");
+const enlaceFicha = document.getElementById("enlaceFichaDesdeSolicitud");
 const seccionViajeros = document.getElementById("viajerosSolicitud");
 const filasViajeros = document.getElementById("filasViajeros");
 const formularioViajero = document.getElementById("formularioViajero");
@@ -153,6 +156,7 @@ const prepararCotizacion = document.getElementById("btnPrepararCotizacion");
 const guardarEstado = document.getElementById("btnGuardarEstadoSolicitud");
 const estadoSolicitud = document.getElementById("estadoSolicitud");
 let solicitudes = [];
+let clienteFiltro = null;
 let numeroListado = 0;
 let solicitudEditar = null;
 let solicitudDetalle = null;
@@ -246,7 +250,8 @@ async function cargarSolicitudes() {
     document.getElementById(esAdministrador ? "sinSolicitudes" : "sinMisSolicitudes").hidden = true;
     document.getElementById("sinCoincidenciasSolicitudes").hidden = true;
     try {
-        const datos = await consultarAPI(API.SOLICITUDES);
+        const filtro = clienteFiltro ? `?${new URLSearchParams({ cliente: clienteFiltro })}` : "";
+        const datos = await consultarAPI(`${API.SOLICITUDES}${filtro}`);
         if (numero !== numeroListado) return;
         solicitudes = datos;
         pintarListado();
@@ -274,6 +279,11 @@ function completarDetalle(solicitud) {
     mostrarDato("detalleViajeros", solicitud.cantidadViajeros);
     mostrarDato("detalleEdades", solicitud.edades.join(", "));
     mostrarDato("detalleEstado", solicitud.estado);
+    if (esAdministrador && solicitud.cliente?._id) {
+        const filtro = new URLSearchParams({ cliente: solicitud.cliente._id });
+        enlaceFicha.href = `/views/clientes.html?${filtro}`;
+        enlaceFicha.hidden = false;
+    }
     pintarViajeros(solicitud);
 }
 
@@ -466,6 +476,8 @@ for (const [elemento, mensajeId, completar] of [
         elemento.querySelectorAll("dd").forEach(campo => { campo.textContent = ""; });
         if (elemento === modalDetalle) {
             solicitudDetalle = null;
+            enlaceFicha.hidden = true;
+            enlaceFicha.removeAttribute("href");
             seccionViajeros.hidden = true;
             formularioViajero.reset();
             editorViajero.classList.remove("show");

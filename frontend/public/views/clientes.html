@@ -164,9 +164,7 @@
 
                 <div class="modal-body">
                     <div id="mensajeDetalleCliente" class="d-none" role="alert"></div>
-                    <p id="cargandoFichaCliente" class="alert alert-info" role="status" hidden>Cargando ficha del cliente…</p>
-                    <p id="clienteNoDisponible" class="alert alert-warning" hidden>El cliente seleccionado no está disponible.</p>
-
+                    <div id="contenidoFichaCliente" hidden>
                     <h3 class="h5">Información del cliente</h3>
 
                     <dl class="row">
@@ -184,17 +182,11 @@
                     </dl>
 
                     <h3 class="h5 mt-4">Solicitudes y cotizaciones</h3>
-                    <p>Consultá los registros asociados al cliente desde cada módulo.</p>
                     <div class="d-flex flex-wrap gap-2">
-                        <button id="btnSolicitudesCliente" type="button" class="btn btn-azul" disabled>
-                            Ver solicitudes
-                        </button>
-                        <button id="btnCotizacionesCliente" type="button" class="btn btn-outline-primary" disabled>
-                            Ver cotizaciones
-                        </button>
+                        <a id="enlaceSolicitudesCliente" class="btn btn-azul">Ver solicitudes</a>
+                        <a id="enlaceCotizacionesCliente" class="btn btn-outline-primary">Ver cotizaciones</a>
                     </div>
-
-
+                    </div>
                 </div>
 
                 <div class="modal-footer">

@@ -10,6 +10,7 @@ const servicio = elemento("servicioPartida");
 const guardar = elemento("btnGuardarCotizacion");
 const agregar = elemento("btnAgregarPartida");
 let esAdministrador = false;
+let clienteFiltro = null;
 let cotizaciones = [];
 let solicitudesPorId = new Map();
 let servicios = [];
@@ -97,9 +98,10 @@ async function cargarListado() {
     elemento(vista.filas).replaceChildren();
     mensaje(vista.error, "");
     try {
+        const filtro = clienteFiltro ? `?${new URLSearchParams({ cliente: clienteFiltro })}` : "";
         const [ofertas, solicitudes] = await Promise.all([
-            consultar(API.COTIZACIONES),
-            consultar(API.SOLICITUDES).catch(() => [])
+            consultar(`${API.COTIZACIONES}${filtro}`),
+            consultar(`${API.SOLICITUDES}${filtro}`).catch(() => [])
         ]);
         cotizaciones = ofertas;
         solicitudesPorId = new Map(solicitudes.map(registro => [registro._id, registro]));
@@ -173,8 +175,10 @@ editor.addEventListener("show.bs.modal", async evento => {
     mensaje("errorEditorCotizacion", "");
     elemento("editorCotizacionCarga").hidden = false;
     try {
+        const filtro = new URLSearchParams({ estado: "En cotización" });
+        if (clienteFiltro) filtro.set("cliente", clienteFiltro);
         const [solicitudes, catalogo, proveedores, borrador] = await Promise.all([
-            consultar(`${API.SOLICITUDES}?estado=En+cotizaci%C3%B3n`),
+            consultar(`${API.SOLICITUDES}?${filtro}`),
             consultar(API.SERVICIOS), consultar(API.PROVEEDORES),
             id ? consultar(rutaCotizacion(id)) : null
         ]);
@@ -377,6 +381,8 @@ for (const [accion, estado, texto, volver] of [
 
 export async function iniciarCotizaciones(rol) {
     esAdministrador = rol === "administrador";
+    clienteFiltro = esAdministrador ? new URLSearchParams(location.search).get("cliente") : null;
+    elemento("filtroClienteCotizaciones").hidden = !clienteFiltro;
     vista = esAdministrador ? {
         filas: "filasCotizacionesAdmin", plantilla: "filaCotizacionAdmin", filtro: "filtroCotizacionesAdmin",
         carga: "cotizacionesAdminCarga", error: "cotizacionesAdminError", vacio: "sinCotizacionesAdmin",
