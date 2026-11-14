@@ -13,11 +13,10 @@
     <main id="contenidoPrincipal" class="container-fluid px-3 px-md-5 py-4">
         <h1 class="mb-4">Destinos turísticos</h1>
         <div id="mensajePagina" class="alert alert-success" role="status" hidden></div>
-    <!-- SCRUM-164: diseño HTML. El catálogo es público; la administración requiere ese rol. -->
     <div class="nav nav-tabs mb-4" role="tablist" aria-label="Vistas de destinos">
         <button id="tabCatalogoDestinos" class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#catalogoDestinos"
             aria-controls="catalogoDestinos" aria-selected="true">Explorar destinos</button>
-        <button id="tabAdminDestinos" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#administracionDestinos"
+        <button id="tabAdminDestinos" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#administracionDestinos" hidden
             aria-controls="administracionDestinos" aria-selected="false">Administración</button>
     </div>
     <div class="tab-content">
@@ -26,7 +25,7 @@
         <p id="catalogoDestinosCarga" class="alert alert-info" role="status" hidden>Cargando los destinos…</p>
         <p id="catalogoDestinosError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los destinos. Intentá nuevamente.</p>
             <div id="tarjetasDestinos" class="row g-3"></div>
-            <p id="sinDestinosPublicos" class="text-secondary">No hay destinos disponibles para mostrar.</p>
+            <p id="sinDestinosPublicos" class="text-secondary" hidden>No hay destinos disponibles para mostrar.</p>
             <template id="tarjetaDestino">
                 <div class="col-sm-6 col-lg-4"><article class="card h-100"><div class="card-body">
                     <h3 class="h5" data-campo="nombre"></h3><p data-campo="pais" class="text-secondary"></p>
@@ -35,8 +34,7 @@
                 </div></article></div>
             </template>
         </section>
-        <!-- Ocultar a visitantes y clientes al integrar la sesión. -->
-        <section id="administracionDestinos" class="tab-pane fade" role="tabpanel" aria-labelledby="tabAdminDestinos">
+        <section id="administracionDestinos" class="tab-pane fade" role="tabpanel" aria-labelledby="tabAdminDestinos" hidden>
             <div class="d-flex flex-wrap justify-content-between gap-3 mb-3"><h2 class="h4">Administrar destinos</h2>
                 <button type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#formularioDestinoModal">Nuevo destino</button>
             </div>
@@ -47,13 +45,12 @@
                 <thead><tr><th scope="col">Nombre</th><th scope="col">País</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
                 <tbody id="filasDestinos"></tbody>
             </table></div>
-            <p id="sinDestinosAdmin" class="text-secondary">No hay destinos registrados.</p>
+            <p id="sinDestinosAdmin" class="text-secondary" hidden>No hay destinos registrados.</p>
             <template id="filaDestino">
                 <tr><td data-campo="nombre"></td><td data-campo="pais"></td><td data-campo="estado"></td>
                     <td><div class="d-flex flex-wrap gap-2">
                         <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleDestino">Consultar</button>
                         <button type="button" class="btn btn-outline-secondary btn-sm" data-accion="editar" data-bs-toggle="modal" data-bs-target="#formularioDestinoModal">Editar</button>
-                        <!-- La integración muestra Desactivar o Reactivar según activo. -->
                         <button type="button" class="btn btn-outline-danger btn-sm" data-accion="desactivar" data-bs-toggle="modal" data-bs-target="#desactivarDestino">Desactivar</button>
                         <button type="button" class="btn btn-outline-primary btn-sm" data-accion="reactivar" data-bs-toggle="modal" data-bs-target="#reactivarDestino" hidden>Reactivar</button>
                     </div></td>
@@ -69,15 +66,14 @@
             <div class="modal-body">
                 <p id="detalleDestinoCarga" class="alert alert-info" role="status" hidden>Cargando destino…</p>
                 <p id="detalleDestinoError" class="alert alert-danger" role="alert" hidden>Este destino no está disponible.</p>
-                <dl>
+                <dl id="datosDetalleDestino" hidden>
                     <dt>Nombre</dt><dd id="detalleDestinoNombre">—</dd>
                     <dt>País</dt><dd id="detalleDestinoPais">—</dd>
                     <dt>Descripción</dt><dd id="detalleDestinoDescripcion" class="text-break">—</dd>
                 </dl>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div></div>
     </div>
@@ -87,10 +83,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form id="formularioDestino">
-                    <input id="idDestino" name="id" type="hidden">
+                <p id="cargandoFormularioDestino" class="alert alert-info" role="status" hidden>Cargando destino…</p>
+                <p id="errorFormularioDestino" class="alert alert-danger" role="alert" hidden></p>
+                <p id="guardandoDestino" class="alert alert-info" role="status" hidden>Guardando destino…</p>
+                <form id="formularioDestino" hidden>
                     <p>Los campos con * son obligatorios.</p>
-                    <p id="errorFormularioDestino" class="alert alert-danger" role="alert" hidden>No se pudo guardar. Completá el nombre, el país y la descripción.</p>
                 <div class="mb-3"><label for="nombreDestino" class="form-label">Nombre *</label>
                     <input id="nombreDestino" name="nombre" type="text" class="form-control" required pattern=".*\S.*" title="Ingresá el nombre del destino.">
                 </div>
@@ -100,7 +97,6 @@
                     <label for="descripcionDestino" class="form-label">Descripción *</label>
                     <textarea id="descripcionDestino" name="descripcion" rows="4" class="form-control" required></textarea>
                     <p class="form-text">Los destinos nuevos se registran activos. La activación y desactivación se confirma desde el listado.</p>
-                    <p id="guardandoDestino" class="alert alert-info" role="status" hidden>Guardando destino…</p>
                 </form>
             </div>
             <div class="modal-footer">
@@ -115,7 +111,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p>¿Querés desactivar el destino seleccionado?</p>
+                <p>¿Querés desactivar <strong id="nombreDesactivarDestino"></strong>?</p>
                 <p>Dejará de aparecer en el catálogo público. Podrás reactivarlo después.</p>
                 <p id="errorDesactivarDestino" class="alert alert-danger" role="alert" hidden>No se pudo desactivar el destino.</p>
             </div>
@@ -131,7 +127,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p>¿Querés reactivar el destino seleccionado?</p>
+                <p>¿Querés reactivar <strong id="nombreReactivarDestino"></strong>?</p>
                 <p>Volverá a estar disponible en el catálogo público.</p>
                 <p id="errorReactivarDestino" class="alert alert-danger" role="alert" hidden>No se pudo reactivar el destino.</p>
             </div>

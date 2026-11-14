@@ -7,5 +7,6 @@ export const API = {
     PROVEEDORES: `${API_BASE}/proveedores`,
     SERVICIOS: `${API_BASE}/servicios`,
     SOLICITUDES: `${API_BASE}/solicitudes`,
-    COTIZACIONES: `${API_BASE}/cotizaciones`
+    COTIZACIONES: `${API_BASE}/cotizaciones`,
+    DESTINOS: `${API_BASE}/destinos`
 };
