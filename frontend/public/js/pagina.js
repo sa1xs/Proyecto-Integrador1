@@ -6,7 +6,7 @@ const modulos = {
     login: "./login.js", registro: "./registro.js", cuentas: "./cuentas.js",
     clientes: "./clientes.js", proveedores: "./proveedores.js", servicios: "./servicios.js",
     solicitudes: "./solicitudes.js", cotizaciones: "./cotizaciones.js",
-    destinos: "./destinos.js"
+    destinos: "./destinos.js", consultas: "./consultas.js"
 };
 
 if (contexto.cargar && modulos[pagina]) {
@@ -14,6 +14,7 @@ if (contexto.cargar && modulos[pagina]) {
     if (pagina === "servicios") await modulo.iniciarServicios(contexto.rol);
     if (pagina === "cotizaciones") await modulo.iniciarCotizaciones(contexto.rol);
     if (pagina === "destinos") await modulo.iniciarDestinos(contexto.rol);
+    if (pagina === "consultas") await modulo.iniciarConsultas(contexto.rol);
 } else {
     // Evita enviar formularios sin su controlador.
     document.addEventListener("submit", evento => evento.preventDefault(), true);

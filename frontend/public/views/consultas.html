@@ -12,13 +12,11 @@
     <header id="menu"></header>
     <main id="contenidoPrincipal" class="container-fluid px-3 px-md-5 py-4">
         <h1 class="mb-4">Consultas</h1>
-    <!-- SCRUM-176: HTML preparado para poblar con la API en Sprint 3. -->
-    <div id="consultasSinSesion" class="alert alert-info" hidden>Iniciá sesión para consultar tus preguntas. <a href="./login.html">Iniciar sesión</a></div>
     <div id="mensajePagina" class="alert alert-success" role="status" hidden>Consulta actualizada correctamente.</div>
     <div class="nav nav-tabs mb-4" role="tablist" aria-label="Vistas de consultas">
         <button id="tabMisConsultas" class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#misConsultas"
             aria-controls="misConsultas" aria-selected="true">Mis consultas</button>
-        <button id="tabConsultasAdmin" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#consultasAdmin"
+        <button id="tabConsultasAdmin" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#consultasAdmin" hidden
             aria-controls="consultasAdmin" aria-selected="false">Gestión administrativa</button>
     </div>
     <div class="tab-content">
@@ -45,7 +43,7 @@
                         <thead><tr><th scope="col">Fecha</th><th scope="col">Pregunta</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
                         <tbody id="filasMisConsultas"></tbody>
                     </table></div>
-                    <p id="sinMisConsultas" class="text-secondary">No hay consultas para mostrar.</p>
+                    <p id="sinMisConsultas" class="text-secondary" hidden>No hay consultas para mostrar.</p>
                     <p id="sinCoincidenciasMisConsultas" class="text-secondary" hidden>No hay consultas que coincidan con el filtro.</p>
                     <template id="filaMiConsulta"><tr>
                         <td data-campo="createdAt"></td><td data-campo="pregunta" class="text-break"></td>
@@ -56,8 +54,7 @@
                 </section></div>
             </div>
         </section>
-        <!-- Solo administración: ocultar panel y pestaña a los clientes al integrar la sesión. -->
-        <section id="consultasAdmin" class="tab-pane fade" role="tabpanel" aria-labelledby="tabConsultasAdmin">
+        <section id="consultasAdmin" class="tab-pane fade" role="tabpanel" aria-labelledby="tabConsultasAdmin" hidden>
             <h2 class="h4">Gestionar consultas de clientes</h2>
             <p class="text-secondary">Podés responder una sola vez a las consultas pendientes.</p>
             <p id="cargandoConsultasAdmin" class="alert alert-info" role="status" hidden>Cargando consultas…</p>
@@ -68,7 +65,7 @@
                 <thead><tr><th scope="col">Cliente</th><th scope="col">Fecha</th><th scope="col">Pregunta</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
                 <tbody id="filasConsultasAdmin"></tbody>
             </table></div>
-            <p id="sinConsultasAdmin" class="text-secondary">No hay consultas para mostrar.</p>
+            <p id="sinConsultasAdmin" class="text-secondary" hidden>No hay consultas para mostrar.</p>
             <p id="sinCoincidenciasConsultasAdmin" class="text-secondary" hidden>No hay consultas que coincidan con el filtro.</p>
             <template id="filaConsultaAdmin"><tr>
                 <td data-campo="cliente"></td><td data-campo="createdAt"></td><td data-campo="pregunta" class="text-break"></td>
@@ -76,7 +73,6 @@
                 <td><div class="d-flex flex-wrap gap-2">
                     <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle"
                         data-bs-toggle="modal" data-bs-target="#detalleConsulta">Ver detalle</button>
-                    <!-- Mostrar Responder solo para consultas Pendientes. -->
                     <button type="button" class="btn btn-azul btn-sm" data-accion="responder"
                         data-bs-toggle="modal" data-bs-target="#responderConsulta">Responder</button>
                 </div></td>
@@ -92,6 +88,7 @@
             <div class="modal-body">
                 <p id="cargandoDetalleConsulta" class="alert alert-info" role="status" hidden>Cargando consulta…</p>
                 <p id="errorDetalleConsulta" class="alert alert-danger" role="alert" hidden>La consulta no está disponible.</p>
+                <div id="datosDetalleConsulta" hidden>
                 <dl class="row">
                     <dt class="col-sm-4">Código</dt><dd id="consultaCodigo" class="col-sm-8">—</dd>
                     <dt class="col-sm-4">Fecha</dt><dd id="consultaFecha" class="col-sm-8">—</dd>
@@ -100,14 +97,14 @@
                 <h3 class="h5">Pregunta</h3><p id="consultaPregunta" class="text-break"></p>
                 <section aria-labelledby="tituloRespuestaConsulta" class="border-top pt-3">
                     <h3 id="tituloRespuestaConsulta" class="h5">Respuesta</h3>
-                    <p id="consultaPendiente" class="text-secondary" hidden>Tu consulta está pendiente de respuesta.</p>
+                    <p id="consultaPendiente" class="text-secondary" hidden>Pendiente de respuesta.</p>
                     <p id="consultaRespuesta" class="text-break"></p>
                     <p id="consultaFechaRespuesta" class="text-secondary"></p>
                 </section>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div></div>
     </div>
@@ -118,20 +115,18 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p id="consultaYaRespondida" class="alert alert-info" hidden>Esta consulta ya fue respondida y no puede volver a responderse.</p>
-                <h3 class="h5">Pregunta del cliente</h3><p id="preguntaAResponder" class="text-break"></p>
-                <form id="formularioRespuesta">
-                    <input id="idConsultaResponder" name="id" type="hidden">
-                    <p id="errorRespuesta" class="alert alert-danger" role="alert" hidden>No se pudo registrar la respuesta. Revisá el texto y el estado de la consulta.</p>
+                <p id="cargandoConsultaRespuesta" class="alert alert-info" role="status" hidden>Cargando consulta…</p>
+                <p id="errorRespuesta" class="alert alert-danger" role="alert" hidden></p>
+                <form id="formularioRespuesta" hidden>
+                    <h3 class="h5">Pregunta del cliente</h3><p id="preguntaAResponder" class="text-break"></p>
                     <label for="respuestaConsulta" class="form-label">Respuesta *</label>
                     <textarea id="respuestaConsulta" name="respuesta" class="form-control mb-3" rows="5" required></textarea>
                     <p class="text-secondary">La respuesta será visible al cliente. No podrá editarse después.</p>
-                    <p id="guardandoRespuesta" class="alert alert-info" role="status" hidden>Guardando respuesta…</p>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#confirmarRespuestaConsulta">Revisar envío</button>
+                <button id="btnRevisarRespuesta" type="submit" form="formularioRespuesta" class="btn btn-azul" disabled>Revisar envío</button>
             </div>
         </div></div>
     </div>
@@ -144,11 +139,13 @@
             <div class="modal-body">
                 <p>¿Querés enviar la respuesta a esta consulta? Solo se permite una respuesta.</p>
                 <p id="resumenRespuestaConsulta" class="text-break"></p>
+                <p id="errorConfirmarRespuesta" class="alert alert-danger" role="alert" hidden></p>
+                <p id="guardandoRespuesta" class="alert alert-info" role="status" hidden>Guardando respuesta…</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#responderConsulta">Volver a editar</button>
-                <button id="btnGuardarRespuesta" type="submit" form="formularioRespuesta" class="btn btn-azul" disabled>Confirmar envío</button>
+                <button id="btnVolverRespuesta" type="button" class="btn btn-outline-secondary">Volver a editar</button>
+                <button id="btnGuardarRespuesta" type="button" class="btn btn-azul" disabled>Confirmar envío</button>
             </div>
         </div></div>
     </div>
