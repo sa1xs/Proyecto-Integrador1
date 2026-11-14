@@ -25,8 +25,7 @@
                 data-bs-target="#catalogo" role="tab" aria-controls="catalogo" aria-selected="true">
                 Catálogo
             </button>
-            <!-- SCRUM-172: la sesión determinará el acceso del cliente a sus favoritos. -->
-            <button id="tab-favoritos" type="button" class="nav-link" data-bs-toggle="tab"
+            <button id="tab-favoritos" type="button" class="nav-link" data-bs-toggle="tab" hidden
                 data-bs-target="#misFavoritos" role="tab" aria-controls="misFavoritos" aria-selected="false">
                 Mis favoritos
             </button>
@@ -39,20 +38,18 @@
         <div class="tab-content">
             <section id="catalogo" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tab-catalogo">
                 <div id="mensajeCatalogo" class="d-none" role="status" aria-live="polite"></div>
+                <div id="mensajeFavoritosCatalogo" class="d-none" role="status" aria-live="polite"></div>
                 <label for="buscarCatalogo" class="form-label">Buscar por nombre o tipo</label>
                 <input id="buscarCatalogo" type="search" class="form-control mb-4">
 
                 <div id="tarjetasServicios" class="row g-3"></div>
-                <!-- Tarjeta preparada para integrar el estado guardado sin alterar el catálogo actual. -->
                 <template id="tarjetaServicioFavorito">
                     <div class="col-sm-6 col-lg-4"><article class="card card-body h-100">
                         <h2 class="h5" data-campo="nombre"></h2>
                         <p class="text-secondary" data-campo="tipo"></p>
                         <div class="d-flex flex-wrap gap-2 mt-auto">
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle"
-                                data-bs-toggle="modal" data-bs-target="#modalDetalleServicio">Ver detalle</button>
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-accion="guardar-favorito" aria-pressed="false" disabled>Guardar en favoritos</button>
-                            <button type="button" class="btn btn-turquesa btn-sm" data-accion="retirar-favorito" aria-pressed="true" hidden disabled>Guardado · Retirar</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle">Ver detalle</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-accion="favorito" hidden disabled>Guardar en favoritos</button>
                         </div>
                     </article></div>
                 </template>
@@ -62,29 +59,21 @@
                 </p>
             </section>
 
-            <section id="misFavoritos" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-favoritos">
+            <section id="misFavoritos" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-favoritos" hidden>
                 <h2 class="h4">Mis favoritos</h2>
                 <p class="text-secondary">Servicios que guardaste para consultar después. Solo se muestran los que siguen disponibles en el catálogo.</p>
-                <div id="favoritosSinSesion" class="alert alert-info" hidden>
-                    Iniciá sesión con una cuenta de cliente para guardar servicios.
-                    <a href="./login.html" class="alert-link">Iniciar sesión</a>
-                </div>
-                <p id="favoritosSinPermiso" class="alert alert-info" hidden>Los favoritos están disponibles para cuentas de cliente.</p>
                 <p id="cargandoFavoritos" class="alert alert-info" role="status" hidden>Cargando tus favoritos…</p>
                 <p id="errorFavoritos" class="alert alert-danger" role="alert" hidden>No se pudieron cargar tus favoritos. Intentá nuevamente.</p>
-                <p id="favoritoGuardado" class="alert alert-success" role="status" hidden>Servicio guardado en tus favoritos.</p>
                 <p id="favoritoRetirado" class="alert alert-success" role="status" hidden>Servicio retirado de tus favoritos.</p>
                 <div id="tarjetasFavoritos" class="row g-3"></div>
-                <p id="sinFavoritos" class="text-secondary">No hay servicios favoritos para mostrar. Podés guardarlos desde el catálogo.</p>
+                <p id="sinFavoritos" class="text-secondary" hidden>No hay servicios favoritos para mostrar. Podés guardarlos desde el catálogo.</p>
                 <template id="tarjetaFavorito">
                     <div class="col-sm-6 col-lg-4"><article class="card card-body h-100">
                         <h3 class="h5" data-campo="nombre"></h3><p class="text-secondary" data-campo="tipo"></p>
                         <p class="text-break" data-campo="descripcion"></p>
                         <div class="d-flex flex-wrap gap-2 mt-auto">
-                            <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle"
-                                data-bs-toggle="modal" data-bs-target="#modalDetalleServicio">Ver detalle</button>
-                            <button type="button" class="btn btn-outline-danger btn-sm" data-accion="retirar"
-                                data-bs-toggle="modal" data-bs-target="#modalRetirarFavorito">Retirar de favoritos</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle">Ver detalle</button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-accion="retirar">Retirar de favoritos</button>
                         </div>
                     </article></div>
                 </template>
@@ -137,12 +126,9 @@
                     <h3 id="nombreDetalleServicio" class="h5"></h3>
                     <p id="tipoDetalleServicio" class="text-secondary"></p>
                     <p id="descripcionDetalleServicio"></p>
-                    <div id="accionesFavoritoDetalle" class="border-top pt-3">
-                        <p id="favoritoSinSesionDetalle" class="text-secondary" hidden>Iniciá sesión como cliente para guardar este servicio.</p>
-                        <p id="errorFavoritoDetalle" class="alert alert-danger" role="alert" hidden>No se pudo actualizar el favorito.</p>
-                        <button id="btnGuardarFavoritoDetalle" type="button" class="btn btn-outline-primary" aria-pressed="false" disabled>Guardar en favoritos</button>
-                        <button id="btnRetirarFavoritoDetalle" type="button" class="btn btn-turquesa" aria-pressed="true" hidden disabled>Guardado · Retirar</button>
-                        <p id="mensajeFavoritoDetalle" class="text-success mt-2" role="status" hidden>Favoritos actualizados.</p>
+                    <div id="accionesFavoritoDetalle" class="border-top pt-3" hidden>
+                        <div id="mensajeFavoritoDetalle" class="d-none" role="status" aria-live="polite"></div>
+                        <button id="btnFavoritoDetalle" type="button" class="btn btn-outline-primary" disabled>Guardar en favoritos</button>
                     </div>
                 </div>
 

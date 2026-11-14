@@ -28,6 +28,13 @@ let servicioVisibilidad = null;
 let cambiandoVisibilidad = false;
 let catalogo = [];
 let consultaDetalle = 0;
+let esCliente = false;
+let favoritos = [];
+let favoritosListos = false;
+let cargandoFavoritos = false;
+let cambiandoFavorito = false;
+let servicioDetalle = null;
+let favoritoRetirar = null;
 const buscarCatalogo = document.getElementById("buscarCatalogo");
 const tarjetas = document.getElementById("tarjetasServicios");
 const sinCatalogo = document.getElementById("sinCatalogo");
@@ -35,6 +42,10 @@ const mensajeCatalogo = document.getElementById("mensajeCatalogo");
 const elementoDetalle = document.getElementById("modalDetalleServicio");
 const elementoVisibilidad = document.getElementById("modalVisibilidad");
 const botonConfirmar = document.getElementById("btnConfirmarVisibilidad");
+const tarjetasFavoritos = document.getElementById("tarjetasFavoritos");
+const botonFavoritoDetalle = document.getElementById("btnFavoritoDetalle");
+const modalRetirar = document.getElementById("modalRetirarFavorito");
+const botonRetirar = document.getElementById("btnConfirmarRetirarFavorito");
 
 function crearBoton(texto, accion) {
     const boton = document.createElement("button");
@@ -43,6 +54,33 @@ function crearBoton(texto, accion) {
     boton.textContent = texto;
     boton.addEventListener("click", accion);
     return boton;
+}
+
+function crearTarjeta(plantilla, servicio) {
+    const tarjeta = document.getElementById(plantilla).content.firstElementChild.cloneNode(true);
+    tarjeta.querySelectorAll("[data-campo]").forEach(campo => {
+        campo.textContent = servicio[campo.dataset.campo];
+    });
+    tarjeta.querySelector('[data-accion="detalle"]').addEventListener("click", () => abrirDetalle(servicio._id));
+    return tarjeta;
+}
+
+function actualizarBotonFavorito(boton, id) {
+    const guardado = favoritos.some(servicio => servicio._id === id);
+    boton.textContent = guardado ? "Guardado · Retirar" : "Guardar en favoritos";
+    boton.classList.toggle("btn-turquesa", guardado);
+    boton.classList.toggle("btn-outline-primary", !guardado);
+    boton.disabled = !favoritosListos || cargandoFavoritos || cambiandoFavorito;
+}
+
+function actualizarBotonesFavoritos() {
+    tarjetas.querySelectorAll('[data-accion="favorito"]').forEach(boton => {
+        actualizarBotonFavorito(boton, boton.dataset.servicioId);
+    });
+    if (servicioDetalle) actualizarBotonFavorito(botonFavoritoDetalle, servicioDetalle._id);
+    tarjetasFavoritos.querySelectorAll('[data-accion="retirar"]').forEach(boton => {
+        boton.disabled = cambiandoFavorito || cargandoFavoritos;
+    });
 }
 
 function mostrarCatalogo() {
@@ -54,18 +92,15 @@ function mostrarCatalogo() {
     sinCatalogo.textContent = catalogo.length ? "No hay servicios que coincidan con la búsqueda."
         : "No hay servicios publicados disponibles.";
     for (const item of resultados) {
-        const columna = document.createElement("div");
-        columna.className = "col-md-6 col-lg-4";
-        const tarjeta = document.createElement("article");
-        tarjeta.className = "card card-body h-100";
-        const titulo = document.createElement("h2");
-        titulo.className = "h5";
-        titulo.textContent = item.nombre;
-        const categoria = document.createElement("p");
-        categoria.textContent = item.tipo;
-        tarjeta.append(titulo, categoria, crearBoton("Ver detalle", () => abrirDetalle(item._id)));
-        columna.append(tarjeta);
-        tarjetas.append(columna);
+        const tarjeta = crearTarjeta("tarjetaServicioFavorito", item);
+        if (esCliente) {
+            const boton = tarjeta.querySelector('[data-accion="favorito"]');
+            boton.dataset.servicioId = item._id;
+            boton.hidden = false;
+            actualizarBotonFavorito(boton, item._id);
+            boton.addEventListener("click", () => seleccionarFavorito(item, "mensajeFavoritosCatalogo"));
+        }
+        tarjetas.append(tarjeta);
     }
 }
 
@@ -89,6 +124,9 @@ async function cargarCatalogo() {
 async function abrirDetalle(id) {
     const consulta = ++consultaDetalle;
     const mensaje = document.getElementById("mensajeDetalleServicio");
+    servicioDetalle = null;
+    document.getElementById("accionesFavoritoDetalle").hidden = true;
+    mostrarMensaje(document.getElementById("mensajeFavoritoDetalle"), "");
     for (const campo of ["nombre", "tipo", "descripcion"]) {
         document.getElementById(`${campo}DetalleServicio`).textContent = "";
     }
@@ -100,9 +138,116 @@ async function abrirDetalle(id) {
         for (const campo of ["nombre", "tipo", "descripcion"]) {
             document.getElementById(`${campo}DetalleServicio`).textContent = item[campo];
         }
+        if (esCliente) {
+            servicioDetalle = item;
+            actualizarBotonFavorito(botonFavoritoDetalle, item._id);
+            document.getElementById("accionesFavoritoDetalle").hidden = false;
+        }
         mostrarMensaje(mensaje, "");
     } catch (error) {
         if (consulta === consultaDetalle) mostrarMensaje(mensaje, error.message);
+    }
+}
+
+function mostrarFavoritos() {
+    tarjetasFavoritos.replaceChildren();
+    for (const servicio of favoritos) {
+        const tarjeta = crearTarjeta("tarjetaFavorito", servicio);
+        tarjeta.querySelector('[data-accion="retirar"]').addEventListener("click", () => abrirRetiroFavorito(servicio));
+        tarjetasFavoritos.append(tarjeta);
+    }
+    document.getElementById("sinFavoritos").hidden = !favoritosListos || favoritos.length > 0;
+}
+
+async function cargarFavoritos() {
+    if (!esCliente || cargandoFavoritos) return;
+    cargandoFavoritos = true;
+    const carga = document.getElementById("cargandoFavoritos");
+    const errorFavoritos = document.getElementById("errorFavoritos");
+    carga.hidden = false;
+    errorFavoritos.hidden = true;
+    tarjetasFavoritos.replaceChildren();
+    document.getElementById("sinFavoritos").hidden = true;
+    actualizarBotonesFavoritos();
+    try {
+        const resultado = await consultarAPI(API.FAVORITOS);
+        if (!Array.isArray(resultado)) throw new Error("No se recibió un listado válido de favoritos.");
+        favoritos = resultado;
+        favoritosListos = true;
+    } catch (error) {
+        favoritos = [];
+        favoritosListos = false;
+        errorFavoritos.textContent = error.message;
+        errorFavoritos.hidden = false;
+    } finally {
+        cargandoFavoritos = false;
+        carga.hidden = true;
+        mostrarFavoritos();
+        actualizarBotonesFavoritos();
+    }
+}
+
+async function seleccionarFavorito(servicio, mensajeId) {
+    if (!esCliente || !favoritosListos || cargandoFavoritos || cambiandoFavorito) return;
+    if (favoritos.some(item => item._id === servicio._id)) {
+        abrirRetiroFavorito(servicio);
+        return;
+    }
+    const mensaje = document.getElementById(mensajeId);
+    cambiandoFavorito = true;
+    actualizarBotonesFavoritos();
+    mostrarMensaje(mensaje, "");
+    try {
+        await consultarAPI(API.FAVORITOS, "POST", { servicio: servicio._id });
+        await cargarFavoritos();
+        mostrarMensaje(mensaje, "Servicio guardado en tus favoritos.", "success");
+    } catch (error) {
+        mostrarMensaje(mensaje, error.message);
+    } finally {
+        cambiandoFavorito = false;
+        actualizarBotonesFavoritos();
+    }
+}
+
+function abrirRetiroFavorito(servicio) {
+    if (!esCliente || cargandoFavoritos || cambiandoFavorito) return;
+    favoritoRetirar = servicio;
+    document.getElementById("nombreFavoritoRetirar").textContent = servicio.nombre;
+    document.getElementById("errorRetirarFavorito").hidden = true;
+    botonRetirar.disabled = false;
+    const confirmacion = bootstrap.Modal.getOrCreateInstance(modalRetirar);
+    if (elementoDetalle.classList.contains("show")) {
+        elementoDetalle.addEventListener("hidden.bs.modal", () => confirmacion.show(), { once: true });
+        bootstrap.Modal.getOrCreateInstance(elementoDetalle).hide();
+    } else {
+        confirmacion.show();
+    }
+}
+
+async function confirmarRetiroFavorito() {
+    if (!esCliente || !favoritoRetirar || cambiandoFavorito) return;
+    const errorRetiro = document.getElementById("errorRetirarFavorito");
+    errorRetiro.hidden = true;
+    cambiandoFavorito = true;
+    botonRetirar.disabled = true;
+    actualizarBotonesFavoritos();
+    try {
+        await consultarAPI(`${API.FAVORITOS}/${encodeURIComponent(favoritoRetirar._id)}`, "DELETE");
+        await cargarFavoritos();
+    } catch (error) {
+        errorRetiro.textContent = error.message;
+        errorRetiro.hidden = false;
+        return;
+    } finally {
+        cambiandoFavorito = false;
+        botonRetirar.disabled = false;
+        actualizarBotonesFavoritos();
+    }
+    bootstrap.Modal.getOrCreateInstance(modalRetirar).hide();
+    if (document.getElementById("misFavoritos").classList.contains("active")) {
+        document.getElementById("favoritoRetirado").hidden = false;
+    } else {
+        mostrarMensaje(document.getElementById("mensajeFavoritosCatalogo"), "Servicio retirado de tus favoritos.", "success");
     }
 }
 
@@ -397,43 +542,24 @@ async function guardarServicio(evento) {
     }
 }
 
-async function verificarAdministrador() {
+export async function iniciarServicios(rol) {
+    esAdministrador = rol === "administrador";
+    esCliente = rol === "cliente";
     botonNuevo.disabled = true;
     buscarServicio.disabled = true;
 
-    try {
-        const respuesta = await fetch(`${API.AUTH}/sesion`, {
-            credentials: "include"
-        });
-
-        // La página también permite visitantes; no consulta datos administrativos.
-        if (respuesta.status === 401) return;
-
-        if (!respuesta.ok) {
-            throw new Error("No se pudo verificar la sesión.");
+    const cargaCatalogo = cargarCatalogo();
+    if (esCliente) await cargarFavoritos();
+    if (esAdministrador) {
+        try {
+            await cargarServicios();
+        } catch (error) {
+            mostrarMensaje(mensajePagina, error.message);
+        } finally {
+            botonNuevo.disabled = false;
         }
-
-        const resultado = await respuesta.json();
-        esAdministrador = resultado.datos?.rol === "administrador";
-    } catch {
-        mostrarMensaje(
-            mensajePagina,
-            "No se pudo verificar la sesión. Recargá la página."
-        );
-        return;
     }
-
-    if (!esAdministrador) return;
-
-    document.getElementById("tab-servicios-admin").hidden = false;
-
-    try {
-        await cargarServicios();
-    } catch (error) {
-        mostrarMensaje(mensajePagina, error.message);
-    } finally {
-        botonNuevo.disabled = false;
-    }
+    await cargaCatalogo;
 }
 
 elementoModal.addEventListener("show.bs.modal", prepararFormulario);
@@ -451,7 +577,18 @@ botonConfirmar.addEventListener("click", confirmarVisibilidad);
 elementoVisibilidad.addEventListener("hide.bs.modal", evento => {
     if (cambiandoVisibilidad) evento.preventDefault();
 });
-elementoDetalle.addEventListener("hide.bs.modal", () => { consultaDetalle++; });
-
-verificarAdministrador();
-cargarCatalogo();
+elementoDetalle.addEventListener("hide.bs.modal", () => {
+    consultaDetalle++;
+    servicioDetalle = null;
+});
+document.getElementById("tab-favoritos").addEventListener("shown.bs.tab", () => {
+    document.getElementById("favoritoRetirado").hidden = true;
+    if (!cambiandoFavorito) cargarFavoritos();
+});
+botonFavoritoDetalle.addEventListener("click", () => {
+    if (servicioDetalle) seleccionarFavorito(servicioDetalle, "mensajeFavoritoDetalle");
+});
+botonRetirar.addEventListener("click", confirmarRetiroFavorito);
+modalRetirar.addEventListener("hide.bs.modal", evento => {
+    if (cambiandoFavorito) evento.preventDefault();
+});

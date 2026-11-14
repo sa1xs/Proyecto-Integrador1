@@ -11,6 +11,7 @@ const modulos = {
 
 if (contexto.cargar && modulos[pagina]) {
     const modulo = await import(modulos[pagina]);
+    if (pagina === "servicios") await modulo.iniciarServicios(contexto.rol);
     if (pagina === "cotizaciones") await modulo.iniciarCotizaciones(contexto.rol);
     if (pagina === "destinos") await modulo.iniciarDestinos(contexto.rol);
 } else {
