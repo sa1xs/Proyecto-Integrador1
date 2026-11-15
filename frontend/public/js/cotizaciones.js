@@ -381,6 +381,7 @@ for (const [accion, estado, texto, volver] of [
 
 export async function iniciarCotizaciones(rol) {
     esAdministrador = rol === "administrador";
+    elemento("btnNuevaCotizacion").disabled = !esAdministrador;
     clienteFiltro = esAdministrador ? new URLSearchParams(location.search).get("cliente") : null;
     elemento("filtroClienteCotizaciones").hidden = !clienteFiltro;
     vista = esAdministrador ? {

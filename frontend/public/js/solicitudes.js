@@ -279,6 +279,11 @@ function completarDetalle(solicitud) {
     mostrarDato("detalleViajeros", solicitud.cantidadViajeros);
     mostrarDato("detalleEdades", solicitud.edades.join(", "));
     mostrarDato("detalleEstado", solicitud.estado);
+    if (esAdministrador) {
+        mostrarDato("detalleClienteSolicitud", solicitud.cliente?.nombre);
+        document.getElementById("etiquetaDetalleCliente").hidden = false;
+        document.getElementById("detalleClienteSolicitud").hidden = false;
+    }
     if (esAdministrador && solicitud.cliente?._id) {
         const filtro = new URLSearchParams({ cliente: solicitud.cliente._id });
         enlaceFicha.href = `/views/clientes.html?${filtro}`;
@@ -478,6 +483,8 @@ for (const [elemento, mensajeId, completar] of [
             solicitudDetalle = null;
             enlaceFicha.hidden = true;
             enlaceFicha.removeAttribute("href");
+            document.getElementById("etiquetaDetalleCliente").hidden = true;
+            document.getElementById("detalleClienteSolicitud").hidden = true;
             seccionViajeros.hidden = true;
             formularioViajero.reset();
             editorViajero.classList.remove("show");
