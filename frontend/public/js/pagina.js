@@ -6,7 +6,7 @@ const modulos = {
     login: "./login.js", registro: "./registro.js", cuentas: "./cuentas.js",
     clientes: "./clientes.js", proveedores: "./proveedores.js", servicios: "./servicios.js",
     solicitudes: "./solicitudes.js", cotizaciones: "./cotizaciones.js",
-    destinos: "./destinos.js", consultas: "./consultas.js"
+    destinos: "./destinos.js", consultas: "./consultas.js", reportes: "./reportes.js"
 };
 
 if (contexto.cargar && modulos[pagina]) {

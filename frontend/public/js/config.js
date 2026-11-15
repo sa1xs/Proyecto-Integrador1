@@ -10,5 +10,6 @@ export const API = {
     COTIZACIONES: `${API_BASE}/cotizaciones`,
     DESTINOS: `${API_BASE}/destinos`,
     FAVORITOS: `${API_BASE}/favoritos`,
-    CONSULTAS: `${API_BASE}/consultas`
+    CONSULTAS: `${API_BASE}/consultas`,
+    REPORTES: `${API_BASE}/reportes`
 };

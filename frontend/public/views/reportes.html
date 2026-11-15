@@ -12,15 +12,15 @@
     <header id="menu"></header>
     <main id="contenidoPrincipal" class="container-fluid px-3 px-md-5 py-4">
         <h1 class="mb-4">Reportes básicos</h1>
-    <!-- SCRUM-179: cantidades por estado. Sin gráficos, filtros ni exportaciones. -->
     <p class="text-secondary">Resumen administrativo de solicitudes y cotizaciones por estado.</p>
-    <div id="reportesSinSesion" class="alert alert-info" hidden>Iniciá sesión con una cuenta de administrador. <a href="./login.html">Iniciar sesión</a></div>
     <div id="reportesSinPermiso" class="alert alert-warning" hidden>Tu cuenta no tiene permisos para consultar estos reportes.</div>
     <p id="cargandoReportes" class="alert alert-info" role="status" hidden>Cargando cantidades por estado…</p>
-    <p id="errorReportes" class="alert alert-danger" role="alert" hidden>No se pudo cargar el reporte. Intentá nuevamente.</p>
-    <p id="reportesSinDatos" class="alert alert-info" hidden>No hay registros. Todos los contadores muestran cero.</p>
-    <!-- La integración poblará cada contador con su cantidad real, incluido 0; antes de cargar se muestra —. -->
-    <div id="contenidoReportes">
+    <div id="errorReportes" class="alert alert-danger" hidden>
+        <p class="mb-2" role="alert">No se pudo cargar el reporte.</p>
+        <button id="btnReintentarReportes" type="button" class="btn btn-outline-danger btn-sm">Reintentar</button>
+    </div>
+    <p id="reportesSinDatos" class="alert alert-info" role="status" hidden>No hay solicitudes ni cotizaciones registradas.</p>
+    <div id="contenidoReportes" hidden>
         <section aria-labelledby="tituloReporteSolicitudes" class="mb-4">
             <h2 id="tituloReporteSolicitudes" class="h4">Solicitudes</h2>
             <div class="row g-3">
