@@ -6,7 +6,12 @@ const Usuario = require("../models/Usuario");
 const idValido = id => typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
 const estados = ["Borrador", "Publicada", "Aceptada", "Rechazada"];
 const estadosCliente = estados.slice(1);
-const camposComerciales = "solicitud cliente partidas total moneda estado fechaPublicacion clienteRespuesta fechaRespuesta createdAt updatedAt";
+const camposComerciales = [
+    "solicitud", "cliente", "total", "moneda", "estado",
+    "fechaPublicacion", "clienteRespuesta", "fechaRespuesta", "createdAt", "updatedAt",
+    "partidas._id", "partidas.servicio", "partidas.nombre", "partidas.tipo",
+    "partidas.descripcion", "partidas.cantidad", "partidas.precio", "partidas.subtotal"
+].join(" ");
 function rechazar(estado, mensaje) {
     const error = new Error(mensaje);
     error.estadoHTTP = estado;
