@@ -22,7 +22,8 @@
     <div class="tab-content">
         <section id="misCotizaciones" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tabMisCotizaciones">
             <h2 class="h4">Mis cotizaciones</h2>
-            <p class="text-secondary">Consultá las cotizaciones publicadas de tus solicitudes y respondé una sola vez.</p>
+            <p class="text-secondary">Aquí recibís las ofertas con servicios y precios para aceptarlas o rechazarlas. Las solicitudes En cotización aparecerán cuando el administrador publique su oferta.</p>
+            <p id="cotizacionesEnPreparacion" class="alert alert-info" role="status" hidden></p>
         <p id="misCotizacionesCarga" class="alert alert-info" role="status" hidden>Cargando tus cotizaciones…</p>
         <p id="misCotizacionesError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar tus cotizaciones. Intentá nuevamente.</p>
             <label for="filtroMisCotizaciones" class="form-label">Estado</label>
@@ -33,7 +34,7 @@
                 <thead><tr><th scope="col">Código</th><th scope="col">Solicitud</th><th scope="col">Total (CRC)</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
                 <tbody id="filasMisCotizaciones"></tbody>
             </table></div>
-            <p id="sinMisCotizaciones" class="text-secondary">No hay cotizaciones para mostrar.</p>
+            <p id="sinMisCotizaciones" class="text-secondary">Todavía no tenés ofertas publicadas para consultar.</p>
             <p id="sinCoincidenciasCotizacionesCliente" class="text-secondary" hidden>No hay cotizaciones que coincidan con el filtro.</p>
             <template id="filaMiCotizacion"><tr>
                 <td data-campo="codigo"></td><td data-campo="solicitud"></td><td data-campo="total"></td><td data-campo="estado"></td>

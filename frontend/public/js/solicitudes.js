@@ -119,6 +119,15 @@ async function iniciar() {
         clienteFiltro = esAdministrador ? new URLSearchParams(location.search).get("cliente") : null;
         document.getElementById("filtroClienteSolicitudes").hidden = !clienteFiltro;
         boton.disabled = !esCliente;
+        const servicio = new URLSearchParams(location.search).get("servicio");
+        if (esCliente && servicio && !destino.value) {
+            try {
+                const registro = await consultarAPI(`${API.SERVICIOS}/publicos/${encodeURIComponent(servicio)}`);
+                if (!destino.value) destino.value = registro.nombre;
+            } catch (error) {
+                mostrarMensaje(`No se pudo cargar el servicio seleccionado. ${error.message}`);
+            }
+        }
         await cargarSolicitudes();
     } catch {
         mostrarMensaje("No se pudo verificar la sesión. Recargá la página.");

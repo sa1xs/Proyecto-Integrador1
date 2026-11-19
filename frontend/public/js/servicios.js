@@ -125,6 +125,9 @@ async function abrirDetalle(id) {
     const consulta = ++consultaDetalle;
     const mensaje = document.getElementById("mensajeDetalleServicio");
     servicioDetalle = null;
+    const solicitar = document.getElementById("solicitarCotizacionServicio");
+    solicitar.hidden = true;
+    solicitar.removeAttribute("href");
     document.getElementById("accionesFavoritoDetalle").hidden = true;
     mostrarMensaje(document.getElementById("mensajeFavoritoDetalle"), "");
     for (const campo of ["nombre", "tipo", "descripcion"]) {
@@ -135,6 +138,11 @@ async function abrirDetalle(id) {
     try {
         const item = await consultarAPI(`${API.SERVICIOS}/publicos/${encodeURIComponent(id)}`);
         if (consulta !== consultaDetalle) return;
+        if (!esAdministrador) {
+            const pagina = esCliente ? "solicitudes" : "login";
+            solicitar.href = `/views/${pagina}.html?${new URLSearchParams({ servicio: item._id })}`;
+            solicitar.hidden = false;
+        }
         for (const campo of ["nombre", "tipo", "descripcion"]) {
             document.getElementById(`${campo}DetalleServicio`).textContent = item[campo];
         }

@@ -130,8 +130,11 @@ export async function iniciarMenu() {
       : rol !== "visitante");
   aplicarRol(rol);
   if (!permitida && disponible) {
+    const servicio = pagina === "solicitudes" ? new URLSearchParams(location.search).get("servicio") : null;
+    const acceso = servicio && /^[a-fA-F0-9]{24}$/.test(servicio)
+      ? `/views/login.html?${new URLSearchParams({ servicio })}` : "/views/login.html";
     location.replace(
-      rol === "visitante" ? "/views/login.html" : "/views/clientes.html",
+      rol === "visitante" ? acceso : "/views/clientes.html",
     );
     return { cargar: false, rol };
   }

@@ -67,7 +67,10 @@ formulario.addEventListener("submit", async (evento) => {
         if (rol === "administrador") {
             window.location.replace("/views/cuentas.html");
         } else if (rol === "cliente") {
-            window.location.replace("/views/clientes.html");
+            const servicio = new URLSearchParams(location.search).get("servicio");
+            window.location.replace(servicio && /^[a-fA-F0-9]{24}$/.test(servicio)
+                ? `/views/solicitudes.html?${new URLSearchParams({ servicio })}`
+                : "/views/clientes.html");
         } else {
             throw new Error("La API devolvió un rol no reconocido.");
         }

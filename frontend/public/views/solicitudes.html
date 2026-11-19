@@ -43,7 +43,7 @@
                     <div id="mensajeFormularioSolicitud" class="d-none" role="alert"></div>
 
                     <div class="mb-3">
-                        <label for="destinoSolicitud" class="form-label">Destino *</label>
+                        <label for="destinoSolicitud" class="form-label">Destino o servicio *</label>
                         <input id="destinoSolicitud" name="destino" class="form-control" required>
                     </div>
 
@@ -84,7 +84,7 @@
 
             <section id="misSolicitudes" class="tab-pane fade" role="tabpanel" aria-labelledby="tab-mis-solicitudes">
                 <h2 class="h4">Mis solicitudes</h2>
-                <p class="text-secondary">Abrí el detalle para consultar los datos y el estado de tu solicitud.</p>
+                <p class="text-secondary">Aquí están tus pedidos de viaje. En cotización significa que se está preparando la oferta; cuando se publique, aparecerá en <a href="cotizaciones.html">Mis cotizaciones</a> con sus precios.</p>
                 <p id="cargandoMisSolicitudes" class="alert alert-info" role="status" hidden>Cargando tus solicitudes…</p>
                 <div id="errorMisSolicitudes" class="alert alert-danger" role="alert" hidden>
                     No se pudieron cargar tus solicitudes. Intentá nuevamente.
@@ -323,7 +323,7 @@
                         </p>
 
                         <div class="mb-3">
-                            <label for="editarDestino" class="form-label">Destino *</label>
+                            <label for="editarDestino" class="form-label">Destino o servicio *</label>
                             <input id="editarDestino" name="destino" class="form-control" required>
                         </div>
 
@@ -442,8 +442,9 @@
                             </form>
                     </section>
 
-                    <p>Preparar la cotización cambia la solicitud de Nueva a En cotización.
-                        El cliente dejará de poder editar la solicitud y sus viajeros.</p>
+                    <p>Iniciar la preparación cambia la solicitud de Nueva a En cotización.
+                        El cliente dejará de poder editar la solicitud y sus viajeros.
+                        Después debés crear el borrador y publicarlo desde <a href="cotizaciones.html">Cotizaciones</a> para que el cliente vea la oferta.</p>
                     <label for="estadoSolicitud" class="form-label">Nuevo estado</label>
                     <select id="estadoSolicitud" name="estado" class="form-select">
                         <option value="">Seleccioná un estado</option>

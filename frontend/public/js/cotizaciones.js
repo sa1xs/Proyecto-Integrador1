@@ -97,6 +97,7 @@ async function cargarListado() {
     elemento(vista.sinCoincidencias).hidden = true;
     elemento(vista.filas).replaceChildren();
     mensaje(vista.error, "");
+    mensaje("cotizacionesEnPreparacion", "");
     try {
         const filtro = clienteFiltro ? `?${new URLSearchParams({ cliente: clienteFiltro })}` : "";
         const [ofertas, solicitudes] = await Promise.all([
@@ -105,6 +106,15 @@ async function cargarListado() {
         ]);
         cotizaciones = ofertas;
         solicitudesPorId = new Map(solicitudes.map(registro => [registro._id, registro]));
+        if (!esAdministrador) {
+            const pendientes = solicitudes.filter(registro => registro.estado === "En cotización" &&
+                !ofertas.some(oferta => oferta.solicitud === registro._id)).length;
+            mensaje("cotizacionesEnPreparacion", pendientes
+                ? (pendientes === 1
+                    ? "Tenés una solicitud en preparación. La oferta con sus precios se mostrará aquí cuando se publique."
+                    : `Tenés ${pendientes} solicitudes en preparación. Las ofertas con sus precios se mostrarán aquí cuando se publiquen.`)
+                : "");
+        }
         mostrarListado();
     } catch (error) {
         cotizaciones = [];
