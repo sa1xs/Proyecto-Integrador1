@@ -158,7 +158,7 @@ detalle.addEventListener("show.bs.modal", async evento => {
         elemento("consultaPendiente").hidden = consulta.estado !== "Pendiente";
         elemento("consultaRespuesta").textContent = consulta.respuesta || "";
         elemento("consultaFechaRespuesta").textContent = consulta.fechaRespuesta
-            ? `Respondida el ${fechaVisible(consulta.fechaRespuesta)}.` : "";
+            ? `Respondida el ${fechaVisible(consulta.fechaRespuesta)}` : "";
         elemento("datosDetalleConsulta").hidden = false;
     } catch (error) {
         if (version === versionDetalle) mensaje("errorDetalleConsulta", error.message);
