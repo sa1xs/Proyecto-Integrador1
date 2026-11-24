@@ -73,16 +73,18 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | POST | `/proveedores` | Administrador | `{"nombre":"Hotel Ejemplo","tipoServicio":"Hotel","correo":"hotel@example.com","telefono":"88888888"}`; exige al menos un contacto |
 | PUT | `/proveedores/:id` | Administrador | Uno o más campos: `nombre`, `tipoServicio`, `correo`, `telefono` (texto); conserva al menos un contacto |
 | PATCH | `/proveedores/:id` | Administrador | `{"activo":false}` o `{"activo":true}` |
-| GET | `/servicios` | Administrador | —; listado con proveedor asociado |
-| POST | `/servicios` | Administrador | `{"nombre":"Traslado","tipo":"Transporte","descripcion":"Traslado privado","proveedor":"ID_PROVEEDOR_ACTIVO"}`; todos obligatorios |
-| PUT | `/servicios/:id` | Administrador | Uno o más campos: `nombre`, `tipo`, `descripcion`, `proveedor` (texto) |
+| GET | `/servicios` | Administrador | Listado con proveedor asociado y filtro opcional por `destino` |
+| POST | `/servicios` | Administrador | `{"nombre":"Traslado","tipo":"Transporte","descripcion":"Traslado privado","proveedor":"ID_PROVEEDOR_ACTIVO","destinos":["ID_DESTINO"]}`; todos obligatorios |
+| PUT | `/servicios/:id` | Administrador | Uno o más campos: `nombre`, `tipo`, `descripcion`, `proveedor` (texto) y `destinos` (lista de identificadores) |
 | PATCH | `/servicios/:id/visibilidad` | Administrador | `{"publicado":true}` para publicar o `false` para ocultar |
-| GET | `/servicios/publicos` | Público | —; catálogo de servicios activos y publicados |
-| GET | `/servicios/publicos/:id` | Público | ID en la URL; nombre, tipo y descripción del servicio público |
-| POST | `/solicitudes` | Cliente | `{"destino":"La Fortuna","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8]}`; todos obligatorios |
+| PATCH | `/servicios/:id/estado` | Administrador | `{"activo":false}` para desactivar o `true` para reactivar. Conserva la visibilidad elegida. |
+| GET | `/servicios/publicos` | Público | Catálogo de servicios activos y publicados. `destino` filtra por destino público y proveedor activo |
+| GET | `/servicios/publicos/:id` | Público | ID en la URL; nombre, tipo, descripción, destinos públicos asociados e indicador de disponibilidad para solicitar |
+| POST | `/solicitudes` | Cliente | `{"destinoId":"ID_DESTINO","servicioId":"ID_SERVICIO","fechaSalida":"2026-12-10","fechaRegreso":"2026-12-15","cantidadViajeros":2,"edades":[30,8]}`; todos obligatorios |
 | GET | `/solicitudes` | Sesión | Cliente: solo propias. Administrador: todas. Filtro opcional `estado`; `cliente` (ID) es solo administrativo |
 | GET | `/solicitudes/:id` | Sesión | Propietario o administrador; administración ve nombre, correo y teléfono del cliente |
-| PUT | `/solicitudes/:id` | Cliente propietario | Uno o más campos: `destino`, `fechaSalida`, `fechaRegreso`, `cantidadViajeros`, `edades`; solo en Nueva |
+| PUT | `/solicitudes/:id` | Cliente propietario | Uno o más campos: `destinoId` y `servicioId` juntos, `fechaSalida`, `fechaRegreso`, `cantidadViajeros`, `edades`; solo en Nueva |
+| PATCH | `/solicitudes/:id/vinculos` | Administrador | `{"destinoId":"ID_DESTINO","servicioId":"ID_SERVICIO"}`; solo en solicitudes En cotización que todavía requieren vínculo |
 | PATCH | `/solicitudes/:id/estado` | Administrador | `{"estado":"En cotización"}`; solo permite iniciar la atención de una Nueva |
 | GET | `/solicitudes/:id/viajeros` | Cliente propietario | Lista de viajeros con `_id`, nombre opcional y edad |
 | POST | `/solicitudes/:id/viajeros` | Cliente propietario | `{"nombre":"Ana","edad":25}`; nombre opcional, edad entera no negativa; solo Nueva |
@@ -94,7 +96,7 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | GET | `/cotizaciones` | Sesión | Filtros `estado`, `solicitud`; `cliente` solo administrativo. Cliente ve solo propias publicadas/respondidas |
 | GET | `/cotizaciones/:id` | Sesión | Detalle administrativo o comercial propio; borrador/ajena devuelve 404 al cliente |
 | PUT | `/cotizaciones/:id` | Administrador | `{"partidas":[{"servicio":"ID_SERVICIO","cantidad":2,"precio":12500.50}]}`; reemplaza partidas únicamente en Borrador |
-| PATCH | `/cotizaciones/:id/publicar` | Administrador | Sin cuerpo o `{}`; publica Borrador con partidas y cambia Solicitud a Cotizada |
+| PATCH | `/cotizaciones/:id/publicar` | Administrador | Sin cuerpo o `{}`; publica Borrador que incluye el servicio principal solicitado y cambia Solicitud a Cotizada |
 | PATCH | `/cotizaciones/:id/respuesta` | Cliente propietario | `{"estado":"Aceptada"}` o `{"estado":"Rechazada"}`; solo Publicada, una vez |
 | GET | `/destinos/publicos` | Público | Destinos activos con nombre, país y descripción; sin registros devuelve `[]` |
 | GET | `/destinos/publicos/:id` | Público | Detalle activo; inactivo o inexistente devuelve 404 |
@@ -103,16 +105,20 @@ Base: `http://localhost:5001`. Enviar los cuerpos como JSON con `Content-Type: a
 | POST | `/destinos` | Administrador | `{"nombre":"La Fortuna","pais":"Costa Rica","descripcion":"Destino de naturaleza"}`; campos de texto obligatorios; inicia activo |
 | PUT | `/destinos/:id` | Administrador | Uno o más campos: `nombre`, `pais`, `descripcion`; conserva campos omitidos |
 | PATCH | `/destinos/:id/estado` | Administrador | `{"activo":false}` para desactivar o `true` para reactivar |
+| PATCH | `/destinos/:id/visibilidad` | Administrador | `{"publicado":true}` para publicar un destino activo o `false` para ocultarlo. |
 | GET | `/favoritos` | Cliente | Servicios favoritos propios activos y publicados; sin resultados devuelve `[]` |
 | POST | `/favoritos` | Cliente | `{"servicio":"ID_SERVICIO"}`; exige servicio activo y publicado; repetir devuelve 200 sin duplicar |
 | DELETE | `/favoritos/:servicioId` | Cliente | Sin cuerpo; retira la referencia propia, incluso oculta o inexistente; repetir devuelve 200 |
+| GET | `/favoritos/destinos` | Cliente | Destinos favoritos propios activos y publicados. Devuelve `[]` si la lista está vacía. |
+| POST | `/favoritos/destinos` | Cliente | `{"destino":"ID_DESTINO"}`. Requiere un destino activo y publicado, y evita duplicados. |
+| DELETE | `/favoritos/destinos/:destinoId` | Cliente | Retira la referencia propia, incluso si el destino está inactivo. |
 | POST | `/consultas` | Cliente | `{"pregunta":"¿Qué incluye el traslado?"}`; texto obligatorio, cliente de sesión y estado Pendiente |
 | GET | `/consultas` | Sesión | Cliente: propias; administrador: todas. Filtro opcional `estado`: Pendiente o Respondida |
 | GET | `/consultas/:id` | Sesión | Detalle propio o administrativo; una consulta ajena devuelve 404 al cliente |
 | PATCH | `/consultas/:id/respuesta` | Administrador | `{"respuesta":"Incluye transporte privado"}`; texto obligatorio; solo Pendiente |
 | GET | `/reportes/estados` | Administrador | Sin parámetros; cantidades de solicitudes y cotizaciones por estado, incluidos ceros |
 
-Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`.
+Los PUT conservan los campos omitidos. Las fechas usan `YYYY-MM-DD`, el regreso no puede ser anterior a la salida y la cantidad de viajeros debe coincidir con las edades (enteros no negativos). La solicitud toma el cliente de la sesión y se crea con estado `Nueva`. El destino y el servicio principal deben estar publicados y activos para el cliente. El servicio debe estar asociado al destino y tener un proveedor activo. El servidor guarda los nombres a partir del catálogo. Al vincular una solicitud anterior, conserva el texto original en `destinoOriginal`. Las solicitudes ya cotizadas conservan su historial.
 
 La edición de solicitudes rechaza campos distintos de los documentados (incluidos `cliente`, `estado` y `cotizacion`) y valida el resultado completo antes de guardar. Una solicitud ajena devuelve 404. Fuera de Nueva la edición devuelve 409; una modificación concurrente también devuelve 409 y exige volver a consultar el registro. Las consultas de cliente excluyen información interna.
 
@@ -120,7 +126,7 @@ Los estados de Solicitud son Nueva, En cotización y Cotizada. El cambio manual 
 
 Contactos: notas administrativas dentro de la solicitud, con ID, fecha de calendario `YYYY-MM-DD`, canal y nota de texto no vacíos. Se pueden registrar en cualquier estado de la solicitud. Los clientes no pueden consultarlos ni registrarlos, y las respuestas de solicitudes para clientes excluyen esas notas. Las solicitudes anteriores se consultan sin migración y muestran una lista de contactos vacía. No hay edición, eliminación ni recordatorios.
 
-Cotizaciones: una por solicitud completa en estado En cotización, vinculada al cliente de esa solicitud. Moneda fija CRC; cantidad entera positiva y precio numérico no negativo con máximo dos decimales. El servidor calcula subtotales y total en centavos, rechaza servicios duplicados y no admite totales, cliente, moneda ni estado elegidos desde el cuerpo. El borrador vacío es válido, pero no se publica hasta agregar partidas. Servicios activos de proveedores activos pueden cotizarse aunque estén ocultos del catálogo; se revisa su disponibilidad al crear, editar y publicar. La copia de nombre, tipo y descripción preserva lo ofrecido. Después de publicar no se editan las partidas. La respuesta guarda cliente/fecha y termina el flujo; no crea reservas ni versiones.
+Cotizaciones: una por solicitud completa en estado En cotización, vinculada al cliente de esa solicitud. Moneda fija CRC; cantidad entera positiva y precio numérico no negativo con máximo dos decimales. El servidor calcula subtotales y total en centavos, rechaza servicios duplicados y no admite totales, cliente, moneda ni estado elegidos desde el cuerpo. El borrador puede guardarse vacío. Para publicar, debe incluir el servicio principal solicitado. Todos los servicios cotizados deben pertenecer al destino de la solicitud y tener un proveedor activo. Para administración también se admiten servicios internos activos. Se revisa la disponibilidad al crear, editar y publicar. La copia de nombre, tipo y descripción preserva lo ofrecido. Después de publicar no se editan las partidas. La respuesta guarda cliente/fecha y termina el flujo; no crea reservas ni versiones.
 
 Se usan guardados normales de Mongoose, compatibles con MongoDB local. Si falla asociar un borrador nuevo, se retira ese borrador; si falla guardar la publicación, se intenta devolver la solicitud a En cotización. Los cambios simultáneos se rechazan mediante el control de versión. Son dos guardados separados: si se interrumpe el proceso o MongoDB durante ambos pasos, revisar la oferta y su solicitud antes de reintentar.
 

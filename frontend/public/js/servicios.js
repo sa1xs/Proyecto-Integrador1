@@ -1,9 +1,11 @@
 import { API } from "./config.js";
+import { rutaConReferenciaSolicitud } from "./referenciaSolicitud.js";
 
 const formulario = document.getElementById("formularioServicio");
 const nombre = document.getElementById("nombreServicio");
 const tipo = document.getElementById("tipoServicio");
 const descripcion = document.getElementById("descripcionServicio");
+const destinosServicio = document.getElementById("destinosServicio");
 const proveedor = document.getElementById("proveedorServicio");
 
 const mensajePagina = document.getElementById("mensajePagina");
@@ -24,9 +26,8 @@ let cargando = false;
 let guardando = false;
 let servicios = [];
 let servicioEditar = null;
-let servicioVisibilidad = null;
+let cambioServicio = null;
 let cambiandoVisibilidad = false;
-let catalogo = [];
 let consultaDetalle = 0;
 let esCliente = false;
 let favoritos = [];
@@ -35,7 +36,6 @@ let cargandoFavoritos = false;
 let cambiandoFavorito = false;
 let servicioDetalle = null;
 let favoritoRetirar = null;
-const buscarCatalogo = document.getElementById("buscarCatalogo");
 const tarjetas = document.getElementById("tarjetasServicios");
 const sinCatalogo = document.getElementById("sinCatalogo");
 const mensajeCatalogo = document.getElementById("mensajeCatalogo");
@@ -56,8 +56,8 @@ function crearBoton(texto, accion) {
     return boton;
 }
 
-function crearTarjeta(plantilla, servicio) {
-    const tarjeta = document.getElementById(plantilla).content.firstElementChild.cloneNode(true);
+function crearTarjeta(servicio) {
+    const tarjeta = document.getElementById("tarjetaServicio").content.firstElementChild.cloneNode(true);
     tarjeta.querySelectorAll("[data-campo]").forEach(campo => {
         campo.textContent = servicio[campo.dataset.campo];
     });
@@ -67,7 +67,9 @@ function crearTarjeta(plantilla, servicio) {
 
 function actualizarBotonFavorito(boton, id) {
     const guardado = favoritos.some(servicio => servicio._id === id);
-    boton.textContent = guardado ? "Guardado · Retirar" : "Guardar en favoritos";
+    boton.textContent = guardado ? "✓ Guardado" : "Guardar";
+    boton.setAttribute("aria-pressed", String(guardado));
+    boton.title = guardado ? "Quitar de favoritos" : "Guardar en favoritos";
     boton.classList.toggle("btn-turquesa", guardado);
     boton.classList.toggle("btn-outline-primary", !guardado);
     boton.disabled = !favoritosListos || cargandoFavoritos || cambiandoFavorito;
@@ -83,16 +85,11 @@ function actualizarBotonesFavoritos() {
     });
 }
 
-function mostrarCatalogo() {
-    const texto = buscarCatalogo.value.trim().toLowerCase();
-    const resultados = catalogo.filter(item => [item.nombre, item.tipo]
-        .some(valor => String(valor).toLowerCase().includes(texto)));
+function mostrarCatalogo(catalogo) {
     tarjetas.replaceChildren();
-    sinCatalogo.hidden = resultados.length !== 0;
-    sinCatalogo.textContent = catalogo.length ? "No hay servicios que coincidan con la búsqueda."
-        : "No hay servicios publicados disponibles.";
-    for (const item of resultados) {
-        const tarjeta = crearTarjeta("tarjetaServicioFavorito", item);
+    sinCatalogo.hidden = catalogo.length !== 0;
+    for (const item of catalogo) {
+        const tarjeta = crearTarjeta(item);
         if (esCliente) {
             const boton = tarjeta.querySelector('[data-accion="favorito"]');
             boton.dataset.servicioId = item._id;
@@ -105,20 +102,17 @@ function mostrarCatalogo() {
 }
 
 async function cargarCatalogo() {
-    buscarCatalogo.disabled = true;
     sinCatalogo.hidden = true;
     tarjetas.replaceChildren();
     mostrarMensaje(mensajeCatalogo, "Cargando catálogo...", "info");
     try {
         const resultado = await consultarAPI(`${API.SERVICIOS}/publicos`);
         if (!Array.isArray(resultado)) throw new Error("No se recibió un catálogo válido.");
-        catalogo = resultado;
-        mostrarCatalogo();
+        mostrarCatalogo(resultado);
         mostrarMensaje(mensajeCatalogo, "");
     } catch (error) {
-        catalogo = [];
         mostrarMensaje(mensajeCatalogo, `${error.message} Recargá la página para reintentar.`);
-    } finally { buscarCatalogo.disabled = false; }
+    }
 }
 
 async function abrirDetalle(id) {
@@ -130,6 +124,10 @@ async function abrirDetalle(id) {
     solicitar.removeAttribute("href");
     document.getElementById("accionesFavoritoDetalle").hidden = true;
     mostrarMensaje(document.getElementById("mensajeFavoritoDetalle"), "");
+    const destinosDetalle = document.getElementById("destinosDetalleServicio");
+    const listaDestinos = document.getElementById("listaDestinosDetalleServicio");
+    destinosDetalle.hidden = true;
+    listaDestinos.replaceChildren();
     for (const campo of ["nombre", "tipo", "descripcion"]) {
         document.getElementById(`${campo}DetalleServicio`).textContent = "";
     }
@@ -138,14 +136,26 @@ async function abrirDetalle(id) {
     try {
         const item = await consultarAPI(`${API.SERVICIOS}/publicos/${encodeURIComponent(id)}`);
         if (consulta !== consultaDetalle) return;
-        if (!esAdministrador) {
+        if (!esAdministrador && item.disponibleParaSolicitar) {
             const pagina = esCliente ? "solicitudes" : "login";
-            solicitar.href = `/views/${pagina}.html?${new URLSearchParams({ servicio: item._id })}`;
+            solicitar.href = rutaConReferenciaSolicitud(pagina, { tipo: "servicio", id: item._id });
             solicitar.hidden = false;
         }
         for (const campo of ["nombre", "tipo", "descripcion"]) {
             document.getElementById(`${campo}DetalleServicio`).textContent = item[campo];
         }
+        const destinos = item.destinosPublicos;
+        for (const destino of destinos) {
+            const fila = document.createElement("li");
+            fila.className = "list-group-item px-0";
+            const enlace = document.createElement("a");
+            enlace.textContent = destino.nombre + " · " + destino.pais;
+            enlace.href = "/views/destinos.html?" + new URLSearchParams({ destino: destino._id });
+            fila.append(enlace);
+            listaDestinos.append(fila);
+        }
+        document.getElementById("sinDestinosDetalleServicio").hidden = destinos.length > 0;
+        destinosDetalle.hidden = false;
         if (esCliente) {
             servicioDetalle = item;
             actualizarBotonFavorito(botonFavoritoDetalle, item._id);
@@ -160,8 +170,10 @@ async function abrirDetalle(id) {
 function mostrarFavoritos() {
     tarjetasFavoritos.replaceChildren();
     for (const servicio of favoritos) {
-        const tarjeta = crearTarjeta("tarjetaFavorito", servicio);
-        tarjeta.querySelector('[data-accion="retirar"]').addEventListener("click", () => abrirRetiroFavorito(servicio));
+        const tarjeta = crearTarjeta(servicio);
+        const boton = tarjeta.querySelector('[data-accion="retirar"]');
+        boton.hidden = false;
+        boton.addEventListener("click", () => abrirRetiroFavorito(servicio));
         tarjetasFavoritos.append(tarjeta);
     }
     document.getElementById("sinFavoritos").hidden = !favoritosListos || favoritos.length > 0;
@@ -202,13 +214,17 @@ async function seleccionarFavorito(servicio, mensajeId) {
         return;
     }
     const mensaje = document.getElementById(mensajeId);
+    const estado = document.getElementById("estadoFavorito");
+    estado.textContent = "";
     cambiandoFavorito = true;
     actualizarBotonesFavoritos();
     mostrarMensaje(mensaje, "");
     try {
         await consultarAPI(API.FAVORITOS, "POST", { servicio: servicio._id });
-        await cargarFavoritos();
-        mostrarMensaje(mensaje, "Servicio guardado en tus favoritos.", "success");
+        favoritos.push(servicio);
+        favoritos.sort((primero, segundo) => primero.nombre.localeCompare(segundo.nombre, "es-CR"));
+        mostrarFavoritos();
+        estado.textContent = "Servicio guardado en tus favoritos.";
     } catch (error) {
         mostrarMensaje(mensaje, error.message);
     } finally {
@@ -235,13 +251,17 @@ function abrirRetiroFavorito(servicio) {
 async function confirmarRetiroFavorito() {
     if (!esCliente || !favoritoRetirar || cambiandoFavorito) return;
     const errorRetiro = document.getElementById("errorRetirarFavorito");
+    const estado = document.getElementById("estadoFavorito");
+    estado.textContent = "";
     errorRetiro.hidden = true;
     cambiandoFavorito = true;
     botonRetirar.disabled = true;
     actualizarBotonesFavoritos();
     try {
         await consultarAPI(`${API.FAVORITOS}/${encodeURIComponent(favoritoRetirar._id)}`, "DELETE");
-        await cargarFavoritos();
+        favoritos = favoritos.filter(servicio => servicio._id !== favoritoRetirar._id);
+        mostrarFavoritos();
+        estado.textContent = "Servicio quitado de tus favoritos.";
     } catch (error) {
         errorRetiro.textContent = error.message;
         errorRetiro.hidden = false;
@@ -252,29 +272,34 @@ async function confirmarRetiroFavorito() {
         actualizarBotonesFavoritos();
     }
     bootstrap.Modal.getOrCreateInstance(modalRetirar).hide();
-    if (document.getElementById("misFavoritos").classList.contains("active")) {
-        document.getElementById("favoritoRetirado").hidden = false;
-    } else {
-        mostrarMensaje(document.getElementById("mensajeFavoritosCatalogo"), "Servicio retirado de tus favoritos.", "success");
-    }
 }
 
-function abrirVisibilidad(servicio) {
+function abrirCambioServicio(servicio, campo) {
     if (!esAdministrador || cambiandoVisibilidad) return;
-    servicioVisibilidad = servicio;
+    const cambiaEstado = campo === "activo";
+    const accion = cambiaEstado
+        ? (servicio.activo ? "Desactivar" : "Reactivar")
+        : (servicio.publicado ? "Ocultar" : "Publicar");
+    cambioServicio = { id: servicio._id, ruta: cambiaEstado ? "estado" : "visibilidad", datos: { [campo]: !servicio[campo] } };
     mostrarMensaje(document.getElementById("mensajeVisibilidad"), "");
-    document.getElementById("textoVisibilidad").textContent =
-        `${servicio.publicado ? "¿Ocultar" : "¿Publicar"} el servicio «${servicio.nombre}»?`;
+    document.getElementById("tituloVisibilidad").textContent = `${accion} servicio`;
+    document.getElementById("textoVisibilidad").textContent = `¿Querés ${accion.toLowerCase()} «${servicio.nombre}»?`;
+    document.getElementById("explicacionCambioServicio").textContent = {
+        Desactivar: "El servicio saldrá del catálogo y no estará disponible para nuevas cotizaciones.",
+        Reactivar: "El servicio se podrá cotizar de nuevo y volverá al catálogo si estaba publicado.",
+        Ocultar: "El servicio saldrá del catálogo y seguirá disponible para cotizar si está activo.",
+        Publicar: "El servicio aparecerá en el catálogo público."
+    }[accion];
     bootstrap.Modal.getOrCreateInstance(elementoVisibilidad).show();
 }
 
 async function confirmarVisibilidad() {
-    if (!esAdministrador || !servicioVisibilidad || cambiandoVisibilidad) return;
+    if (!esAdministrador || !cambioServicio || cambiandoVisibilidad) return;
     cambiandoVisibilidad = true;
     botonConfirmar.disabled = true;
     try {
-        const resultado = await consultarAPI(`${API.SERVICIOS}/${servicioVisibilidad._id}/visibilidad`,
-            "PATCH", { publicado: !servicioVisibilidad.publicado });
+        const { id, ruta, datos } = cambioServicio;
+        const resultado = await consultarAPI(`${API.SERVICIOS}/${encodeURIComponent(id)}/${ruta}`, "PATCH", datos);
         cambiandoVisibilidad = false;
         bootstrap.Modal.getOrCreateInstance(elementoVisibilidad).hide();
         mostrarMensaje(mensajePagina, resultado.mensaje, "success");
@@ -376,7 +401,8 @@ function mostrarServicios() {
             servicio.nombre,
             servicio.tipo,
             servicio.proveedor?.nombre || "Proveedor no disponible",
-            servicio.publicado ? "Publicado" : "Uso interno"
+            servicio.activo ? "Activo" : "Inactivo",
+            servicio.publicado ? (servicio.activo ? "Publicado" : "Publicación en pausa") : "Uso interno"
         ];
 
         // Muestra los datos como texto, sin interpretarlos como HTML.
@@ -391,9 +417,12 @@ function mostrarServicios() {
             servicioEditar = servicio;
             modal.show();
         }));
-        const visibilidad = crearBoton(servicio.publicado ? "Ocultar" : "Publicar", () => abrirVisibilidad(servicio));
+        const visibilidad = crearBoton(servicio.publicado ? "Ocultar" : "Publicar", () => abrirCambioServicio(servicio, "publicado"));
         visibilidad.disabled = !servicio.activo && !servicio.publicado;
         acciones.append(visibilidad);
+        const estado = crearBoton(servicio.activo ? "Desactivar" : "Reactivar", () => abrirCambioServicio(servicio, "activo"));
+        if (servicio.activo) estado.classList.replace("btn-outline-primary", "btn-outline-danger");
+        acciones.append(estado);
         fila.append(acciones);
         tablaServicios.appendChild(fila);
     }
@@ -435,7 +464,8 @@ async function prepararFormulario(evento) {
     }
 
     mostrarMensaje(mensajePagina, "");
-    mostrarMensaje(mensajeFormulario, "Cargando proveedores...", "info");
+    mostrarMensaje(mensajeFormulario, "Cargando proveedores y destinos…", "info");
+    destinosServicio.replaceChildren();
 
     proveedor.replaceChildren(new Option("Seleccioná un proveedor", ""));
     proveedor.disabled = true;
@@ -443,7 +473,22 @@ async function prepararFormulario(evento) {
     cargando = true;
 
     try {
-        const proveedores = await consultarAPI(API.PROVEEDORES);
+        const [proveedores, destinos] = await Promise.all([
+            consultarAPI(API.PROVEEDORES), consultarAPI(API.DESTINOS)
+        ]);
+        if (!destinos.length) throw new Error("Registrá un destino antes de guardar el servicio.");
+        for (const destino of destinos) {
+            const etiqueta = document.createElement("label");
+            etiqueta.className = "d-flex align-items-center gap-2 mb-1";
+            const casilla = document.createElement("input");
+            casilla.type = "checkbox";
+            casilla.name = "destinos";
+            casilla.value = destino._id;
+            casilla.className = "form-check-input mt-0";
+            casilla.checked = servicioEditar?.destinos?.includes(destino._id) ?? false;
+            etiqueta.append(casilla, destino.nombre + (destino.activo ? "" : " (inactivo)"));
+            destinosServicio.append(etiqueta);
+        }
 
         if (!Array.isArray(proveedores)) {
             throw new Error("No se recibió un listado válido de proveedores.");
@@ -496,9 +541,14 @@ async function guardarServicio(evento) {
         nombre: nombre.value.trim(),
         tipo: tipo.value.trim(),
         descripcion: descripcion.value.trim(),
-        proveedor: proveedor.value
+        proveedor: proveedor.value,
+        destinos: new FormData(formulario).getAll("destinos")
     };
 
+    if (!datos.destinos.length) {
+        mostrarMensaje(mensajeFormulario, "Seleccioná al menos un destino.");
+        return;
+    }
     if (Object.values(datos).some((valor) => !valor)) {
         mostrarMensaje(
             mensajeFormulario,
@@ -568,6 +618,8 @@ export async function iniciarServicios(rol) {
         }
     }
     await cargaCatalogo;
+    const id = new URLSearchParams(location.search).get("servicio");
+    if (id && /^[a-fA-F0-9]{24}$/.test(id)) await abrirDetalle(id);
 }
 
 elementoModal.addEventListener("show.bs.modal", prepararFormulario);
@@ -579,7 +631,6 @@ elementoModal.addEventListener("hide.bs.modal", (evento) => {
 
 formulario.addEventListener("submit", guardarServicio);
 buscarServicio.addEventListener("input", mostrarServicios);
-buscarCatalogo.addEventListener("input", mostrarCatalogo);
 botonNuevo.addEventListener("click", () => { servicioEditar = null; });
 botonConfirmar.addEventListener("click", confirmarVisibilidad);
 elementoVisibilidad.addEventListener("hide.bs.modal", evento => {
@@ -590,7 +641,6 @@ elementoDetalle.addEventListener("hide.bs.modal", () => {
     servicioDetalle = null;
 });
 document.getElementById("tab-favoritos").addEventListener("shown.bs.tab", () => {
-    document.getElementById("favoritoRetirado").hidden = true;
     if (!cambiandoFavorito) cargarFavoritos();
 });
 botonFavoritoDetalle.addEventListener("click", () => {

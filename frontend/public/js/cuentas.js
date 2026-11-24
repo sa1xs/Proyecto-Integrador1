@@ -12,7 +12,7 @@ const textoModal = document.getElementById("textoEstadoCuenta");
 const mensajeModal = document.getElementById("mensajeEstadoCuenta");
 const botonConfirmar = document.getElementById("btnConfirmarEstadoCuenta");
 
-let cuentas = [];
+let cuentas = null;
 let cuentaSeleccionada = null;
 
 function mostrarMensaje(elemento, texto, tipo = "danger") {
@@ -64,6 +64,7 @@ async function consultarAPI(url, metodo = "GET", datos = null) {
 }
 
 function mostrarCuentas() {
+    if (!cuentas) return;
     const busqueda = buscador.value.trim().toLowerCase();
 
     const filtradas = cuentas.filter((cuenta) =>
@@ -74,6 +75,8 @@ function mostrarCuentas() {
 
     tabla.replaceChildren();
     sinCuentas.hidden = filtradas.length !== 0;
+    sinCuentas.textContent = cuentas.length ? "No hay cuentas que coincidan con la búsqueda."
+        : "No hay cuentas registradas.";
 
     for (const cuenta of filtradas) {
         const fila = document.createElement("tr");

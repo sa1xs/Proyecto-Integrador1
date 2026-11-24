@@ -13,44 +13,65 @@
     <main id="contenidoPrincipal" class="container-fluid px-3 px-md-5 py-4">
         <h1 class="mb-4">Destinos turísticos</h1>
         <div id="mensajePagina" class="alert alert-success" role="status" hidden></div>
+        <p id="estadoDestinoFavorito" class="visually-hidden" role="status"></p>
     <div class="nav nav-tabs mb-4" role="tablist" aria-label="Vistas de destinos">
         <button id="tabCatalogoDestinos" class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#catalogoDestinos"
-            aria-controls="catalogoDestinos" aria-selected="true">Explorar destinos</button>
+            aria-controls="catalogoDestinos" aria-selected="true">Catálogo</button>
+        <button id="tabDestinosFavoritos" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#destinosFavoritos"
+            aria-controls="destinosFavoritos" aria-selected="false" hidden>Mis favoritos</button>
         <button id="tabAdminDestinos" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#administracionDestinos" hidden
             aria-controls="administracionDestinos" aria-selected="false">Administración</button>
     </div>
     <div class="tab-content">
         <section id="catalogoDestinos" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tabCatalogoDestinos">
-            <h2 class="h4">Explorar destinos</h2>
         <p id="catalogoDestinosCarga" class="alert alert-info" role="status" hidden>Cargando los destinos…</p>
         <p id="catalogoDestinosError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los destinos. Intentá nuevamente.</p>
-            <div id="tarjetasDestinos" class="row g-3 mt-0"></div>
+            <p id="errorFavoritoDestinoCatalogo" class="alert alert-danger" role="alert" hidden></p>
+            <div id="tarjetasDestinos" class="row g-3"></div>
             <p id="sinDestinosPublicos" class="text-secondary mt-3" hidden>No hay destinos disponibles para mostrar.</p>
             <template id="tarjetaDestino">
-                <div class="col-sm-6 col-lg-4"><article class="card h-100"><div class="card-body">
-                    <h3 class="h5" data-campo="nombre"></h3><p data-campo="pais" class="text-secondary"></p>
-                    <p data-campo="descripcion" class="text-break"></p>
-                    <button type="button" class="btn btn-outline-primary" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleDestino">Ver destino</button>
-                </div></article></div>
+                <div class="col-sm-6 col-lg-4"><article class="card card-body h-100">
+                    <h2 class="h5" data-campo="nombre"></h2>
+                    <p class="text-secondary" data-campo="pais"></p>
+                    <p class="descripcion-tarjeta text-break" data-campo="descripcion"></p>
+                    <div class="d-flex flex-wrap gap-2 mt-auto">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleDestino">Ver detalle</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-accion="favorito" hidden disabled>Guardar</button>
+                    </div>
+                </article></div>
             </template>
+        </section>
+        <section id="destinosFavoritos" class="tab-pane fade" role="tabpanel" aria-labelledby="tabDestinosFavoritos" hidden>
+            <p id="cargandoDestinosFavoritos" class="alert alert-info" role="status" hidden>Cargando tus favoritos…</p>
+            <p id="errorDestinosFavoritos" class="alert alert-danger" role="alert" hidden></p>
+            <div id="tarjetasDestinosFavoritos" class="row g-3"></div>
+            <p id="sinDestinosFavoritos" class="text-secondary" hidden>No hay destinos favoritos. Podés guardarlos desde el catálogo.</p>
         </section>
         <section id="administracionDestinos" class="tab-pane fade" role="tabpanel" aria-labelledby="tabAdminDestinos" hidden>
             <div class="d-flex flex-wrap justify-content-between gap-3 mb-3"><h2 class="h4">Administrar destinos</h2>
                 <button type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#formularioDestinoModal">Nuevo destino</button>
             </div>
             <p class="text-secondary">Los destinos desactivados permanecen registrados y no aparecen en el catálogo público.</p>
+            <div class="mb-3">
+                <label for="buscarDestino" class="form-label">Buscar por nombre o país</label>
+                <div class="d-flex gap-2">
+                    <input id="buscarDestino" type="search" class="form-control">
+                    <button type="button" class="btn btn-outline-secondary" data-limpiar-busqueda="buscarDestino">Limpiar</button>
+                </div>
+            </div>
         <p id="adminDestinosCarga" class="alert alert-info" role="status" hidden>Cargando los destinos…</p>
         <p id="adminDestinosError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar los destinos. Intentá nuevamente.</p>
             <div class="table-responsive"><table class="table align-middle">
-                <thead><tr><th scope="col">Nombre</th><th scope="col">País</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+                <thead><tr><th scope="col">Nombre</th><th scope="col">País</th><th scope="col">Estado</th><th scope="col">Visibilidad</th><th scope="col">Acciones</th></tr></thead>
                 <tbody id="filasDestinos"></tbody>
             </table></div>
             <p id="sinDestinosAdmin" class="text-secondary" hidden>No hay destinos registrados.</p>
+            <p id="sinCoincidenciasDestinos" class="text-secondary" hidden>No hay destinos que coincidan con la búsqueda.</p>
             <template id="filaDestino">
-                <tr><td data-campo="nombre"></td><td data-campo="pais"></td><td data-campo="estado"></td>
+                <tr><td data-campo="nombre"></td><td data-campo="pais"></td><td data-campo="estado"></td><td data-campo="visibilidad"></td>
                     <td><div class="d-flex flex-wrap gap-2">
-                        <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleDestino">Consultar</button>
-                        <button type="button" class="btn btn-outline-secondary btn-sm" data-accion="editar" data-bs-toggle="modal" data-bs-target="#formularioDestinoModal">Editar</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-accion="editar" data-bs-toggle="modal" data-bs-target="#formularioDestinoModal">Editar</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-accion="visibilidad" data-bs-toggle="modal" data-bs-target="#visibilidadDestino">Publicar</button>
                         <button type="button" class="btn btn-outline-danger btn-sm" data-accion="desactivar" data-bs-toggle="modal" data-bs-target="#desactivarDestino">Desactivar</button>
                         <button type="button" class="btn btn-outline-primary btn-sm" data-accion="reactivar" data-bs-toggle="modal" data-bs-target="#reactivarDestino" hidden>Reactivar</button>
                     </div></td>
@@ -71,9 +92,35 @@
                     <dt>País</dt><dd id="detalleDestinoPais">—</dd>
                     <dt>Descripción</dt><dd id="detalleDestinoDescripcion" class="text-break">—</dd>
                 </dl>
+                <section id="serviciosDetalleDestino" class="border-top pt-3 mb-3" aria-labelledby="tituloServiciosDetalleDestino" hidden>
+                    <h3 id="tituloServiciosDetalleDestino" class="h6">Servicios en este destino</h3>
+                    <p id="estadoServiciosDetalleDestino" class="text-secondary mb-0" role="status" hidden></p>
+                    <ul id="listaServiciosDetalleDestino" class="list-group list-group-flush"></ul>
+                </section>
+                <div id="accionesFavoritoDestino" class="border-top pt-3" hidden>
+                    <p id="errorFavoritoDestinoDetalle" class="alert alert-danger" role="alert" hidden></p>
+                    <button id="btnFavoritoDestinoDetalle" type="button" class="btn btn-outline-primary btn-sm" disabled>Guardar</button>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <a id="solicitarCotizacionDestino" class="btn btn-azul" hidden>Solicitar cotización</a>
+            </div>
+        </div></div>
+    </div>
+    <div id="quitarDestinoFavorito" class="modal fade" tabindex="-1" aria-labelledby="tituloQuitarDestinoFavorito" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+            <div class="modal-header">
+                <h2 id="tituloQuitarDestinoFavorito" class="modal-title fs-5">Quitar de favoritos</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Querés quitar <strong id="nombreDestinoFavorito"></strong> de tus favoritos?</p>
+                <p id="errorQuitarDestinoFavorito" class="alert alert-danger" role="alert" hidden></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnQuitarDestinoFavorito" type="button" class="btn btn-danger">Quitar de favoritos</button>
             </div>
         </div></div>
     </div>
@@ -128,7 +175,7 @@
             </div>
             <div class="modal-body">
                 <p>¿Querés reactivar <strong id="nombreReactivarDestino"></strong>?</p>
-                <p>Volverá a estar disponible en el catálogo público.</p>
+                <p>Volverá al catálogo si estaba publicado antes de desactivarlo.</p>
                 <p id="errorReactivarDestino" class="alert alert-danger" role="alert" hidden>No se pudo reactivar el destino.</p>
             </div>
             <div class="modal-footer">
@@ -138,6 +185,22 @@
         </div></div>
     </div>
 
+    <div id="visibilidadDestino" class="modal fade" tabindex="-1" aria-labelledby="visibilidadDestinoTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+            <div class="modal-header">
+                <h2 id="visibilidadDestinoTitulo" class="modal-title fs-5">Cambiar visibilidad</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="nombreVisibilidadDestino"></p>
+                <p id="errorVisibilidadDestino" class="alert alert-danger" role="alert" hidden></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnVisibilidadDestino" type="button" class="btn btn-azul" disabled>Confirmar</button>
+            </div>
+        </div></div>
+    </div>
     </main>
     <footer class="pie-pagina px-3 px-md-5 py-3"><p class="mb-0">LSCT · Solicitudes y cotizaciones turísticas</p></footer>
 

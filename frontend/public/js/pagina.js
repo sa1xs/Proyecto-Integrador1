@@ -11,6 +11,16 @@ const modulos = {
 
 if (contexto.cargar && modulos[pagina]) {
     const modulo = await import(modulos[pagina]);
+    for (const boton of document.querySelectorAll("[data-limpiar-busqueda]")) {
+        const buscador = document.getElementById(boton.dataset.limpiarBusqueda);
+        boton.addEventListener("click", () => {
+            buscador.value = "";
+            if (buscador.disabled) return;
+            buscador.dispatchEvent(new Event("input", { bubbles: true }));
+            buscador.focus();
+        });
+    }
+    if (pagina === "clientes") await modulo.iniciarClientes(contexto.rol);
     if (pagina === "servicios") await modulo.iniciarServicios(contexto.rol);
     if (pagina === "cotizaciones") await modulo.iniciarCotizaciones(contexto.rol);
     if (pagina === "destinos") await modulo.iniciarDestinos(contexto.rol);

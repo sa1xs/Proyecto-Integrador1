@@ -1,4 +1,5 @@
 import { API } from "./config.js";
+import { leerReferenciaSolicitud, rutaConReferenciaSolicitud } from "./referenciaSolicitud.js";
 
 const formulario = document.getElementById("formularioLogin");
 const mensaje = document.getElementById("mensajeLogin");
@@ -67,9 +68,9 @@ formulario.addEventListener("submit", async (evento) => {
         if (rol === "administrador") {
             window.location.replace("/views/cuentas.html");
         } else if (rol === "cliente") {
-            const servicio = new URLSearchParams(location.search).get("servicio");
-            window.location.replace(servicio && /^[a-fA-F0-9]{24}$/.test(servicio)
-                ? `/views/solicitudes.html?${new URLSearchParams({ servicio })}`
+            const referencia = leerReferenciaSolicitud(location.search);
+            window.location.replace(referencia
+                ? rutaConReferenciaSolicitud("solicitudes", referencia)
                 : "/views/clientes.html");
         } else {
             throw new Error("La API devolvió un rol no reconocido.");

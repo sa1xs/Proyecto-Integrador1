@@ -22,6 +22,7 @@ const ServicioSchema = new mongoose.Schema(
             ref: "Proveedor",
             required: [true, "El proveedor es obligatorio"]
         },
+        destinos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Destino" }],
         activo: {
             type: Boolean,
             default: true,
@@ -34,7 +35,8 @@ const ServicioSchema = new mongoose.Schema(
         }
     },
     {
-        timestamps: true
+        timestamps: true,
+        optimisticConcurrency: true
     }
 );
 

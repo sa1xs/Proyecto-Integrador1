@@ -2,8 +2,8 @@ const Cotizacion = require("../models/Cotizacion");
 const Solicitud = require("../models/Solicitud");
 const Servicio = require("../models/Servicio");
 const Usuario = require("../models/Usuario");
+const { idValido, validarSeleccion } = require("./seleccionSolicitud");
 
-const idValido = id => typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
 const estados = ["Borrador", "Publicada", "Aceptada", "Rechazada"];
 const estadosCliente = estados.slice(1);
 const camposComerciales = [
@@ -33,9 +33,14 @@ async function validarSolicitud(solicitud) {
     if (!solicitud.destino?.trim() || !solicitud.viajeros?.length) {
         rechazar(400, "La solicitud debe tener destino, fechas y viajeros completos");
     }
+    if (!solicitud.destinoId || !solicitud.servicioId) {
+        rechazar(409, "Vinculá el destino y el servicio principal de la solicitud desde el editor");
+    }
+    const seleccion = await validarSeleccion(String(solicitud.destinoId), String(solicitud.servicioId), false);
+    if (seleccion.error) rechazar(409, seleccion.error);
 }
 
-async function prepararPartidas(partidas) {
+async function prepararPartidas(partidas, destinoId) {
     if (!Array.isArray(partidas)) rechazar(400, "Partidas debe ser una lista");
     for (const partida of partidas) {
         if (!cuerpoValido(partida, ["servicio", "cantidad", "precio"], ["servicio", "cantidad", "precio"])) {
@@ -56,6 +61,9 @@ async function prepararPartidas(partidas) {
         // Un servicio oculto puede cotizarse internamente si sigue activo.
         if (!servicio.activo || !servicio.proveedor?.activo) {
             rechazar(409, "Todos los servicios y sus proveedores deben estar activos");
+        }
+        if (!servicio.destinos.some(id => id.equals(destinoId))) {
+            rechazar(409, "Todos los servicios deben corresponder al destino de la solicitud");
         }
         resultado.push({ servicio: servicio._id, nombre: servicio.nombre, tipo: servicio.tipo,
             descripcion: servicio.descripcion, cantidad: partida.cantidad, precio: partida.precio });
@@ -85,7 +93,7 @@ const crearCotizacion = operacion(async (req, res) => {
     if (solicitud.cotizacion) rechazar(409, "La solicitud ya tiene una cotización");
     const cliente = await Usuario.findById(solicitud.cliente);
     if (!cliente || !cliente.activo || cliente.rol !== "cliente") rechazar(409, "El cliente no está disponible");
-    const partidas = await prepararPartidas(req.body.partidas === undefined ? [] : req.body.partidas);
+    const partidas = await prepararPartidas(req.body.partidas === undefined ? [] : req.body.partidas, solicitud.destinoId);
     const cotizacion = new Cotizacion({ solicitud: solicitud._id, cliente: solicitud.cliente, partidas });
     await cotizacion.save();
     try {
@@ -153,9 +161,36 @@ const actualizarCotizacion = operacion(async (req, res) => {
     await validarSolicitud(solicitud);
     if (String(solicitud.cotizacion) !== String(cotizacion._id) ||
         String(solicitud.cliente) !== String(cotizacion.cliente)) rechazar(409, "Las referencias de la cotización no coinciden");
-    cotizacion.partidas = await prepararPartidas(req.body.partidas);
+    cotizacion.partidas = await prepararPartidas(req.body.partidas, solicitud.destinoId);
     await cotizacion.save();
     res.json({ mensaje: "Borrador actualizado", datos: cotizacion });
+});
+
+const eliminarCotizacion = operacion(async (req, res) => {
+    validarId(req.params.id);
+    const cotizacion = await Cotizacion.findById(req.params.id);
+    if (!cotizacion) rechazar(404, "Cotización no encontrada");
+    if (cotizacion.estado !== "Borrador") rechazar(409, "Solo podés eliminar una cotización en Borrador");
+
+    // Desvincula antes de borrar para que una publicación simultánea falle al guardar la solicitud.
+    // El marcador permite reintentar si el borrado se interrumpe después de desvincular.
+    const solicitud = await Solicitud.findOneAndUpdate({
+        _id: cotizacion.solicitud,
+        cliente: cotizacion.cliente,
+        estado: "En cotización",
+        $or: [
+            { cotizacion: cotizacion._id },
+            { cotizacion: { $exists: false }, borradorDesvinculado: cotizacion._id }
+        ]
+    }, {
+        $unset: { cotizacion: 1 },
+        $set: { borradorDesvinculado: cotizacion._id },
+        $inc: { __v: 1 }
+    });
+    if (!solicitud) rechazar(409, "No se pudo desvincular el borrador de la solicitud");
+
+    await Cotizacion.deleteOne({ _id: cotizacion._id, estado: "Borrador" });
+    res.json({ mensaje: "Borrador eliminado" });
 });
 
 const publicarCotizacion = operacion(async (req, res) => {
@@ -169,10 +204,12 @@ const publicarCotizacion = operacion(async (req, res) => {
     await validarSolicitud(solicitud);
     if (String(solicitud.cotizacion) !== String(cotizacion._id) ||
         String(solicitud.cliente) !== String(cotizacion.cliente)) rechazar(409, "Las referencias de la cotización no coinciden");
-    if (!cotizacion.partidas.length) rechazar(400, "Agregá al menos una partida antes de publicar");
+    if (!cotizacion.partidas.some(partida => partida.servicio.equals(solicitud.servicioId))) {
+        rechazar(409, "Incluí el servicio principal solicitado antes de publicar");
+    }
     const cliente = await Usuario.findById(cotizacion.cliente);
     if (!cliente || !cliente.activo || cliente.rol !== "cliente") rechazar(409, "El cliente no está disponible");
-    await prepararPartidas(cotizacion.partidas.map(p => ({ servicio: String(p.servicio), cantidad: p.cantidad, precio: p.precio })));
+    await prepararPartidas(cotizacion.partidas.map(p => ({ servicio: String(p.servicio), cantidad: p.cantidad, precio: p.precio })), solicitud.destinoId);
     cotizacion.estado = "Publicada";
     cotizacion.fechaPublicacion = new Date();
     await cotizacion.validate();
@@ -213,4 +250,4 @@ const responderCotizacion = operacion(async (req, res) => {
 });
 
 module.exports = { crearCotizacion, obtenerCotizaciones, obtenerCotizacion,
-    actualizarCotizacion, publicarCotizacion, responderCotizacion };
+    actualizarCotizacion, eliminarCotizacion, publicarCotizacion, responderCotizacion };

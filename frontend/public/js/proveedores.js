@@ -3,9 +3,8 @@ import { API } from "./config.js";
 
 // null == estamos registrando, no editando.
 let numeroListado = 0;
-const filtrosProveedores = document.getElementById("filtrosProveedores");
-const buscarNombre = document.getElementById("buscarNombreProveedor");
-const buscarTipo = document.getElementById("buscarTipoProveedor");
+let proveedores = null;
+const buscarProveedor = document.getElementById("buscarProveedor");
 let idEnEdicion = null;
 let proveedorSeleccionado = null;
 
@@ -127,39 +126,39 @@ async function consultarAPI(url, metodo = "GET", datos = null) {
 
 async function cargarProveedores() {
   const numero = ++numeroListado;
-  const parametros = new URLSearchParams({
-    nombre: buscarNombre.value.trim(),
-    tipoServicio: buscarTipo.value.trim()
-  });
-  let proveedores;
   try {
-    proveedores = await consultarAPI(`${API.PROVEEDORES}?${parametros}`);
+    const resultado = await consultarAPI(API.PROVEEDORES);
+    if (numero !== numeroListado) return;
+    if (!Array.isArray(resultado)) throw new Error("No se recibió un listado válido.");
+    proveedores = resultado;
+    mostrarProveedores();
   } catch (error) {
     if (numero !== numeroListado) return;
+    proveedores = null;
     tabla.replaceChildren();
     throw error;
   }
-  // Ignora respuestas de búsquedas anteriores que llegaron tarde.
-  if (numero !== numeroListado) return;
+}
 
-  if (!Array.isArray(proveedores)) {
-    throw new Error("No se recibió un listado válido.");
-  }
-
+function mostrarProveedores() {
+  if (!proveedores) return;
+  const texto = buscarProveedor.value.trim().toLocaleLowerCase();
+  const resultados = proveedores.filter(proveedor => [proveedor.nombre, proveedor.tipoServicio]
+    .some(valor => String(valor ?? "").toLocaleLowerCase().includes(texto)));
   tabla.replaceChildren();
 
-  if (proveedores.length === 0) {
+  if (resultados.length === 0) {
     tabla.innerHTML = `
             <tr>
                 <td colspan="5" class="text-center text-secondary py-4">
-                    No se encontraron proveedores.
+                    ${proveedores.length ? "No hay proveedores que coincidan con la búsqueda." : "No hay proveedores registrados."}
                 </td>
             </tr>
         `;
     return;
   }
 
-  for (const proveedor of proveedores) {
+  for (const proveedor of resultados) {
     const fila = document.createElement("tr");
 
     fila.innerHTML = `
@@ -366,19 +365,4 @@ cargarProveedores().catch((error) => {
 });
 
 
-async function aplicarFiltros(evento) {
-  evento.preventDefault();
-  if (evento.type === "reset") {
-    buscarNombre.value = "";
-    buscarTipo.value = "";
-  }
-  mostrarMensaje(mensajeListado, "");
-  try {
-    await cargarProveedores();
-  } catch (error) {
-    mostrarMensaje(mensajeListado, error.message);
-  }
-}
-
-filtrosProveedores.addEventListener("submit", aplicarFiltros);
-filtrosProveedores.addEventListener("reset", aplicarFiltros);
+buscarProveedor.addEventListener("input", mostrarProveedores);

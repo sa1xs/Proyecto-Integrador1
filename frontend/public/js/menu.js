@@ -1,4 +1,5 @@
 import { API } from "./config.js";
+import { leerReferenciaSolicitud, rutaConReferenciaSolicitud } from "./referenciaSolicitud.js";
 
 const paginasPublicas = ["login", "registro", "servicios", "destinos"];
 const paginasAdmin = ["cuentas", "proveedores", "reportes"];
@@ -25,12 +26,16 @@ export function aplicarRol(rol) {
     [
       "cliente",
       [
+        "tab-perfil",
+        "perfil",
         "tab-nueva",
         "nueva",
         "tab-mis-solicitudes",
         "misSolicitudes",
         "tab-favoritos",
         "misFavoritos",
+        "tabDestinosFavoritos",
+        "destinosFavoritos",
         "tabMisCotizaciones",
         "misCotizaciones",
         "tabMisConsultas",
@@ -91,7 +96,7 @@ export async function iniciarMenu() {
   ];
   if (rol !== "visitante")
     enlaces.push(
-      ["clientes", "Mi perfil"],
+      ["clientes", rol === "administrador" ? "Clientes" : "Mi perfil"],
       ["solicitudes", "Solicitudes"],
       ["cotizaciones", "Cotizaciones"],
       ["consultas", "Consultas"],
@@ -130,9 +135,8 @@ export async function iniciarMenu() {
       : rol !== "visitante");
   aplicarRol(rol);
   if (!permitida && disponible) {
-    const servicio = pagina === "solicitudes" ? new URLSearchParams(location.search).get("servicio") : null;
-    const acceso = servicio && /^[a-fA-F0-9]{24}$/.test(servicio)
-      ? `/views/login.html?${new URLSearchParams({ servicio })}` : "/views/login.html";
+    const referencia = pagina === "solicitudes" ? leerReferenciaSolicitud(location.search) : null;
+    const acceso = referencia ? rutaConReferenciaSolicitud("login", referencia) : "/views/login.html";
     location.replace(
       rol === "visitante" ? acceso : "/views/clientes.html",
     );

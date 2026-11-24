@@ -19,8 +19,13 @@
 
         <div id="mensajePagina" class="d-none" role="status" aria-live="polite"></div>
 
-        <label for="buscarCuenta" class="form-label">Buscar por nombre, correo o rol</label>
-        <input id="buscarCuenta" type="search" class="form-control mb-3">
+        <div class="mb-3">
+            <label for="buscarCuenta" class="form-label">Buscar por nombre, correo o rol</label>
+            <div class="d-flex gap-2">
+                <input id="buscarCuenta" type="search" class="form-control">
+                <button type="button" class="btn btn-outline-secondary" data-limpiar-busqueda="buscarCuenta">Limpiar</button>
+            </div>
+        </div>
 
         <div class="table-responsive">
             <table class="table align-middle">

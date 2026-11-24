@@ -1,5 +1,6 @@
 const Usuario = require("../models/Usuario");
 const bcrypt = require("bcrypt");
+const formatoId = /^[a-fA-F0-9]{24}$/;
 let cambioEstadoEnCurso = false;
 
 //GET.
@@ -40,6 +41,9 @@ const obtenerUsuarios = async (req, res, next) => {
           { correo: coincidencia },
           { telefono: coincidencia },
         ];
+        if (formatoId.test(texto)) {
+          filtros.$or.push({ _id: texto });
+        }
       }
     }
 
@@ -58,7 +62,7 @@ const obtenerUsuarioPorId = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+    if (!formatoId.test(id)) {
       return res.status(400).json({
         message: "El identificador del usuario no es válido",
       });
@@ -177,7 +181,7 @@ const cambiarEstadoUsuario = async (req, res, next) => {
     const { id } = req.params;
     const { activo } = req.body ?? {};
 
-    if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+    if (!formatoId.test(id)) {
       return res.status(400).json({
         message: "El identificador del usuario no es válido",
       });

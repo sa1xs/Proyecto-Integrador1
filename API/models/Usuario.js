@@ -36,6 +36,12 @@ const UsuarioSchema = new mongoose.Schema({
         select: false,
         validate: valores => Array.isArray(valores) && new Set(valores.map(String)).size === valores.length
     },
+    destinosFavoritos: {
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Destino' }],
+        default: [],
+        select: false,
+        validate: valores => Array.isArray(valores) && new Set(valores.map(String)).size === valores.length
+    },
     rol: {
         type: String,
         enum: ['cliente', 'administrador'],

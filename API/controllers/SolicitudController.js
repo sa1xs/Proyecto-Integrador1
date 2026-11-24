@@ -1,13 +1,12 @@
 const Solicitud = require("../models/Solicitud");
 const { fechaValida } = Solicitud;
+const { idValido, validarSeleccion } = require("./seleccionSolicitud");
 
-const camposEditables = ["destino", "fechaSalida", "fechaRegreso", "cantidadViajeros", "edades"];
+const camposEditables = ["destinoId", "servicioId", "fechaSalida", "fechaRegreso", "cantidadViajeros", "edades"];
 const estados = ["Nueva", "En cotización", "Cotizada"];
-const camposCliente = "cliente destino fechaSalida fechaRegreso cantidadViajeros edades estado cotizacion viajeros createdAt updatedAt";
-const idValido = (id) => typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id);
+const camposCliente = "cliente destino destinoId servicioId servicioSolicitado destinoOriginal fechaSalida fechaRegreso cantidadViajeros edades estado cotizacion viajeros createdAt updatedAt";
 
-function validarDatos({ destino, fechaSalida, fechaRegreso, cantidadViajeros, edades }) {
-    if (typeof destino !== "string" || !destino.trim()) return "El destino es obligatorio";
+function validarDatos({ fechaSalida, fechaRegreso, cantidadViajeros, edades }) {
     if (!fechaValida(fechaSalida) || !fechaValida(fechaRegreso) || fechaRegreso < fechaSalida) {
         return "Indicá fechas válidas; el regreso no puede ser anterior a la salida";
     }
@@ -21,11 +20,13 @@ function validarDatos({ destino, fechaSalida, fechaRegreso, cantidadViajeros, ed
 
 const crearSolicitud = async (req, res, next) => {
     try {
-        const { destino, fechaSalida, fechaRegreso, cantidadViajeros, edades } = req.body ?? {};
-        const error = validarDatos({ destino, fechaSalida, fechaRegreso, cantidadViajeros, edades });
+        const { destinoId, servicioId, fechaSalida, fechaRegreso, cantidadViajeros, edades } = req.body ?? {};
+        const error = validarDatos({ fechaSalida, fechaRegreso, cantidadViajeros, edades });
         if (error) return res.status(400).json({ message: error });
+        const seleccion = await validarSeleccion(destinoId, servicioId);
+        if (seleccion.error) return res.status(400).json({ message: seleccion.error });
         const solicitud = await Solicitud.create({
-            cliente: req.usuario._id, destino: destino.trim(), fechaSalida,
+            cliente: req.usuario._id, ...seleccion.datos, fechaSalida,
             fechaRegreso, cantidadViajeros, edades, estado: "Nueva"
         });
         return res.status(201).json({ mensaje: "Solicitud registrada", datos: solicitud });
@@ -92,7 +93,7 @@ const actualizarSolicitud = async (req, res, next) => {
         const body = req.body;
         if (!body || Array.isArray(body) || typeof body !== "object" || !Object.keys(body).length ||
             Object.keys(body).some((campo) => !camposEditables.includes(campo))) {
-            return res.status(400).json({ message: "Enviá únicamente destino, fechas, cantidad de viajeros o edades para editar" });
+            return res.status(400).json({ message: "Enviá únicamente destino, servicio principal, fechas, cantidad de viajeros o edades para editar" });
         }
         const solicitud = await Solicitud.findOne({ _id: req.params.id, cliente: req.usuario._id })
             .select(`${camposCliente} __v`);
@@ -104,7 +105,12 @@ const actualizarSolicitud = async (req, res, next) => {
         Object.assign(datos, body);
         const error = validarDatos(datos);
         if (error) return res.status(400).json({ message: error });
-        datos.destino = datos.destino.trim();
+        if (!solicitud.destinoId || !solicitud.servicioId || body.destinoId !== undefined || body.servicioId !== undefined) {
+            const seleccion = await validarSeleccion(body.destinoId, body.servicioId);
+            if (seleccion.error) return res.status(400).json({ message: seleccion.error });
+            if (!solicitud.destinoId || !solicitud.servicioId) solicitud.destinoOriginal ||= solicitud.destino;
+            Object.assign(datos, seleccion.datos);
+        }
         Object.assign(solicitud, datos);
         if (body.edades !== undefined || body.cantidadViajeros !== undefined) {
             solicitud.actualizarComposicion(datos.edades);
@@ -135,4 +141,24 @@ const cambiarEstadoSolicitud = async (req, res, next) => {
     } catch (error) { return next(error); }
 };
 
-module.exports = { crearSolicitud, obtenerSolicitudes, obtenerSolicitud, actualizarSolicitud, cambiarEstadoSolicitud };
+const vincularSolicitud = async (req, res, next) => {
+    try {
+        if (!idValido(req.params.id)) {
+            return res.status(400).json({ message: "El identificador de la solicitud no es válido" });
+        }
+        const solicitud = await Solicitud.findById(req.params.id);
+        if (!solicitud) return res.status(404).json({ message: "Solicitud no encontrada" });
+        if (solicitud.estado !== "En cotización" || (solicitud.destinoId && solicitud.servicioId)) {
+            return res.status(409).json({ message: "Solo se pueden vincular solicitudes En cotización sin destino o servicio principal" });
+        }
+        const { destinoId, servicioId } = req.body ?? {};
+        const seleccion = await validarSeleccion(destinoId, servicioId, false);
+        if (seleccion.error) return res.status(400).json({ message: seleccion.error });
+        solicitud.destinoOriginal ||= solicitud.destino;
+        Object.assign(solicitud, seleccion.datos);
+        await solicitud.save();
+        return res.json({ mensaje: "Solicitud vinculada", datos: solicitud });
+    } catch (error) { return next(error); }
+};
+
+module.exports = { crearSolicitud, obtenerSolicitudes, obtenerSolicitud, actualizarSolicitud, cambiarEstadoSolicitud, vincularSolicitud };

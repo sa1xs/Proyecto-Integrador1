@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { requiereSesion, requiereAdministrador } = require("../middleware/auth");
-const { crearSolicitud, obtenerSolicitudes, obtenerSolicitud, actualizarSolicitud, cambiarEstadoSolicitud } = require("../controllers/SolicitudController");
+const { crearSolicitud, obtenerSolicitudes, obtenerSolicitud, actualizarSolicitud, cambiarEstadoSolicitud, vincularSolicitud } = require("../controllers/SolicitudController");
 const { obtenerViajeros, crearViajero, actualizarViajero, retirarViajero } = require("../controllers/ViajeroController");
 const { registrarContacto, obtenerContactos } = require("../controllers/SeguimientoController");
 
@@ -22,6 +22,7 @@ router.get("/", obtenerSolicitudes);
 router.get("/:id", obtenerSolicitud);
 router.post("/", requiereCliente, crearSolicitud);
 router.put("/:id", requiereCliente, actualizarSolicitud);
+router.patch("/:id/vinculos", requiereAdministrador, vincularSolicitud);
 router.patch("/:id/estado", requiereAdministrador, cambiarEstadoSolicitud);
 
 module.exports = router;

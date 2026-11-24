@@ -6,6 +6,7 @@ const {
     obtenerServicios,
     actualizarServicio,
     cambiarVisibilidadServicio,
+    cambiarEstadoServicio,
     obtenerCatalogo,
     obtenerDetallePublico
 } = require("../controllers/ServicioController");
@@ -24,5 +25,6 @@ router.get("/", obtenerServicios);
 router.post("/", crearServicio);
 router.put("/:id", actualizarServicio);
 router.patch("/:id/visibilidad", cambiarVisibilidadServicio);
+router.patch("/:id/estado", cambiarEstadoServicio);
 
 module.exports = router;

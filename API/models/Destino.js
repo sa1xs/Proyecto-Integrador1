@@ -18,7 +18,11 @@ const DestinoSchema = new mongoose.Schema({
     nombre: textoObligatorio("nombre"),
     pais: textoObligatorio("pais"),
     descripcion: textoObligatorio("descripcion"),
-    activo: { type: Boolean, default: true, required: true }
+    activo: { type: Boolean, default: true, required: true },
+    publicado: { type: Boolean, default: true, required: true }
 }, { timestamps: true, optimisticConcurrency: true });
+
+// Los destinos anteriores al control de visibilidad ya aparecían en el catálogo.
+DestinoSchema.statics.filtroPublico = { activo: true, publicado: { $ne: false } };
 
 module.exports = mongoose.model("Destino", DestinoSchema);

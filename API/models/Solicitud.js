@@ -22,6 +22,10 @@ function fechaValida(valor) {
 const SolicitudSchema = new mongoose.Schema({
     cliente: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario", required: true },
     destino: { type: String, required: true, trim: true },
+    destinoId: { type: mongoose.Schema.Types.ObjectId, ref: "Destino" },
+    servicioId: { type: mongoose.Schema.Types.ObjectId, ref: "Servicio" },
+    servicioSolicitado: { type: String, trim: true },
+    destinoOriginal: { type: String, trim: true },
     fechaSalida: { type: String, required: true, validate: fechaValida },
     fechaRegreso: {
         type: String, required: true,
@@ -39,7 +43,8 @@ const SolicitudSchema = new mongoose.Schema({
     // Las notas comerciales se consultan solo desde las rutas administrativas.
     contactos: { type: [ContactoSchema], default: [], select: false },
     estado: { type: String, enum: ["Nueva", "En cotización", "Cotizada"], default: "Nueva", required: true },
-    cotizacion: { type: mongoose.Schema.Types.ObjectId, ref: "Cotizacion" }
+    cotizacion: { type: mongoose.Schema.Types.ObjectId, ref: "Cotizacion" },
+    borradorDesvinculado: { type: mongoose.Schema.Types.ObjectId, select: false }
 }, { timestamps: true, optimisticConcurrency: true });
 
 // Los registros anteriores obtienen IDs estables sin escribir durante una consulta.

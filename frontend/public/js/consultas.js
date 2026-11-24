@@ -17,6 +17,7 @@ const formatoFecha = new Intl.DateTimeFormat("es-CR", { dateStyle: "medium", tim
 let vista;
 let esAdministrador = false;
 let consultas = [];
+let nombresClientes = new Map();
 let consultaParaResponder = null;
 let respuestaPendiente = "";
 let enviandoRespuesta = false;
@@ -70,10 +71,19 @@ function mostrarListado() {
     const visibles = consultas.filter(consulta => !estado || consulta.estado === estado);
     for (const consulta of visibles) {
         const fila = elemento(vista.plantilla).content.firstElementChild.cloneNode(true);
-        const datos = { ...consulta, createdAt: fechaVisible(consulta.createdAt) };
+        const nombreCliente = nombresClientes.get(consulta.cliente);
+        const datos = {
+            ...consulta,
+            cliente: nombreCliente || "Cliente no disponible",
+            createdAt: fechaVisible(consulta.createdAt)
+        };
         fila.querySelectorAll("[data-campo]").forEach(campo => {
             campo.textContent = datos[campo.dataset.campo];
         });
+        if (nombreCliente) {
+            const enlace = fila.querySelector('[data-campo="cliente"]');
+            enlace.href = `/views/clientes.html?${new URLSearchParams({ cliente: consulta.cliente })}`;
+        }
         if (consulta.estado === "Respondida") {
             const insignia = fila.querySelector('[data-campo="estado"]');
             insignia.classList.replace("text-bg-secondary", "text-bg-success");
@@ -96,8 +106,12 @@ async function cargarConsultas() {
     elemento(vista.sinCoincidencias).hidden = true;
     mensaje(vista.error, "");
     try {
-        const resultado = await consultar(API.CONSULTAS);
+        const [resultado, clientes] = await Promise.all([
+            consultar(API.CONSULTAS),
+            esAdministrador ? consultar(`${API.USUARIOS}?rol=cliente`).catch(() => []) : []
+        ]);
         if (!Array.isArray(resultado)) throw new Error("No se recibió un listado válido de consultas.");
+        nombresClientes = new Map(Array.isArray(clientes) ? clientes.map(cliente => [cliente._id, cliente.nombre]) : []);
         consultas = resultado;
         mostrarListado();
         elemento(vista.filtro).disabled = false;

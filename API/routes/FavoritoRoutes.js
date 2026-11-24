@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { requiereSesion } = require("../middleware/auth");
-const { obtenerFavoritos, agregarFavorito, retirarFavorito } = require("../controllers/FavoritoController");
+const { obtenerFavoritos, agregarFavorito, retirarFavorito, destinos } = require("../controllers/FavoritoController");
 
 router.use(requiereSesion);
 router.use((req, res, next) => {
@@ -11,6 +11,9 @@ router.use((req, res, next) => {
 });
 router.get("/", obtenerFavoritos);
 router.post("/", agregarFavorito);
+router.get("/destinos", destinos.obtenerFavoritos);
+router.post("/destinos", destinos.agregarFavorito);
+router.delete("/destinos/:destinoId", destinos.retirarFavorito);
 router.delete("/:servicioId", retirarFavorito);
 
 module.exports = router;

@@ -21,7 +21,6 @@
     </div>
     <div class="tab-content">
         <section id="misCotizaciones" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tabMisCotizaciones">
-            <h2 class="h4">Mis cotizaciones</h2>
             <p class="text-secondary">Aquí recibís las ofertas con servicios y precios para aceptarlas o rechazarlas. Las solicitudes En cotización aparecerán cuando el administrador publique su oferta.</p>
             <p id="cotizacionesEnPreparacion" class="alert alert-info" role="status" hidden></p>
         <p id="misCotizacionesCarga" class="alert alert-info" role="status" hidden>Cargando tus cotizaciones…</p>
@@ -31,44 +30,56 @@
                 <option value="">Todos</option><option>Publicada</option><option>Aceptada</option><option>Rechazada</option>
             </select>
             <div class="table-responsive"><table class="table align-middle">
-                <thead><tr><th scope="col">Código</th><th scope="col">Solicitud</th><th scope="col">Total (CRC)</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+                <thead><tr><th scope="col">Destino</th><th scope="col">Total (CRC)</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
                 <tbody id="filasMisCotizaciones"></tbody>
             </table></div>
             <p id="sinMisCotizaciones" class="text-secondary">Todavía no tenés ofertas publicadas para consultar.</p>
             <p id="sinCoincidenciasCotizacionesCliente" class="text-secondary" hidden>No hay cotizaciones que coincidan con el filtro.</p>
             <template id="filaMiCotizacion"><tr>
-                <td data-campo="codigo"></td><td data-campo="solicitud"></td><td data-campo="total"></td><td data-campo="estado"></td>
+                <td data-campo="destino"></td>
+                <td data-campo="total"></td><td data-campo="estado"></td>
                 <td><button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleCotizacion">Ver cotización</button></td>
             </tr></template>
         </section>
         <section id="cotizacionesAdmin" class="tab-pane fade" role="tabpanel" aria-labelledby="tabCotizacionesAdmin">
-            <div class="d-flex flex-wrap justify-content-between gap-3 mb-3"><h2 class="h4">Administrar cotizaciones</h2>
-                <button id="btnNuevaCotizacion" type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#editorCotizacion" disabled>Nueva cotización</button>
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <p class="text-secondary mb-0">Elegí una solicitud en cotización, agregá los servicios y publicá la oferta.</p>
+                <button id="btnNuevaCotizacion" type="button" class="btn btn-azul ms-auto" data-bs-toggle="modal" data-bs-target="#editorCotizacion" disabled>Nueva cotización</button>
             </div>
             <p id="filtroClienteCotizaciones" class="alert alert-info" hidden>
                 Cotizaciones del cliente seleccionado.
                 <a href="/views/cotizaciones.html" class="alert-link">Ver todas</a>
             </p>
-            <p class="text-secondary">Creá un borrador para una solicitud En cotización. Solo los borradores admiten cambios.</p>
         <p id="cotizacionesAdminCarga" class="alert alert-info" role="status" hidden>Cargando las cotizaciones…</p>
         <p id="cotizacionesAdminError" class="alert alert-danger" role="alert" hidden>No se pudieron cargar las cotizaciones. Intentá nuevamente.</p>
+            <div class="mb-3">
+                <label for="buscarCotizacion" class="form-label">Buscar por código de solicitud o cotización, nombre o correo del cliente, o destino</label>
+                <div class="d-flex gap-2">
+                    <input id="buscarCotizacion" type="search" class="form-control">
+                    <button type="button" class="btn btn-outline-secondary" data-limpiar-busqueda="buscarCotizacion">Limpiar</button>
+                </div>
+            </div>
+
             <label for="filtroCotizacionesAdmin" class="form-label">Estado</label>
             <select id="filtroCotizacionesAdmin" class="form-select mb-3">
                 <option value="">Todos</option><option>Borrador</option><option>Publicada</option><option>Aceptada</option><option>Rechazada</option>
             </select>
             <div class="table-responsive"><table class="table align-middle">
-                <thead><tr><th scope="col">Código</th><th scope="col">Solicitud</th><th scope="col">Cliente</th><th scope="col">Total (CRC)</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+                <thead><tr><th scope="col">Cliente</th><th scope="col">Destino</th><th scope="col">Total (CRC)</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
                 <tbody id="filasCotizacionesAdmin"></tbody>
             </table></div>
-            <p id="sinCotizacionesAdmin" class="text-secondary">No hay cotizaciones para mostrar.</p>
-            <p id="sinCoincidenciasCotizacionesAdmin" class="text-secondary" hidden>No hay cotizaciones que coincidan con el filtro.</p>
+            <p id="sinCotizacionesAdmin" class="text-secondary" hidden>No hay cotizaciones para mostrar.</p>
+            <p id="sinCoincidenciasCotizacionesAdmin" class="text-secondary" hidden>No hay cotizaciones que coincidan con los filtros.</p>
             <template id="filaCotizacionAdmin"><tr>
-                <td data-campo="codigo"></td><td data-campo="solicitud"></td><td data-campo="cliente"></td><td data-campo="total"></td><td data-campo="estado"></td>
+                <td><a data-campo="cliente"></a></td>
+                <td data-campo="destino"></td>
+                <td data-campo="total"></td><td data-campo="estado"></td>
                 <td><div class="d-flex flex-wrap gap-2">
                     <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle" data-bs-toggle="modal" data-bs-target="#detalleCotizacion">Ver detalle</button>
                     <!-- Editar y Publicar se muestran únicamente en Borrador. -->
                     <button type="button" class="btn btn-outline-secondary btn-sm" data-accion="editar" data-bs-toggle="modal" data-bs-target="#editorCotizacion">Editar</button>
                     <button type="button" class="btn btn-azul btn-sm" data-accion="publicar" data-bs-toggle="modal" data-bs-target="#publicarCotizacion">Publicar</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-accion="eliminar" data-bs-toggle="modal" data-bs-target="#eliminarCotizacion">Eliminar</button>
                 </div></td>
             </tr></template>
         </section>
@@ -83,15 +94,35 @@
                 <p id="errorEditorCotizacion" class="alert alert-danger" role="alert" hidden></p>
                 <form id="formularioCotizacion" hidden>
                     <input id="idCotizacion" name="id" type="hidden">
-                    <p>Los campos con * son obligatorios. Moneda fija: <strong>CRC — colones costarricenses</strong>.</p>
+                    <p>Los campos con * son obligatorios.</p>
                     <label for="solicitudCotizacion" class="form-label">Solicitud En cotización *</label>
                     <select id="solicitudCotizacion" name="solicitud" class="form-select mb-3" required><option value="">Seleccioná una solicitud</option></select>
+                    <p id="principalNoDisponible" class="alert alert-warning" role="status" hidden></p>
+                    <fieldset id="vinculosSolicitudCotizacion" class="border rounded p-3 mb-3" hidden>
+                        <legend class="float-none w-auto px-2 fs-6">Vincular solicitud anterior</legend>
+                        <p id="destinoOriginalCotizacion" class="text-secondary"></p>
+                        <label for="vincularDestinoCotizacion" class="form-label">Destino</label>
+                        <select id="vincularDestinoCotizacion" class="form-select mb-3"></select>
+                        <label for="vincularServicioCotizacion" class="form-label">Servicio principal</label>
+                        <select id="vincularServicioCotizacion" class="form-select mb-3"></select>
+                        <button id="btnVincularSolicitudCotizacion" type="button" class="btn btn-outline-primary" disabled>Vincular solicitud</button>
+                    </fieldset>
+                    <p id="serviciosIncompatiblesCotizacion" class="alert alert-warning" role="status" hidden></p>
                     <p id="sinSolicitudesCotizables" class="text-secondary">No hay solicitudes disponibles para seleccionar.</p>
+                    <div id="datosSolicitudCotizacion" class="mb-3" hidden>
+                        <label for="destinoSolicitudCotizacion" class="form-label">Destino *</label>
+                        <input id="destinoSolicitudCotizacion" type="text" class="form-control mb-3" readonly>
+                        <label for="servicioSolicitudCotizacion" class="form-label">Servicio *</label>
+                        <input id="servicioSolicitudCotizacion" type="text" class="form-control" readonly>
+                    </div>
                     <fieldset id="camposPartida" class="border rounded p-3 mb-3">
-                        <legend class="float-none w-auto px-2 fs-6">Agregar partida</legend>
-                        <label for="servicioPartida" class="form-label">Servicio *</label>
-                        <select id="servicioPartida" name="servicio" form="formularioPartida" class="form-select mb-3" required><option value="">Seleccioná un servicio</option></select>
-                        <p id="sinServiciosCotizacion" class="text-secondary">No hay servicios disponibles para seleccionar.</p>
+                        <legend class="visually-hidden">Datos para agregar a la cotización</legend>
+                        <div id="servicioAdicionalCotizacion" hidden>
+                            <label for="servicioPartida" class="form-label">Servicio adicional</label>
+                            <select id="servicioPartida" name="servicio" form="formularioPartida" class="form-select mb-3" required disabled><option value="">Seleccioná un servicio adicional</option></select>
+                        </div>
+                        <p id="descripcionServicioCotizacion" class="text-secondary text-break" role="status" hidden></p>
+
                         <div class="row"><div class="col-sm-6">
                 <div class="mb-3"><label for="cantidadPartida" class="form-label">Cantidad *</label>
                     <input id="cantidadPartida" name="cantidad" type="number" form="formularioPartida" class="form-control" min="1" step="1" required>
@@ -101,18 +132,17 @@
                     <input id="precioPartida" name="precio" type="number" form="formularioPartida" class="form-control" min="0" step="0.01" required>
                 </div>
                         </div></div>
-                        <p class="form-text">Cantidad entera positiva y precio no negativo con máximo dos decimales. Cada servicio se incluye una sola vez.</p>
-                        <button id="btnAgregarPartida" type="submit" form="formularioPartida" class="btn btn-outline-primary" disabled>Agregar partida</button>
+                        <button id="btnAgregarPartida" type="submit" form="formularioPartida" class="btn btn-outline-primary" disabled>Agregar a la cotización</button>
                     </fieldset>
-                    <h3 class="h5">Partidas de la cotización</h3>
-                    <div class="table-responsive"><table class="table align-middle">
+                    <h3 class="h5">Incluidos en la cotización</h3>
+                    <div id="tablaPartidasEditor" class="table-responsive" hidden><table class="table align-middle">
                         <thead><tr><th scope="col">Servicio</th><th scope="col">Cantidad</th><th scope="col">Precio (CRC)</th><th scope="col">Subtotal (CRC)</th><th scope="col">Acciones</th></tr></thead>
                         <tbody id="filasPartidasEditor"></tbody>
                     </table></div>
-                    <p id="sinPartidas" class="text-secondary">No hay partidas agregadas. Un borrador puede guardarse vacío; para publicar debe tener al menos una partida.</p>
+                    <p id="avisoPrincipalPendiente" class="text-secondary" role="status" hidden>Agregá el principal para poder publicar.</p>
                     <template id="filaPartidaEditor"><tr>
-                        <td data-campo="nombre"></td>
-                        <td><input type="number" name="cantidades[]" min="1" step="1" class="form-control" aria-label="Cantidad de la partida" required></td>
+                        <td><span data-campo="nombre"></span> <span class="badge bg-secondary" data-principal hidden>Principal</span></td>
+                        <td><input type="number" name="cantidades[]" min="1" step="1" class="form-control" aria-label="Cantidad del servicio" required></td>
                         <td><input type="number" name="precios[]" min="0" step="0.01" class="form-control" aria-label="Precio unitario en colones" required></td>
                         <td data-campo="subtotal"></td>
                         <td><button type="button" class="btn btn-outline-danger btn-sm" data-accion="quitar-partida">Quitar</button></td>
@@ -139,8 +169,11 @@
                 <p id="detalleCotizacionError" role="alert" class="alert alert-danger" hidden>La cotización no está disponible.</p>
                 <div id="contenidoDetalleCotizacion" hidden>
                 <dl class="row">
-                    <dt class="col-sm-4">Código</dt><dd id="cotizacionCodigo" class="col-sm-8">—</dd>
-                    <dt class="col-sm-4">Solicitud</dt><dd id="cotizacionSolicitud" class="col-sm-8">—</dd>
+                    <dt class="col-sm-4">Código de cotización</dt><dd id="cotizacionCodigo" class="col-sm-8">—</dd>
+                    <dt id="etiquetaClienteCotizacion" class="col-sm-4" hidden>Cliente</dt>
+                    <dd id="clienteDetalleCotizacion" class="col-sm-8" hidden><a id="enlaceClienteCotizacion"></a></dd>
+                    <dt class="col-sm-4">Destino</dt><dd id="cotizacionDestino" class="col-sm-8">—</dd>
+                    <dt class="col-sm-4">Servicio principal</dt><dd id="cotizacionServicioPrincipal" class="col-sm-8">—</dd>
                     <dt class="col-sm-4">Estado</dt><dd id="cotizacionEstado" class="col-sm-8">—</dd>
                     <dt class="col-sm-4">Publicación</dt><dd id="cotizacionPublicacion" class="col-sm-8">—</dd>
                 </dl>
@@ -154,7 +187,7 @@
                 <p id="fechaRespuestaCotizacion" class="text-secondary" hidden></p>
                 <!-- Solo el cliente propietario, únicamente en estado Publicada. -->
                 <div id="accionesRespuestaCotizacion" hidden class="border-top pt-3">
-                    <p>Revisá las partidas y el total antes de responder. Tu respuesta es definitiva.</p>
+                    <p>Revisá los servicios y el total antes de responder. Tu respuesta es definitiva.</p>
                     <button type="button" class="btn btn-azul" data-bs-toggle="modal" data-bs-target="#aceptarCotizacion">Aceptar</button>
                     <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rechazarCotizacion">Rechazar</button>
                 </div>
@@ -173,12 +206,28 @@
             <div class="modal-body">
                 <p>¿Querés publicar esta cotización para el cliente de la solicitud?</p>
                 <p id="resumenPublicarCotizacion" class="fw-semibold"></p>
-                <p>Revisá las partidas y el total. Después de publicar no podrás editarlos y la solicitud pasará a Cotizada.</p>
-                <p id="errorPublicarCotizacion" class="alert alert-danger" role="alert" hidden>No se pudo publicar. Verificá las partidas y la disponibilidad de servicios y proveedores.</p>
+                <p>Revisá los servicios y el total. Después de publicar no podrás editarlos y la solicitud pasará a Cotizada.</p>
+                <p id="errorPublicarCotizacion" class="alert alert-danger" role="alert" hidden>No se pudo publicar. Verificá la disponibilidad de servicios y proveedores.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button id="btnPublicarCotizacion" type="button" class="btn btn-azul" disabled>Confirmar publicación</button>
+            </div>
+        </div></div>
+    </div>
+    <div id="eliminarCotizacion" class="modal fade" tabindex="-1" aria-labelledby="eliminarCotizacionTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+            <div class="modal-header"><h2 id="eliminarCotizacionTitulo" class="modal-title fs-5">Eliminar borrador</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p id="resumenEliminarCotizacion" class="fw-semibold"></p>
+                <p>Se eliminará el borrador con sus servicios incluidos. La solicitud quedará disponible para crear otra cotización.</p>
+                <p id="errorEliminarCotizacion" class="alert alert-danger" role="alert" hidden></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnEliminarCotizacion" type="button" class="btn btn-danger" disabled>Eliminar borrador</button>
             </div>
         </div></div>
     </div>

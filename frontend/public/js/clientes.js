@@ -17,6 +17,7 @@ const modalPerfil = new bootstrap.Modal(elementoModalPerfil);
 const buscador = document.getElementById("buscarCliente");
 const tabla = document.getElementById("filasClientes");
 const sinClientes = document.getElementById("sinClientes");
+const sinClientesRegistrados = document.getElementById("sinClientesRegistrados");
 
 const elementoModalCliente = document.getElementById("modalCliente");
 const modalCliente = new bootstrap.Modal(elementoModalCliente);
@@ -182,9 +183,10 @@ async function guardarPerfil(evento) {
     );
 }
 
-function mostrarClientes(clientes) {
+function mostrarClientes(clientes, texto) {
     tabla.replaceChildren();
-    sinClientes.hidden = clientes.length !== 0;
+    sinClientes.hidden = clientes.length !== 0 || !texto;
+    sinClientesRegistrados.hidden = clientes.length !== 0 || Boolean(texto);
 
     for (const cliente of clientes) {
         const fila = document.createElement("tr");
@@ -233,13 +235,14 @@ async function cargarClientes(numero) {
             throw new Error("No se recibió un listado válido de clientes.");
         }
 
-        mostrarClientes(resultado);
+        mostrarClientes(resultado, parametros.get("buscar"));
         mostrarMensaje(mensajePagina, "");
     } catch (error) {
         if (numero !== numeroBusqueda) return;
 
         tabla.replaceChildren();
         sinClientes.hidden = true;
+        sinClientesRegistrados.hidden = true;
         mostrarMensaje(mensajePagina, error.message);
     }
 }
@@ -253,6 +256,7 @@ function buscarClientes() {
 
     tabla.replaceChildren();
     sinClientes.hidden = true;
+    sinClientesRegistrados.hidden = true;
     mostrarMensaje(mensajePagina, "Buscando clientes...", "info");
 
     temporizadorBusqueda = setTimeout(() => {
@@ -278,6 +282,7 @@ async function abrirDetalle(id) {
             throw new Error("La cuenta seleccionada no corresponde a un cliente.");
         }
 
+        mostrarDato("detalleClienteCodigo", cliente._id);
         mostrarDato("detalleClienteNombre", cliente.nombre);
         mostrarDato("detalleClienteCorreo", cliente.correo);
         mostrarDato("detalleClienteTelefono", cliente.telefono);
@@ -295,40 +300,15 @@ async function abrirDetalle(id) {
     }
 }
 
-async function iniciarPagina() {
+export async function iniciarClientes(rol) {
+    esAdministrador = rol === "administrador";
     botonEditarPerfil.disabled = true;
-    buscador.disabled = true;
-
-    for (const id of ["tab-clientes", "clientes"]) {
-        document.getElementById(id).hidden = true;
-    }
-
-    try {
-        const resultado = await consultarAPI(`${API.AUTH}/sesion`);
-        const usuario = resultado.datos;
-
-        if (!usuario || !["cliente", "administrador"].includes(usuario.rol)) {
-            throw new Error("No se recibió una sesión válida.");
-        }
-
-        esAdministrador = usuario.rol === "administrador";
-
-        for (const id of ["tab-clientes", "clientes"]) {
-            document.getElementById(id).hidden = !esAdministrador;
-        }
-    } catch (error) {
-        mostrarMensaje(mensajePagina, error.message);
-        return;
-    }
 
     if (esAdministrador) {
         const clienteId = new URLSearchParams(location.search).get("cliente");
-        if (clienteId) {
-            bootstrap.Tab.getOrCreateInstance(document.getElementById("tab-clientes")).show();
-            abrirDetalle(clienteId);
-        }
-        buscador.disabled = false;
+        if (clienteId) abrirDetalle(clienteId);
         await cargarClientes(++numeroBusqueda);
+        return;
     }
 
     try {
@@ -351,5 +331,3 @@ elementoModalCliente.addEventListener("hide.bs.modal", () => {
 formularioPerfil.addEventListener("submit", guardarPerfil);
 botonGuardarPerfil.addEventListener("click", guardarPerfil);
 buscador.addEventListener("input", buscarClientes);
-
-iniciarPagina();

@@ -17,7 +17,7 @@
         <button id="tabMisConsultas" class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#misConsultas"
             aria-controls="misConsultas" aria-selected="true">Mis consultas</button>
         <button id="tabConsultasAdmin" class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#consultasAdmin" hidden
-            aria-controls="consultasAdmin" aria-selected="false">Gestión administrativa</button>
+            aria-controls="consultasAdmin" aria-selected="false">Administración</button>
     </div>
     <div class="tab-content">
         <section id="misConsultas" class="tab-pane fade show active" role="tabpanel" aria-labelledby="tabMisConsultas">
@@ -68,7 +68,7 @@
             <p id="sinConsultasAdmin" class="text-secondary" hidden>No hay consultas para mostrar.</p>
             <p id="sinCoincidenciasConsultasAdmin" class="text-secondary" hidden>No hay consultas que coincidan con el filtro.</p>
             <template id="filaConsultaAdmin"><tr>
-                <td data-campo="cliente"></td><td data-campo="createdAt"></td><td data-campo="pregunta" class="text-break"></td>
+                <td><a data-campo="cliente"></a></td><td data-campo="createdAt"></td><td data-campo="pregunta" class="text-break"></td>
                 <td><span class="badge text-bg-secondary" data-campo="estado"></span></td>
                 <td><div class="d-flex flex-wrap gap-2">
                     <button type="button" class="btn btn-outline-primary btn-sm" data-accion="detalle"
@@ -90,7 +90,7 @@
                 <p id="errorDetalleConsulta" class="alert alert-danger" role="alert" hidden>La consulta no está disponible.</p>
                 <div id="datosDetalleConsulta" hidden>
                 <dl class="row">
-                    <dt class="col-sm-4">Código</dt><dd id="consultaCodigo" class="col-sm-8">—</dd>
+                    <dt class="col-sm-4">Código de consulta</dt><dd id="consultaCodigo" class="col-sm-8">—</dd>
                     <dt class="col-sm-4">Fecha</dt><dd id="consultaFecha" class="col-sm-8">—</dd>
                     <dt class="col-sm-4">Estado</dt><dd id="consultaEstado" class="col-sm-8">—</dd>
                 </dl>

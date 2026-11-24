@@ -1,4 +1,5 @@
 import { API } from "./config.js";
+import { leerReferenciaSolicitud } from "./referenciaSolicitud.js";
 
 const formulario = document.getElementById("formularioSolicitud");
 const cantidad = document.getElementById("cantidadViajeros");
@@ -6,6 +7,8 @@ const edades = document.getElementById("edadesViajeros");
 const salida = document.getElementById("fechaSalida");
 const regreso = document.getElementById("fechaRegreso");
 const destino = document.getElementById("destinoSolicitud");
+const servicio = document.getElementById("servicioSolicitud");
+let servicioCatalogo;
 const boton = document.getElementById("btnEnviarSolicitud");
 const mensaje = document.getElementById("mensajeFormularioSolicitud");
 let esCliente = false;
@@ -58,12 +61,12 @@ formulario.addEventListener("submit", async (evento) => {
     actualizarEdades();
     validarFechas();
     if (!formulario.reportValidity()) return;
-    if (!destino.value.trim()) {
-        mostrarMensaje("Indicá un destino válido.");
+    if (!destino.value || !servicio.value || servicio.disabled) {
+        mostrarMensaje("Seleccioná un destino y un servicio principal.");
         return;
     }
     const datos = {
-        destino: destino.value.trim(), fechaSalida: salida.value,
+        destinoId: destino.value, servicioId: servicio.value, fechaSalida: salida.value,
         fechaRegreso: regreso.value, cantidadViajeros: Number(cantidad.value),
         edades: [...edades.querySelectorAll("input")].map((campo) => Number(campo.value))
     };
@@ -91,10 +94,13 @@ formulario.addEventListener("submit", async (evento) => {
             throw new Error(resultado.errores?.join(" ") || resultado.message || "No se pudo registrar la solicitud.");
         }
         formulario.reset();
+        servicioCatalogo = null;
+        seleccionNueva.limpiarServicio();
+        await seleccionNueva.cargar().catch(error => mostrarMensaje(error.message));
         edades.replaceChildren();
         cantidad.value = "1";
         actualizarEdades();
-        mostrarMensaje(`Solicitud registrada correctamente. Código: ${resultado.datos._id}. Estado: ${resultado.datos.estado}.`, "success");
+        mostrarMensaje(`Solicitud registrada correctamente. Estado: ${resultado.datos.estado}.`, "success");
         await cargarSolicitudes();
     } catch (error) {
         mostrarMensaje(error.message);
@@ -119,13 +125,24 @@ async function iniciar() {
         clienteFiltro = esAdministrador ? new URLSearchParams(location.search).get("cliente") : null;
         document.getElementById("filtroClienteSolicitudes").hidden = !clienteFiltro;
         boton.disabled = !esCliente;
-        const servicio = new URLSearchParams(location.search).get("servicio");
-        if (esCliente && servicio && !destino.value) {
+        if (esCliente) {
             try {
-                const registro = await consultarAPI(`${API.SERVICIOS}/publicos/${encodeURIComponent(servicio)}`);
-                if (!destino.value) destino.value = registro.nombre;
+                const referencia = leerReferenciaSolicitud(location.search);
+                if (referencia?.tipo === "servicio") {
+                    const registro = await consultarAPI(API.SERVICIOS + "/publicos/" + referencia.id);
+                    if (registro.disponibleParaSolicitar) servicioCatalogo = registro;
+                    else mostrarMensaje("El servicio seleccionado no está disponible para solicitar. Podés elegir otro.");
+                }
+                await seleccionNueva.cargar(referencia?.tipo === "destino" ? referencia.id : "",
+                    servicioCatalogo?.destinos);
+                if (servicioCatalogo && destino.disabled) {
+                    servicioCatalogo = null;
+                    await seleccionNueva.cargar();
+                    mostrarMensaje("El servicio seleccionado todavía no tiene destinos disponibles.");
+                }
             } catch (error) {
-                mostrarMensaje(`No se pudo cargar el servicio seleccionado. ${error.message}`);
+                mostrarMensaje(error.message);
+                await seleccionNueva.cargar().catch(() => {});
             }
         }
         await cargarSolicitudes();
@@ -138,21 +155,21 @@ const buscar = document.getElementById("buscarSolicitud");
 const filtroEstado = document.getElementById("filtroEstadoSolicitud");
 const formularioEditar = document.getElementById("formularioEditarSolicitud");
 const guardarSolicitud = document.getElementById("btnGuardarSolicitud");
-const editarCantidad = document.getElementById("editarCantidadViajeros");
-const editarEdades = document.getElementById("editarEdadesViajeros");
+const destinoEditar = document.getElementById("editarDestino");
+const servicioEditar = document.getElementById("editarServicio");
 const editarSalida = document.getElementById("editarSalida");
 const editarRegreso = document.getElementById("editarRegreso");
 const modalDetalle = document.getElementById("modalDetalleSolicitud");
 const enlaceFicha = document.getElementById("enlaceFichaDesdeSolicitud");
 const seccionViajeros = document.getElementById("viajerosSolicitud");
+const viajerosEdicion = document.getElementById("viajerosEdicion");
 const filasViajeros = document.getElementById("filasViajeros");
 const formularioViajero = document.getElementById("formularioViajero");
 const editorViajero = document.getElementById("editorViajero");
 const guardarViajero = document.getElementById("btnGuardarViajero");
 const agregarViajero = document.getElementById("btnAgregarViajero");
-const modalRetiro = document.getElementById("modalRetirarViajero");
+const panelRetiro = document.getElementById("confirmarRetiroViajero");
 const confirmarRetiro = document.getElementById("btnConfirmarRetiro");
-const volverAlDetalle = document.getElementById("btnVolverAlDetalle");
 const modalEditar = document.getElementById("modalEditarSolicitud");
 const modalGestion = document.getElementById("modalGestionSolicitud");
 const seguimiento = document.getElementById("seguimientoComercial");
@@ -161,17 +178,15 @@ const registrarContacto = document.getElementById("btnRegistrarContacto");
 const confirmarContacto = document.getElementById("confirmarContacto");
 const guardarContacto = document.getElementById("btnGuardarContacto");
 const modalConfirmar = document.getElementById("modalConfirmarCotizacion");
-const prepararCotizacion = document.getElementById("btnPrepararCotizacion");
 const guardarEstado = document.getElementById("btnGuardarEstadoSolicitud");
-const estadoSolicitud = document.getElementById("estadoSolicitud");
-let solicitudes = [];
+let solicitudes = null;
 let clienteFiltro = null;
 let numeroListado = 0;
 let solicitudEditar = null;
-let solicitudDetalle = null;
 let viajeroRetiro = null;
 let guardandoViajero = false;
 let solicitudGestion = null;
+let solicitudPorCotizar = null;
 let guardandoSolicitud = false;
 let guardandoEstado = false;
 let guardandoContacto = false;
@@ -221,22 +236,30 @@ async function consultarAPI(url, metodo = "GET", datos) {
     return resultado;
 }
 
+function rutaFichaCliente(id) {
+    return `/views/clientes.html?${new URLSearchParams({ cliente: id })}`;
+}
+
 function pintarListado() {
+    if (!solicitudes) return;
     const tabla = document.getElementById(esAdministrador ? "filasSolicitudes" : "filasMisSolicitudes");
     const plantilla = document.getElementById(esAdministrador ? "filaSolicitudAdministrativa" : "filaMiSolicitud");
     const texto = buscar.value.trim().toLocaleLowerCase();
     const visibles = solicitudes.filter(solicitud => !esAdministrador || (
         (!filtroEstado.value || solicitud.estado === filtroEstado.value) &&
-        [solicitud._id, solicitud.destino, solicitud.cliente?.nombre, solicitud.cliente?.correo]
+        [solicitud._id, solicitud.cotizacion, solicitud.destino, solicitud.cliente?.nombre, solicitud.cliente?.correo]
             .some(valor => String(valor ?? "").toLocaleLowerCase().includes(texto))
     ));
     tabla.replaceChildren();
     for (const solicitud of visibles) {
         const fila = plantilla.content.firstElementChild.cloneNode(true);
-        const datos = { ...solicitud, codigo: solicitud._id, cliente: solicitud.cliente?.nombre || "No registrado" };
+        const datos = { ...solicitud, cliente: solicitud.cliente?.nombre || "No disponible" };
         fila.querySelectorAll("[data-campo]").forEach(campo => {
             campo.textContent = datos[campo.dataset.campo] ?? "No registrado";
         });
+        if (esAdministrador && solicitud.cliente?._id) {
+            fila.querySelector('[data-campo="cliente"]').href = rutaFichaCliente(solicitud.cliente._id);
+        }
         fila.querySelectorAll("[data-accion]").forEach(accion => {
             accion.dataset.solicitudId = solicitud._id;
             if (["editar", "preparar"].includes(accion.dataset.accion)) {
@@ -262,11 +285,14 @@ async function cargarSolicitudes() {
         const filtro = clienteFiltro ? `?${new URLSearchParams({ cliente: clienteFiltro })}` : "";
         const datos = await consultarAPI(`${API.SOLICITUDES}${filtro}`);
         if (numero !== numeroListado) return;
+        if (!Array.isArray(datos)) throw new Error("No se recibió un listado válido de solicitudes.");
         solicitudes = datos;
         pintarListado();
     } catch (error) {
         if (numero !== numeroListado) return;
-        solicitudes = [];
+        solicitudes = null;
+        document.getElementById(esAdministrador ? "sinSolicitudes" : "sinMisSolicitudes").hidden = true;
+        document.getElementById("sinCoincidenciasSolicitudes").hidden = true;
         document.getElementById(esAdministrador ? "filasSolicitudes" : "filasMisSolicitudes").replaceChildren();
         mensajeEn(errorId, error.message);
     } finally {
@@ -280,9 +306,9 @@ document.getElementById("tab-mis-solicitudes").addEventListener("shown.bs.tab", 
 document.getElementById("tab-gestion").addEventListener("shown.bs.tab", cargarSolicitudes);
 
 function completarDetalle(solicitud) {
-    solicitudDetalle = solicitud;
     mostrarDato("detalleCodigo", solicitud._id);
     mostrarDato("detalleDestino", solicitud.destino);
+    mostrarDato("detalleServicio", solicitud.servicioSolicitado || "No especificado");
     mostrarDato("detalleSalida", solicitud.fechaSalida);
     mostrarDato("detalleRegreso", solicitud.fechaRegreso);
     mostrarDato("detalleViajeros", solicitud.cantidadViajeros);
@@ -294,49 +320,51 @@ function completarDetalle(solicitud) {
         document.getElementById("detalleClienteSolicitud").hidden = false;
     }
     if (esAdministrador && solicitud.cliente?._id) {
-        const filtro = new URLSearchParams({ cliente: solicitud.cliente._id });
-        enlaceFicha.href = `/views/clientes.html?${filtro}`;
+        enlaceFicha.href = rutaFichaCliente(solicitud.cliente._id);
         enlaceFicha.hidden = false;
     }
-    pintarViajeros(solicitud);
+    const viajeros = solicitud.viajeros ?? [];
+    const filas = document.getElementById("filasViajerosDetalle");
+    filas.replaceChildren();
+    for (const viajero of viajeros) {
+        const fila = document.createElement("tr");
+        fila.insertCell().textContent = viajero.nombre || "Sin nombre";
+        fila.insertCell().textContent = viajero.edad;
+        filas.appendChild(fila);
+    }
+    document.getElementById("detalleListaViajeros").hidden = viajeros.length === 0;
+    document.getElementById("sinViajeros").hidden = viajeros.length > 0;
+    seccionViajeros.hidden = false;
 }
 
 function puedeEditarViajeros() {
-    return esCliente && solicitudDetalle?.estado === "Nueva" && !guardandoViajero;
+    return esCliente && solicitudEditar?.estado === "Nueva" && !guardandoViajero && !guardandoSolicitud;
 }
 
-function pintarViajeros(solicitud) {
+function pintarViajerosEdicion(solicitud) {
     const viajeros = solicitud.viajeros ?? [];
-    const editable = esCliente && solicitud.estado === "Nueva";
     const plantilla = document.getElementById("filaViajero");
     filasViajeros.replaceChildren();
-    seccionViajeros.querySelectorAll("[data-edicion-viajeros]").forEach(elemento => {
-        elemento.hidden = !editable;
-    });
     for (const viajero of viajeros) {
         const fila = plantilla.content.firstElementChild.cloneNode(true);
         fila.querySelector('[data-campo="nombre"]').textContent = viajero.nombre || "Sin nombre";
         fila.querySelector('[data-campo="edad"]').textContent = viajero.edad;
-        fila.querySelector("[data-edicion-viajeros]").hidden = !editable;
         fila.querySelector('[data-accion="editar-viajero"]').addEventListener("click", () => abrirEditorViajero(viajero));
         const retirar = fila.querySelector('[data-accion="retirar-viajero"]');
-        retirar.dataset.viajeroId = viajero._id;
         retirar.disabled = viajeros.length <= 1;
+        retirar.addEventListener("click", () => prepararRetiro(viajero));
         filasViajeros.appendChild(fila);
     }
-    document.getElementById("detalleListaViajeros").hidden = viajeros.length === 0;
-    document.getElementById("sinViajeros").hidden = viajeros.length > 0;
-    const avisoConsulta = document.getElementById("viajerosSoloConsulta");
-    avisoConsulta.hidden = editable;
-    avisoConsulta.textContent = esAdministrador
-        ? "Solo consulta."
-        : "Solo consulta. Podés editar los viajeros mientras la solicitud esté en estado Nueva.";
-    document.getElementById("avisoUltimoViajero").hidden = !editable || viajeros.length !== 1;
-    seccionViajeros.hidden = false;
+    document.getElementById("listaViajerosEdicion").hidden = viajeros.length === 0;
+    document.getElementById("sinViajerosEdicion").hidden = viajeros.length > 0;
+    document.getElementById("avisoUltimoViajero").hidden = viajeros.length !== 1;
+    viajerosEdicion.hidden = !(esCliente && solicitud.estado === "Nueva");
 }
 
 function abrirEditorViajero(viajero) {
     if (!puedeEditarViajeros()) return;
+    panelRetiro.hidden = true;
+    viajeroRetiro = null;
     formularioViajero.reset();
     document.getElementById("tituloEditorViajero").textContent = viajero ? "Editar viajero" : "Agregar viajero";
     document.getElementById("idViajeroEditar").value = viajero?._id ?? "";
@@ -347,111 +375,87 @@ function abrirEditorViajero(viajero) {
     bootstrap.Collapse.getOrCreateInstance(editorViajero, { toggle: false }).show();
 }
 
-agregarViajero.addEventListener("click", () => abrirEditorViajero());
-
-formularioViajero.addEventListener("submit", async evento => {
-    evento.preventDefault();
-    if (!puedeEditarViajeros() || !formularioViajero.reportValidity()) return;
-    const edad = Number(document.getElementById("edadViajero").value);
-    if (!Number.isSafeInteger(edad) || edad < 0) {
-        mensajeEn("errorFormularioViajero", "La edad debe ser un entero no negativo.");
-        return;
-    }
-    const solicitudId = solicitudDetalle._id;
-    const viajeroId = document.getElementById("idViajeroEditar").value;
-    const url = `${API.SOLICITUDES}/${encodeURIComponent(solicitudId)}/viajeros`;
-    guardandoViajero = true;
-    guardarViajero.disabled = true;
-    mensajeEn("errorFormularioViajero", "");
-    try {
-        await consultarAPI(viajeroId ? `${url}/${encodeURIComponent(viajeroId)}` : url,
-            viajeroId ? "PUT" : "POST",
-            { nombre: document.getElementById("nombreViajero").value.trim(), edad });
-    } catch (error) {
-        mensajeEn("errorFormularioViajero", error.message);
-        return;
-    } finally {
-        guardandoViajero = false;
-        guardarViajero.disabled = false;
-    }
+function prepararRetiro(viajero) {
+    if (!puedeEditarViajeros() || solicitudEditar.viajeros.length <= 1) return;
     bootstrap.Collapse.getOrCreateInstance(editorViajero, { toggle: false }).hide();
-    formularioViajero.reset();
-    guardarViajero.disabled = true;
-    seccionViajeros.hidden = true;
-    solicitudDetalle = null;
-    const version = versionesModal.get(modalDetalle);
-    mensajeEn("mensajeDetalleSolicitud", "Actualizando viajeros…", "info");
-    try {
-        const solicitud = await consultarAPI(`${API.SOLICITUDES}/${encodeURIComponent(solicitudId)}`);
-        if (versionesModal.get(modalDetalle) === version) {
-            completarDetalle(solicitud);
-            mensajeEn("mensajeDetalleSolicitud", viajeroId ? "Viajero actualizado." : "Viajero registrado.", "success");
-        }
-    } catch (error) {
-        if (versionesModal.get(modalDetalle) === version) {
-            mensajeEn("mensajeDetalleSolicitud", `Se guardó el cambio, pero no se pudo actualizar el detalle. ${error.message}`);
-        }
-    }
-    await cargarSolicitudes();
-});
-
-modalRetiro.addEventListener("show.bs.modal", evento => {
-    const id = evento.relatedTarget?.dataset.viajeroId;
-    const viajeros = solicitudDetalle?.viajeros ?? [];
-    viajeroRetiro = viajeros.find(viajero => viajero._id === id);
-    if (!puedeEditarViajeros() || viajeros.length <= 1 || !viajeroRetiro) {
-        evento.preventDefault();
-        return;
-    }
-    volverAlDetalle.dataset.solicitudId = solicitudDetalle._id;
-    mostrarDato("nombreViajeroRetirar", viajeroRetiro.nombre || `Viajero de ${viajeroRetiro.edad} años`);
-    confirmarRetiro.disabled = true;
+    viajeroRetiro = viajero;
+    mostrarDato("nombreViajeroRetirar", viajero.nombre || `viajero de ${viajero.edad} años`);
     mensajeEn("errorRetirarViajero", "");
-});
-
-modalRetiro.addEventListener("shown.bs.modal", () => { confirmarRetiro.disabled = false; });
-for (const modal of [modalDetalle, modalRetiro]) {
-    modal.addEventListener("hide.bs.modal", evento => {
-        if (guardandoViajero) evento.preventDefault();
-    });
+    panelRetiro.hidden = false;
+    confirmarRetiro.focus();
 }
 
-confirmarRetiro.addEventListener("click", async () => {
-    if (!puedeEditarViajeros() || !viajeroRetiro || solicitudDetalle.viajeros.length <= 1) return;
-    const solicitudId = solicitudDetalle._id;
-    const viajeroId = viajeroRetiro._id;
+async function guardarCambioViajero(metodo, viajeroId, datos, errorId, confirmacion) {
+    const ruta = `${API.SOLICITUDES}/${encodeURIComponent(solicitudEditar._id)}`;
+    const url = viajeroId ? `${ruta}/viajeros/${encodeURIComponent(viajeroId)}` : `${ruta}/viajeros`;
     guardandoViajero = true;
-    confirmarRetiro.disabled = true;
-    mensajeEn("errorRetirarViajero", "");
+    guardarSolicitud.disabled = true;
+    viajerosEdicion.inert = true;
+    mensajeEn(errorId, "");
     try {
-        await consultarAPI(`${API.SOLICITUDES}/${encodeURIComponent(solicitudId)}/viajeros/${encodeURIComponent(viajeroId)}`, "DELETE");
+        await consultarAPI(url, metodo, datos);
+        bootstrap.Collapse.getOrCreateInstance(editorViajero, { toggle: false }).hide();
+        panelRetiro.hidden = true;
+        viajeroRetiro = null;
+        try {
+            const solicitud = await consultarAPI(ruta);
+            solicitudEditar = solicitud;
+            aplicarPermisoEdicion(solicitud);
+            pintarViajerosEdicion(solicitud);
+            mensajeEn("mensajeEditarSolicitud", confirmacion, "success");
+        } catch (error) {
+            viajerosEdicion.hidden = true;
+            mensajeEn("mensajeEditarSolicitud", `${confirmacion} Volvé a abrir la solicitud para actualizar la lista.`);
+        }
+        await cargarSolicitudes();
     } catch (error) {
-        mensajeEn("errorRetirarViajero", error.message);
-        return;
+        mensajeEn(errorId, error.message);
     } finally {
         guardandoViajero = false;
-        confirmarRetiro.disabled = false;
+        viajerosEdicion.inert = false;
+        guardarSolicitud.disabled = !esCliente || solicitudEditar?.estado !== "Nueva";
     }
-    modalRetiro.addEventListener("hidden.bs.modal", () => {
-        bootstrap.Modal.getOrCreateInstance(modalDetalle).show(volverAlDetalle);
-    }, { once: true });
-    bootstrap.Modal.getOrCreateInstance(modalRetiro).hide();
-    mensajeEn("mensajePagina", "Viajero retirado correctamente.", "success");
-    await cargarSolicitudes();
+}
+
+agregarViajero.addEventListener("click", () => abrirEditorViajero());
+document.getElementById("btnCancelarRetiro").addEventListener("click", () => {
+    panelRetiro.hidden = true;
+    viajeroRetiro = null;
+    agregarViajero.focus();
+});
+confirmarRetiro.addEventListener("click", () => {
+    if (!puedeEditarViajeros() || !viajeroRetiro || solicitudEditar.viajeros.length <= 1) return;
+    return guardarCambioViajero("DELETE", viajeroRetiro._id, undefined, "errorRetirarViajero", "Viajero retirado.");
+});
+formularioViajero.addEventListener("submit", evento => {
+    evento.preventDefault();
+    if (!puedeEditarViajeros() || !formularioViajero.reportValidity()) return;
+    const viajeroId = document.getElementById("idViajeroEditar").value;
+    const datos = {
+        nombre: document.getElementById("nombreViajero").value.trim(),
+        edad: document.getElementById("edadViajero").valueAsNumber
+    };
+    return guardarCambioViajero(viajeroId ? "PUT" : "POST", viajeroId, datos,
+        "errorFormularioViajero", viajeroId ? "Viajero actualizado." : "Viajero registrado.");
 });
 
-function completarEdicion(solicitud) {
+async function completarEdicion(solicitud) {
     solicitudEditar = solicitud;
-    document.getElementById("idSolicitudEditar").value = solicitud._id;
-    document.getElementById("editarDestino").value = solicitud.destino;
     editarSalida.value = solicitud.fechaSalida;
     editarRegreso.value = solicitud.fechaRegreso;
-    editarCantidad.value = solicitud.cantidadViajeros;
-    editarEdades.replaceChildren();
-    actualizarEdades(editarCantidad, editarEdades, "editarEdad");
-    editarEdades.querySelectorAll("input").forEach((campo, indice) => {
-        campo.value = solicitud.edades[indice];
-    });
+    aplicarPermisoEdicion(solicitud);
+    pintarViajerosEdicion(solicitud);
+    if (solicitud.estado === "Nueva") {
+        await seleccionEditar.cargar(solicitud.destinoId, undefined, solicitud.servicioId);
+        if (solicitudEditar === solicitud && !solicitud.destinoId) {
+            const aviso = document.getElementById("editarServicioAviso");
+            aviso.textContent = "Registro anterior: " + solicitud.destino + ". Seleccioná el destino y el servicio principal para guardar.";
+            aviso.hidden = false;
+        }
+    }
+}
+
+function aplicarPermisoEdicion(solicitud) {
     const editable = esCliente && solicitud.estado === "Nueva";
     formularioEditar.querySelectorAll("input").forEach(campo => { campo.disabled = !editable; });
     guardarSolicitud.disabled = !editable;
@@ -460,16 +464,10 @@ function completarEdicion(solicitud) {
 
 function completarGestion(solicitud) {
     solicitudGestion = solicitud;
-    mostrarDato("gestionCodigo", solicitud._id);
     mostrarDato("gestionCliente", solicitud.cliente?.nombre);
     mostrarDato("gestionContacto", [solicitud.cliente?.correo, solicitud.cliente?.telefono].filter(Boolean).join(" · ") || "No registrado");
     mostrarDato("gestionDestino", solicitud.destino);
-    mostrarDato("gestionFechas", `${solicitud.fechaSalida} — ${solicitud.fechaRegreso}`);
-    mostrarDato("gestionViajeros", `${solicitud.cantidadViajeros} · Edades: ${solicitud.edades.join(", ")}`);
-    mostrarDato("gestionEstadoActual", solicitud.estado);
-    estadoSolicitud.value = solicitud.estado === "Nueva" ? "En cotización" : "";
-    estadoSolicitud.disabled = solicitud.estado !== "Nueva";
-    prepararCotizacion.disabled = solicitud.estado !== "Nueva";
+    mostrarDato("gestionServicio", solicitud.servicioSolicitado || "No especificado");
     if (esAdministrador) {
         seguimiento.hidden = false;
         cargarContactos(solicitud._id);
@@ -482,45 +480,45 @@ for (const [elemento, mensajeId, completar] of [
     [modalGestion, "mensajeGestionSolicitud", completarGestion]
 ]) {
     elemento.addEventListener("show.bs.modal", async evento => {
-        const id = evento.relatedTarget?.dataset.solicitudId ||
-            (elemento === modalGestion ? solicitudGestion?._id : null);
+        const id = evento.relatedTarget?.dataset.solicitudId;
         if (!id) return;
         const version = (versionesModal.get(elemento) || 0) + 1;
         versionesModal.set(elemento, version);
         elemento.querySelectorAll("dd").forEach(campo => { campo.textContent = ""; });
         if (elemento === modalDetalle) {
-            solicitudDetalle = null;
             enlaceFicha.hidden = true;
             enlaceFicha.removeAttribute("href");
             document.getElementById("etiquetaDetalleCliente").hidden = true;
             document.getElementById("detalleClienteSolicitud").hidden = true;
             seccionViajeros.hidden = true;
-            formularioViajero.reset();
-            editorViajero.classList.remove("show");
         }
         if (elemento === modalEditar) {
             solicitudEditar = null;
             formularioEditar.reset();
+            seleccionEditar.limpiar();
             formularioEditar.querySelectorAll("input").forEach(campo => { campo.disabled = true; });
             guardarSolicitud.disabled = true;
             document.getElementById("solicitudSoloConsulta").hidden = true;
+            viajerosEdicion.hidden = true;
+            formularioViajero.reset();
+            guardarViajero.disabled = true;
+            editorViajero.classList.remove("show");
+            panelRetiro.hidden = true;
+            viajeroRetiro = null;
         }
         if (elemento === modalGestion) {
             solicitudGestion = null;
             seguimiento.hidden = true;
             cerrarFormularioContacto();
             document.getElementById("contactoGuardado").hidden = true;
-            prepararCotizacion.disabled = true;
-            estadoSolicitud.value = "";
-            estadoSolicitud.disabled = true;
         }
         document.getElementById("sinSolicitudSeleccionada").hidden = true;
         mensajeEn(mensajeId, "Cargando solicitud…", "info");
         try {
             const solicitud = await consultarAPI(`${API.SOLICITUDES}/${encodeURIComponent(id)}`);
             if (versionesModal.get(elemento) !== version) return;
-            completar(solicitud);
-            mensajeEn(mensajeId, "");
+            await completar(solicitud);
+            if (versionesModal.get(elemento) === version) mensajeEn(mensajeId, "");
         } catch (error) {
             if (versionesModal.get(elemento) === version) mensajeEn(mensajeId, error.message);
         }
@@ -629,7 +627,6 @@ formularioContacto.addEventListener("submit", async evento => {
     const id = solicitudGestion._id;
     guardandoContacto = true;
     guardarContacto.disabled = true;
-    prepararCotizacion.disabled = true;
     mensajeEn("errorFormularioContacto", "");
     try {
         await consultarAPI(rutaContactos(id), "POST", datosContacto());
@@ -642,11 +639,9 @@ formularioContacto.addEventListener("submit", async evento => {
     } finally {
         guardandoContacto = false;
         guardarContacto.disabled = confirmarContacto.hidden;
-        prepararCotizacion.disabled = solicitudGestion?.estado !== "Nueva";
     }
 });
 
-editarCantidad.addEventListener("input", () => actualizarEdades(editarCantidad, editarEdades, "editarEdad"));
 function validarFechasEdicion() {
     editarRegreso.setCustomValidity(editarSalida.value && editarRegreso.value && editarRegreso.value < editarSalida.value
         ? "El regreso no puede ser anterior a la salida." : "");
@@ -655,27 +650,25 @@ editarSalida.addEventListener("input", validarFechasEdicion);
 editarRegreso.addEventListener("input", validarFechasEdicion);
 modalEditar.addEventListener("hidden.bs.modal", () => {
     solicitudEditar = null;
+    seleccionEditar.limpiar();
     formularioEditar.reset();
     editarRegreso.setCustomValidity("");
 });
 modalEditar.addEventListener("hide.bs.modal", evento => {
-    if (guardandoSolicitud) evento.preventDefault();
+    if (guardandoSolicitud || guardandoViajero) evento.preventDefault();
 });
 formularioEditar.addEventListener("submit", async evento => {
     evento.preventDefault();
-    if (!solicitudEditar || !esCliente || guardarSolicitud.disabled || guardandoSolicitud) return;
-    actualizarEdades(editarCantidad, editarEdades, "editarEdad");
+    if (!puedeEditarViajeros() || guardarSolicitud.disabled) return;
     validarFechasEdicion();
     if (!formularioEditar.reportValidity()) return;
-    const destinoEditado = document.getElementById("editarDestino").value.trim();
-    if (!destinoEditado) {
-        mensajeEn("mensajeEditarSolicitud", "Indicá un destino válido.");
+    if (!destinoEditar.value || !servicioEditar.value || servicioEditar.disabled) {
+        mensajeEn("mensajeEditarSolicitud", "Seleccioná un destino y un servicio principal.");
         return;
     }
     const datos = {
-        destino: destinoEditado, fechaSalida: editarSalida.value, fechaRegreso: editarRegreso.value,
-        cantidadViajeros: Number(editarCantidad.value),
-        edades: [...editarEdades.querySelectorAll("input")].map(campo => Number(campo.value))
+        destinoId: destinoEditar.value, servicioId: servicioEditar.value,
+        fechaSalida: editarSalida.value, fechaRegreso: editarRegreso.value
     };
     const id = solicitudEditar._id;
     guardandoSolicitud = true;
@@ -691,6 +684,7 @@ formularioEditar.addEventListener("submit", async evento => {
         mensajeEn("mensajeEditarSolicitud", error.message);
         if ([403, 404, 409].includes(error.status)) {
             solicitudEditar = null;
+            viajerosEdicion.hidden = true;
             await cargarSolicitudes();
         }
     } finally {
@@ -700,25 +694,32 @@ formularioEditar.addEventListener("submit", async evento => {
 });
 
 modalConfirmar.addEventListener("show.bs.modal", evento => {
-    if (!esAdministrador || solicitudGestion?.estado !== "Nueva" || estadoSolicitud.value !== "En cotización") {
+    const id = evento.relatedTarget?.dataset.solicitudId;
+    const solicitud = solicitudes?.find(registro => registro._id === id);
+    if (!esAdministrador || solicitud?.estado !== "Nueva") {
         evento.preventDefault();
-        mensajeEn("mensajeGestionSolicitud", "Seleccioná una solicitud Nueva y el estado En cotización.");
         return;
     }
+    solicitudPorCotizar = solicitud._id;
+    mostrarDato("destinoConfirmarCotizacion", solicitud.destino);
     mensajeEn("errorConfirmarCotizacion", "");
     guardarEstado.disabled = guardandoEstado;
 });
 modalConfirmar.addEventListener("hide.bs.modal", evento => {
     if (guardandoEstado) evento.preventDefault();
 });
+modalConfirmar.addEventListener("hidden.bs.modal", () => {
+    solicitudPorCotizar = null;
+    guardarEstado.disabled = true;
+});
 guardarEstado.addEventListener("click", async () => {
-    if (!esAdministrador || solicitudGestion?.estado !== "Nueva" || guardandoEstado) return;
+    if (!esAdministrador || !solicitudPorCotizar || guardandoEstado) return;
     guardandoEstado = true;
     guardarEstado.disabled = true;
     try {
-        await consultarAPI(`${API.SOLICITUDES}/${encodeURIComponent(solicitudGestion._id)}/estado`,
+        await consultarAPI(`${API.SOLICITUDES}/${encodeURIComponent(solicitudPorCotizar)}/estado`,
             "PATCH", { estado: "En cotización" });
-        solicitudGestion = null;
+        solicitudPorCotizar = null;
         guardandoEstado = false;
         bootstrap.Modal.getOrCreateInstance(modalConfirmar).hide();
         mensajeEn("mensajePagina", "La solicitud pasó a En cotización.", "success");
@@ -726,14 +727,72 @@ guardarEstado.addEventListener("click", async () => {
     } catch (error) {
         mensajeEn("errorConfirmarCotizacion", error.message);
         if ([403, 404, 409].includes(error.status)) {
-            solicitudGestion = null;
-            prepararCotizacion.disabled = true;
+            solicitudPorCotizar = null;
             await cargarSolicitudes();
         }
     } finally {
         guardandoEstado = false;
-        guardarEstado.disabled = solicitudGestion?.estado !== "Nueva";
+        guardarEstado.disabled = !solicitudPorCotizar;
     }
 });
+
+function configurarSeleccion(destino, servicio, preferido = () => "") {
+    const aviso = document.getElementById(servicio.id + "Aviso");
+    let version = 0;
+    function avisar(texto) {
+        aviso.textContent = texto;
+        aviso.hidden = !texto;
+    }
+    function limpiarServicio() {
+        version++;
+        servicio.replaceChildren(new Option("Primero seleccioná un destino", ""));
+        servicio.disabled = true;
+        avisar("");
+    }
+    async function cargarServicios(servicioId) {
+        limpiarServicio();
+        if (!destino.value) return;
+        const turno = version;
+        avisar("Cargando servicios…");
+        try {
+            const parametros = new URLSearchParams({ destino: destino.value });
+            const servicios = await consultarAPI(API.SERVICIOS + "/publicos?" + parametros);
+            if (turno !== version) return;
+            servicio.replaceChildren(new Option("Seleccioná un servicio", ""));
+            for (const item of servicios) servicio.add(new Option(item.nombre, item._id));
+            servicio.value = servicios.some(item => item._id === servicioId) ? servicioId : "";
+            servicio.disabled = !servicios.length;
+            avisar(servicios.length ? "" : "Este destino todavía no tiene servicios disponibles.");
+        } catch (error) {
+            if (turno === version) avisar(error.message);
+        }
+    }
+    function limpiar() {
+        limpiarServicio();
+        destino.replaceChildren(new Option("Seleccioná un destino", ""));
+        destino.disabled = true;
+    }
+    destino.addEventListener("change", () => cargarServicios(preferido()));
+    return {
+        limpiar, limpiarServicio,
+        async cargar(destinoId, permitidos, servicioId) {
+            limpiar();
+            const turno = version;
+            const destinos = await consultarAPI(API.DESTINOS + "/publicos");
+            if (turno !== version) return;
+            const opciones = permitidos ? destinos.filter(item => permitidos.includes(item._id)) : destinos;
+            for (const item of opciones) destino.add(new Option(item.nombre, item._id));
+            destino.disabled = !opciones.length;
+            if (!opciones.length) avisar("No hay destinos disponibles para seleccionar.");
+            if (opciones.some(item => item._id === destinoId)) {
+                destino.value = destinoId;
+                await cargarServicios(servicioId);
+            }
+        }
+    };
+}
+
+const seleccionNueva = configurarSeleccion(destino, servicio, () => servicioCatalogo?._id);
+const seleccionEditar = configurarSeleccion(destinoEditar, servicioEditar);
 
 iniciar();
